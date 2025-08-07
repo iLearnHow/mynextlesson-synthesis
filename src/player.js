@@ -60,13 +60,13 @@ export class UniversalLessonPlayer {
 
     _initialize() {
         this._cacheDom();
+        this._bindEvents();
     }
 
     startLesson() {
         const audio = new Audio('data:audio/mp3;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tbSA8LyBMb3dzIG9mIGhpZ2h0IGJhc2VzIG9mZmVyZWQgd2l0aCBhbGwgdGhlIGxpY2Vuc2VzIHRoYXQgd2Ugb2ZmZXIuIC8gIENvbnRhY3QgdXMgYXQgaW5mb0BiaWdzb3VuZGJhbmsuY29tAAAAAlMp5yo/AAAAAADIHAAAAA8AAAA0AAAAAP/7/8AAAAAMA4AAAAMg8DA9AMHwAAsAAAAAD/++BwMTC8gAMP/yv96QgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=');
         audio.play().catch(e => console.warn("Audio context unlock failed.", e));
         this.dom.startOverlay.style.display = 'none';
-        this._bindEvents();
         this._makeInspectorsDraggable();
         this.render();
     }
@@ -218,57 +218,53 @@ export class UniversalLessonPlayer {
     _getContentBlock() {
         const { phase, age, tone } = this.state;
         const core = this.lesson.core_lesson_structure;
-        let source, onComplete, onChoice;
+        let block, onComplete, onChoice;
 
-        switch (phase) {
-            case 0: source = this.lesson.age_expressions[age].concept_name[tone]; onComplete = () => this.setState({ phase: 1 }); break;
-            case 1: source = core.question_1; break;
-            case 2: source = core.question_2; break;
-            case 3: source = core.question_3; break;
-            case 4: source = this.lesson.wisdom_phase_content.fortune[tone]; onComplete = () => console.log('Lesson Complete!'); break;
-            default: return { block: null };
+        try {
+            if (phase === 0) {
+                block = this.lesson.age_expressions[age]?.concept_name?.[tone] || this.lesson.age_expressions['25'].concept_name.neutral;
+                onComplete = () => this.setState({ phase: 1 });
+            } 
+            else if (phase >= 1 && phase <= 3) {
+                const questionSource = core[`question_${phase}`];
+                const ageBlock = questionSource.ages[age] || questionSource.ages['25'];
+                const toneBlock = ageBlock.question[tone] || ageBlock.question.neutral;
+                const teachingMoments = ageBlock.teaching_moments;
+                
+                block = {
+                    ...toneBlock,
+                    choices: { a: ageBlock.option_a, b: ageBlock.option_b },
+                    correct_option: ageBlock.correct_option || 'b',
+                    teaching_moments: {
+                        positive_feedback: teachingMoments.option_b_response,
+                        gentle_correction: teachingMoments.option_a_response
+                    }
+                };
+                
+                const handleChoice = (choice) => {
+                    this.stopReadAlong();
+                    const isCorrect = choice === block.correct_option;
+                    this.setExpression(isCorrect ? 'happy' : 'concerned');
+                    const moment = isCorrect ? block.teaching_moments.positive_feedback : block.teaching_moments.gentle_correction;
+                    this.dom.content.teachingMoment.textContent = moment.display_text;
+                    this.dom.phases.teachingMoment.classList.add('active');
+                    this.startReadAlong(moment.voice_over_script, () => {
+                        this.dom.phases.teachingMoment.classList.remove('active');
+                        this.setState({ phase: phase + 1 });
+                    });
+                };
+                onChoice = handleChoice;
+            }
+            else if (phase === 4) {
+                block = this.lesson.wisdom_phase_content.fortune[tone] || this.lesson.wisdom_phase_content.fortune.neutral;
+                onComplete = () => console.log('Lesson Complete!');
+            }
+        } catch (e) {
+            console.error(`Error getting content block for phase ${phase}, age ${age}, tone ${tone}:`, e);
+            block = null;
         }
 
-        if (!source) {
-            console.error(`[Data Error] No source data for phase ${phase}.`);
-            return { block: null };
-        }
-        
-        let finalBlock;
-        if (phase >= 1 && phase <= 3) {
-            const ageBlock = source.ages[age] || source.ages['25'];
-            const toneBlock = ageBlock.question[tone] || ageBlock.question['neutral'];
-            const teachingMoments = ageBlock.teaching_moments;
-            
-            finalBlock = {
-                ...toneBlock,
-                choices: { a: ageBlock.option_a, b: ageBlock.option_b },
-                correct_option: ageBlock.correct_option || 'b', // Defaulting for safety
-                teaching_moments: {
-                    positive_feedback: teachingMoments.option_b_response,
-                    gentle_correction: teachingMoments.option_a_response
-                }
-            };
-        } else {
-            finalBlock = source;
-        }
-
-        const handleChoice = (choice) => {
-            this.stopReadAlong();
-            const isCorrect = choice === finalBlock.correct_option;
-            this.setExpression(isCorrect ? 'happy' : 'concerned');
-            const moment = isCorrect ? finalBlock.teaching_moments.positive_feedback : finalBlock.teaching_moments.gentle_correction;
-            this.dom.content.teachingMoment.textContent = moment.display_text;
-            this.dom.phases.teachingMoment.classList.add('active');
-            this.startReadAlong(moment.voice_over_script, () => {
-                this.dom.phases.teachingMoment.classList.remove('active');
-                this.setState({ phase: phase + 1 });
-            });
-        };
-        
-        if (phase >=1 && phase <= 3) onChoice = handleChoice;
-
-        return { block: finalBlock, onComplete, onChoice };
+        return { block, onComplete, onChoice };
     }
 
 
@@ -398,7 +394,8 @@ export class UniversalLessonPlayer {
     
     _updateInspectors() {
         this.dom.inspectors.stateContent.textContent = JSON.stringify(this.state, null, 2);
-        this.dom.inspectors.contentContent.textContent = JSON.stringify(this._getContentBlock().block, null, 2);
+        const currentBlock = this._getContentBlock().block;
+        this.dom.inspectors.contentContent.textContent = JSON.stringify(currentBlock, null, 2);
         this.dom.inspectors.codeContent.textContent = JSON.stringify(this.lesson, null, 2);
     }
 
@@ -435,6 +432,6 @@ export class UniversalLessonPlayer {
 document.addEventListener('DOMContentLoaded', async () => {
     const player = await UniversalLessonPlayer.create();
     if (player) {
-        player.dom.startLessonBtn.addEventListener('click', () => player.startLesson());
+        player._bindEvents(); // Bind events early to catch the start button click
     }
 });
