@@ -265,52 +265,64 @@ export class UniversalLessonPlayer {
     
     _getContentBlock() {
         const { phase, age, tone } = this.state;
-        let blockData, onComplete, onChoice;
         const core = this.lesson.core_lesson_structure;
+        let source, onComplete, onChoice;
 
-        const getRobustBlock = (source) => {
-            if (!source) {
-                console.error("Data source for this phase is missing.");
-                return null;
+        const getSourceBlock = () => {
+            switch (phase) {
+                case 0: return core.welcome_message;
+                case 1: return core.question_1;
+                case 2: return core.question_2;
+                case 3: return core.question_3;
+                case 4: return core.wisdom_summary;
+                default: return null;
             }
-
-            // Welcome and Wisdom are simpler, they don't have the age/tone nesting
-            if (phase === 0 || phase === 4) {
-                return source.ages[age] ? source.ages[age].tones[tone] : source;
-            }
-
-            // For questions (phases 1, 2, 3)
-            let ageBlock = source.ages[age] || source.ages['25'];
-            if (!ageBlock) return null;
-
-            let toneBlock = ageBlock.tones[tone] || ageBlock.tones['neutral'];
-            if (!toneBlock) return null;
-            
-            // Merge choices, etc. from the root of the question into the final block
-            return Object.assign({}, source, toneBlock);
         };
         
+        source = getSourceBlock();
+
+        if (!source) {
+            console.error(`[Data Error] No source data found for phase ${phase}.`);
+            return { block: null };
+        }
+
+        const ageBlock = source.ages ? (source.ages[age] || source.ages['25']) : null;
+        if (!ageBlock) {
+            if (source.display_text) return { block: source };
+            console.error(`[Data Error] No age block found for age '${age}' in phase ${phase}.`);
+            return { block: null };
+        }
+
+        const toneBlock = ageBlock.tones ? (ageBlock.tones[tone] || ageBlock.tones['neutral']) : null;
+        if (!toneBlock) {
+            if (ageBlock.display_text) {
+                 const merged = { ...source, ...ageBlock };
+                 delete merged.tones;
+                 delete merged.ages;
+                 return { block: merged };
+            }
+            console.error(`[Data Error] No tone block found for tone '${tone}' in age '${age}', phase ${phase}.`);
+            return { block: null };
+        }
+
+        const finalBlock = { ...source, ...ageBlock, ...toneBlock };
+        delete finalBlock.ages;
+        delete finalBlock.tones;
+
         const handleChoice = (choice) => {
             this.stopReadAlong();
-            const questionKey = ['question_1', 'question_2', 'question_3'][phase - 1];
-            const questionSource = core[questionKey];
-
-            // Get the specific age/tone block to find the teaching moment
-            const ageBlock = questionSource.ages[age] || questionSource.ages['25'];
-            const toneBlock = ageBlock.tones[tone] || ageBlock.tones['neutral'];
-
-            const isCorrect = choice === toneBlock.correct_option;
+            const isCorrect = choice === finalBlock.correct_option;
             this.setExpression(isCorrect ? 'happy' : 'concerned');
 
             const teachingMomentKey = isCorrect ? 'positive_feedback' : 'gentle_correction';
-            const teachingMoment = toneBlock.teaching_moments[teachingMomentKey];
-            
+            const teachingMoment = finalBlock.teaching_moments ? finalBlock.teaching_moments[teachingMomentKey] : null;
+
             if (!teachingMoment) {
-                console.warn("Teaching moment not found, proceeding.");
+                console.warn(`Teaching moment '${teachingMomentKey}' not found. Advancing phase.`);
                 this.setState({ phase: phase + 1 });
                 return;
             }
-
+            
             this.dom.content.teachingMoment.textContent = teachingMoment.display_text;
             this.dom.phases.teachingMoment.classList.add('active');
             
@@ -320,33 +332,22 @@ export class UniversalLessonPlayer {
                 this.setState({ phase: nextPhase });
             });
         };
-
+        
         switch (phase) {
             case 0:
-                blockData = getRobustBlock(core.welcome_message);
                 onComplete = () => this.setState({ phase: 1 });
                 break;
             case 1:
-                blockData = getRobustBlock(core.question_1);
-                onChoice = handleChoice;
-                break;
             case 2:
-                blockData = getRobustBlock(core.question_2);
-                onChoice = handleChoice;
-                break;
             case 3:
-                blockData = getRobustBlock(core.question_3);
                 onChoice = handleChoice;
                 break;
             case 4:
-                blockData = getRobustBlock(core.wisdom_summary);
                 onComplete = () => console.log('Lesson Complete!');
                 break;
-            default:
-                blockData = { display_text: "Invalid phase." };
         }
 
-        return { block: blockData, onComplete, onChoice };
+        return { block: finalBlock, onComplete, onChoice };
     }
 
     async startReadAlong(script, onComplete) {
