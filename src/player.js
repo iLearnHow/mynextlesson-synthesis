@@ -1,44 +1,30 @@
 import { ELEVENLABS_API_KEY } from './config.js';
 
 class ElevenLabsIntegration {
-    // ... (this part is correct and complete)
     constructor(apiKey) {
         this.apiKey = apiKey;
         this.baseUrl = 'https://api.elevenlabs.io/v1';
         this.voices = {
-            kelly: 'cJLh37pTYdhJT0Dvnttb', // User-provided voice ID
-            ken: 's6JeSRcsXa6EBsc5ODOx'     // User-provided voice ID for Ken
+            kelly: 'cJLh37pTYdhJT0Dvnttb',
+            ken: 's6JeSRcsXa6EBsc5ODOx'
         };
     }
 
     async generateAudio(text, avatar) {
-        if (!this.apiKey || this.apiKey === 'your-elevenlabs-api-key') {
+        if (!this.apiKey || this.apiKey === 'YOUR_ELEVENLABS_API_KEY') {
             console.warn('ElevenLabs API key not set. Skipping audio generation.');
             return null;
         }
         const voiceId = this.voices[avatar];
-        if (!voiceId) {
-            console.error(`No voice ID found for avatar: ${avatar}`);
-            return null;
-        }
         const response = await fetch(`${this.baseUrl}/text-to-speech/${voiceId}`, {
             method: 'POST',
-            headers: {
-                'Accept': 'audio/mpeg',
-                'Content-Type': 'application/json',
-                'xi-api-key': this.apiKey
-            },
-            body: JSON.stringify({
-                text: text,
-                model_id: 'eleven_monolingual_v1',
-            })
+            headers: { 'Accept': 'audio/mpeg', 'Content-Type': 'application/json', 'xi-api-key': this.apiKey },
+            body: JSON.stringify({ text, model_id: 'eleven_monolingual_v1' })
         });
-
         if (!response.ok) {
             console.error("ElevenLabs API Error:", await response.text());
             return null;
         }
-
         const audioBlob = await response.blob();
         return URL.createObjectURL(audioBlob);
     }
@@ -69,38 +55,22 @@ export class UniversalLessonPlayer {
         this.readAlongTimer = null;
         this.volume = 1.0;
         this.isPlaying = false;
-
-        // Bind all methods to ensure 'this' context is correct
-        this._initialize = this._initialize.bind(this);
-        this._cacheDom = this._cacheDom.bind(this);
-        this._bindEvents = this._bindEvents.bind(this);
-        this.render = this.render.bind(this);
-        this._getContentBlock = this._getContentBlock.bind(this);
-        this.startReadAlong = this.startReadAlong.bind(this);
-        this.stopReadAlong = this.stopReadAlong.bind(this);
-        this._makeInspectorsDraggable = this._makeInspectorsDraggable.bind(this);
-
         this._initialize();
     }
 
     _initialize() {
         this._cacheDom();
-        // Defer binding and rendering until user starts lesson
     }
 
     startLesson() {
-        // Play a tiny, silent audio file on the first user interaction.
-        // This "unlocks" the AudioContext, satisfying modern browser security policies
-        // that prevent unsolicited audio playback.
-        const audio = new Audio('data:audio/mp3;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTG93cyBvZiBoaWdodCBiYXNlcyBvZmZlcmVkIHdpdGggYWxsIHRoZSBsaWNlbnNlcyB0aGF0IHdlIG9mZmVyLiAvICBDb250YWN0IHVzIGF0IGluZm9AYmlnc291bmRiYW5rLmNvbQAAAAJSyrbWTT+4AAAAAAD/++BwMTC8gAMP/yv96QgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=');
-        audio.play().catch(e => console.warn("Audio context unlock failed, this may be okay on some browsers.", e));
-
+        const audio = new Audio('data:audio/mp3;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tbSA8LyBMb3dzIG9mIGhpZ2h0IGJhc2VzIG9mZmVyZWQgd2l0aCBhbGwgdGhlIGxpY2Vuc2VzIHRoYXQgd2Ugb2ZmZXIuIC8gIENvbnRhY3QgdXMgYXQgaW5mb0BiaWdzb3VuZGJhbmsuY29tAAAAAlMp5yo/AAAAAADIHAAAAA8AAAA0AAAAAP/7/8AAAAAMA4AAAAMg8DA9AMHwAAsAAAAAD/++BwMTC8gAMP/yv96QgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=');
+        audio.play().catch(e => console.warn("Audio context unlock failed.", e));
         this.dom.startOverlay.style.display = 'none';
         this._bindEvents();
         this._makeInspectorsDraggable();
         this.render();
     }
-
+    
     _cacheDom() {
         this.dom = {
             startOverlay: document.getElementById('start-overlay'),
@@ -161,21 +131,18 @@ export class UniversalLessonPlayer {
     }
 
     _bindEvents() {
-        // State changes
+        this.dom.startLessonBtn.addEventListener('click', () => this.startLesson());
+        
         const handleStateChange = (newState) => {
             this.stopReadAlong();
-            this.setState(newState, true); // Rerender with new state, but keep phase
+            this.setState(newState, true);
         };
 
-        this.dom.controls.masterTrigger.addEventListener('click', () => {
-            this.dom.controls.masterFlyoutContainer.classList.toggle('active');
-        });
-
+        this.dom.controls.masterTrigger.addEventListener('click', () => this.dom.controls.masterFlyoutContainer.classList.toggle('active'));
         this.dom.controls.avatarButtons.forEach(btn => btn.addEventListener('click', () => handleStateChange({ avatar: btn.dataset.avatar })));
         this.dom.controls.ageButtons.forEach(btn => btn.addEventListener('click', () => handleStateChange({ age: btn.dataset.age })));
         this.dom.controls.toneButtons.forEach(btn => btn.addEventListener('click', () => handleStateChange({ tone: btn.dataset.tone })));
 
-        // Progress bar navigation
         this.dom.progress.clickableSteps.forEach(step => {
             step.addEventListener('click', () => {
                 const phase = parseInt(step.dataset.phase, 10);
@@ -184,69 +151,56 @@ export class UniversalLessonPlayer {
             });
         });
 
-        // Media Controls
         this.dom.controls.playPause.addEventListener('click', () => this.isPlaying ? this.pauseTTS() : this.playTTS());
         this.dom.controls.volumeUp.addEventListener('click', () => this.updateVolume(this.volume + 0.1));
         this.dom.controls.volumeDown.addEventListener('click', () => this.updateVolume(this.volume - 0.1));
-
-        // Progress Controls
         this.dom.controls.saveProgress.addEventListener('click', () => this.saveProgress());
         this.dom.controls.loadProgress.addEventListener('click', () => this.loadProgress());
 
-        // Inspector Toggles
         const toggleInspector = (panel) => panel.classList.toggle('visible');
         this.dom.inspectors.stateToggle.addEventListener('click', () => toggleInspector(this.dom.inspectors.statePanel));
         this.dom.inspectors.contentToggle.addEventListener('click', () => toggleInspector(this.dom.inspectors.contentPanel));
         this.dom.inspectors.codeToggle.addEventListener('click', () => toggleInspector(this.dom.inspectors.codePanel));
-        this.dom.inspectors.closeButtons.forEach(btn => btn.addEventListener('click', (e) => {
-            e.target.closest('.inspector-panel').classList.remove('visible');
-        }));
+        this.dom.inspectors.closeButtons.forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.inspector-panel').classList.remove('visible')));
     }
 
     setState(newState, preservePhase = false) {
         const oldPhase = this.state.phase;
         Object.assign(this.state, newState);
-        if (!preservePhase && this.state.phase !== oldPhase) {
-            this.render();
-        } else if (preservePhase) {
+        if ((!preservePhase && this.state.phase !== oldPhase) || preservePhase) {
             this.render();
         }
     }
-
+    
     render() {
         this._updateStaticUI();
         this._updateProgressBar();
         this._updateInspectors();
 
-        // Hide all phases, then show the active one
         Object.values(this.dom.phases).forEach(p => p.classList.remove('active'));
         const phaseKey = Object.keys(this.dom.phases)[this.state.phase];
-        if (this.dom.phases[phaseKey]) {
-            this.dom.phases[phaseKey].classList.add('active');
-        }
+        if (this.dom.phases[phaseKey]) this.dom.phases[phaseKey].classList.add('active');
 
         const { block, onComplete, onChoice } = this._getContentBlock();
 
         if (!block) {
             console.error("No content block found for current state:", this.state);
-            this.dom.persistentQuestion.textContent = 'Content not found for this state.';
+            this.dom.persistentQuestion.textContent = 'Content not found.';
             this.dom.persistentQuestion.style.visibility = 'visible';
             return;
         }
 
         this.setExpression(block.expression || 'neutral');
 
-        // Render question text in persistent container
         if (this.state.phase >= 1 && this.state.phase <= 3) {
             this.dom.persistentQuestion.textContent = block.display_text;
             this.dom.persistentQuestion.style.visibility = 'visible';
             
-            // Clear and render choices
             const choiceA_el = this.dom.content[`${phaseKey}ChoiceA`];
             const choiceB_el = this.dom.content[`${phaseKey}ChoiceB`];
             
-            choiceA_el.textContent = block.choices.a;
-            choiceB_el.textContent = block.choices.b;
+            choiceA_el.textContent = block.choices.a.display_text;
+            choiceB_el.textContent = block.choices.b.display_text;
 
             choiceA_el.onclick = () => onChoice('a');
             choiceB_el.onclick = () => onChoice('b');
@@ -254,9 +208,7 @@ export class UniversalLessonPlayer {
         } else {
             this.dom.persistentQuestion.style.visibility = 'hidden';
             const contentEl = this.dom.content[phaseKey];
-            if (contentEl) {
-                contentEl.textContent = block.display_text;
-            }
+            if (contentEl) contentEl.textContent = block.display_text;
         }
         
         const script = block.voice_over_script || block.display_text;
@@ -268,87 +220,57 @@ export class UniversalLessonPlayer {
         const core = this.lesson.core_lesson_structure;
         let source, onComplete, onChoice;
 
-        const getSourceBlock = () => {
-            switch (phase) {
-                case 0: return core.welcome_message;
-                case 1: return core.question_1;
-                case 2: return core.question_2;
-                case 3: return core.question_3;
-                case 4: return core.wisdom_summary;
-                default: return null;
-            }
-        };
-        
-        source = getSourceBlock();
+        switch (phase) {
+            case 0: source = this.lesson.age_expressions[age].concept_name[tone]; onComplete = () => this.setState({ phase: 1 }); break;
+            case 1: source = core.question_1; break;
+            case 2: source = core.question_2; break;
+            case 3: source = core.question_3; break;
+            case 4: source = this.lesson.wisdom_phase_content.fortune[tone]; onComplete = () => console.log('Lesson Complete!'); break;
+            default: return { block: null };
+        }
 
         if (!source) {
-            console.error(`[Data Error] No source data found for phase ${phase}.`);
+            console.error(`[Data Error] No source data for phase ${phase}.`);
             return { block: null };
         }
-
-        const ageBlock = source.ages ? (source.ages[age] || source.ages['25']) : null;
-        if (!ageBlock) {
-            if (source.display_text) return { block: source };
-            console.error(`[Data Error] No age block found for age '${age}' in phase ${phase}.`);
-            return { block: null };
+        
+        let finalBlock;
+        if (phase >= 1 && phase <= 3) {
+            const ageBlock = source.ages[age] || source.ages['25'];
+            const toneBlock = ageBlock.question[tone] || ageBlock.question['neutral'];
+            const teachingMoments = ageBlock.teaching_moments;
+            
+            finalBlock = {
+                ...toneBlock,
+                choices: { a: ageBlock.option_a, b: ageBlock.option_b },
+                correct_option: ageBlock.correct_option || 'b', // Defaulting for safety
+                teaching_moments: {
+                    positive_feedback: teachingMoments.option_b_response,
+                    gentle_correction: teachingMoments.option_a_response
+                }
+            };
+        } else {
+            finalBlock = source;
         }
-
-        const toneBlock = ageBlock.tones ? (ageBlock.tones[tone] || ageBlock.tones['neutral']) : null;
-        if (!toneBlock) {
-            if (ageBlock.display_text) {
-                 const merged = { ...source, ...ageBlock };
-                 delete merged.tones;
-                 delete merged.ages;
-                 return { block: merged };
-            }
-            console.error(`[Data Error] No tone block found for tone '${tone}' in age '${age}', phase ${phase}.`);
-            return { block: null };
-        }
-
-        const finalBlock = { ...source, ...ageBlock, ...toneBlock };
-        delete finalBlock.ages;
-        delete finalBlock.tones;
 
         const handleChoice = (choice) => {
             this.stopReadAlong();
             const isCorrect = choice === finalBlock.correct_option;
             this.setExpression(isCorrect ? 'happy' : 'concerned');
-
-            const teachingMomentKey = isCorrect ? 'positive_feedback' : 'gentle_correction';
-            const teachingMoment = finalBlock.teaching_moments ? finalBlock.teaching_moments[teachingMomentKey] : null;
-
-            if (!teachingMoment) {
-                console.warn(`Teaching moment '${teachingMomentKey}' not found. Advancing phase.`);
-                this.setState({ phase: phase + 1 });
-                return;
-            }
-            
-            this.dom.content.teachingMoment.textContent = teachingMoment.display_text;
+            const moment = isCorrect ? finalBlock.teaching_moments.positive_feedback : finalBlock.teaching_moments.gentle_correction;
+            this.dom.content.teachingMoment.textContent = moment.display_text;
             this.dom.phases.teachingMoment.classList.add('active');
-            
-            const nextPhase = phase + 1;
-            this.startReadAlong(teachingMoment.voice_over_script, () => {
+            this.startReadAlong(moment.voice_over_script, () => {
                 this.dom.phases.teachingMoment.classList.remove('active');
-                this.setState({ phase: nextPhase });
+                this.setState({ phase: phase + 1 });
             });
         };
         
-        switch (phase) {
-            case 0:
-                onComplete = () => this.setState({ phase: 1 });
-                break;
-            case 1:
-            case 2:
-            case 3:
-                onChoice = handleChoice;
-                break;
-            case 4:
-                onComplete = () => console.log('Lesson Complete!');
-                break;
-        }
+        if (phase >=1 && phase <= 3) onChoice = handleChoice;
 
         return { block: finalBlock, onComplete, onChoice };
     }
+
 
     async startReadAlong(script, onComplete) {
         if (!script) {
@@ -367,19 +289,22 @@ export class UniversalLessonPlayer {
         if (audioUrl) {
             this.currentAudio = new Audio(audioUrl);
             this.currentAudio.volume = this.volume;
-
-            let wordIndex = 0;
-            const highlightNextWord = () => {
-                if (wordIndex > 0) wordSpans[wordIndex - 1].classList.remove('highlight');
-                if (wordIndex < wordSpans.length) {
-                    wordSpans[wordIndex].classList.add('highlight');
-                    wordIndex++;
-                }
-            };
             
-            this.currentAudio.addEventListener('play', () => {
-                 const wordDuration = (this.currentAudio.duration * 1000) / words.length;
-                 this.readAlongTimer = setInterval(highlightNextWord, wordDuration);
+            this.currentAudio.addEventListener('loadedmetadata', () => {
+                const duration = this.currentAudio.duration;
+                if(isFinite(duration)) {
+                    const wordDuration = (duration * 1000) / words.length;
+                    let i = 0;
+                    this.readAlongTimer = setInterval(() => {
+                        if (i < wordSpans.length) {
+                            if(i > 0) wordSpans[i-1].classList.remove('highlight');
+                            wordSpans[i].classList.add('highlight');
+                            i++;
+                        } else {
+                            this.stopReadAlong();
+                        }
+                    }, wordDuration);
+                }
             });
 
             this.currentAudio.addEventListener('ended', () => {
@@ -389,18 +314,15 @@ export class UniversalLessonPlayer {
 
             this.currentAudio.play().catch(e => console.error("Audio play failed:", e));
         } else {
-            console.warn("No audio URL, falling back to timeout for progression.");
-            // Fallback if audio fails: progress after a delay based on text length
-            const fallbackTime = words.length * 300; // ~200 WPM
+            console.warn("No audio URL, falling back to timeout.");
             this.readAlongTimer = setTimeout(() => {
                 if (onComplete) onComplete();
-            }, fallbackTime);
+            }, words.length * 300);
         }
     }
     
     stopReadAlong() {
         clearInterval(this.readAlongTimer);
-        this.readAlongTimer = null;
         if (this.currentAudio) {
             this.currentAudio.pause();
             this.currentAudio = null;
@@ -411,32 +333,11 @@ export class UniversalLessonPlayer {
         this.dom.readAlongPlayer.innerHTML = "";
     }
 
-    playTTS() {
-        if (this.currentAudio) {
-            this.currentAudio.play();
-            this.isPlaying = true;
-        }
-    }
-
-    pauseTTS() {
-        if (this.currentAudio) {
-            this.currentAudio.pause();
-            this.isPlaying = false;
-        }
-    }
-
-    updateVolume(level) {
-        this.volume = Math.max(0, Math.min(1, level));
-        if (this.currentAudio) {
-            this.currentAudio.volume = this.volume;
-        }
-    }
+    playTTS() { if (this.currentAudio) { this.currentAudio.play(); this.isPlaying = true; } }
+    pauseTTS() { if (this.currentAudio) { this.currentAudio.pause(); this.isPlaying = false; } }
+    updateVolume(level) { this.volume = Math.max(0, Math.min(1, level)); if (this.currentAudio) this.currentAudio.volume = this.volume; }
     
-    saveProgress() {
-        localStorage.setItem('iLearnHowProgress', JSON.stringify(this.state));
-        alert('Progress saved!');
-    }
-    
+    saveProgress() { localStorage.setItem('iLearnHowProgress', JSON.stringify(this.state)); alert('Progress saved!'); }
     loadProgress() {
         const savedState = localStorage.getItem('iLearnHowProgress');
         if (savedState) {
@@ -449,16 +350,9 @@ export class UniversalLessonPlayer {
     }
 
     _updateStaticUI() {
-        // Update Avatar
         this.dom.avatarBackground.className = `avatar-background ${this.state.avatar}`;
         this.setExpression(this.state.expression);
-
-        // Update control buttons
-        const updateBtnGroup = (buttons, dataKey) => {
-            buttons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset[dataKey] === this.state[dataKey]);
-            });
-        };
+        const updateBtnGroup = (buttons, dataKey) => buttons.forEach(btn => btn.classList.toggle('active', btn.dataset[dataKey] === this.state[dataKey]));
         updateBtnGroup(this.dom.controls.avatarButtons, 'avatar');
         updateBtnGroup(this.dom.controls.ageButtons, 'age');
         updateBtnGroup(this.dom.controls.toneButtons, 'tone');
@@ -482,43 +376,24 @@ export class UniversalLessonPlayer {
         };
 
         const map = this.state.avatar === 'ken' ? kenExpressionMap : expressionMap;
-        const subPath = map[expression] || (this.state.avatar === 'ken' ? map['neutral'] : expressionMap['neutral']);
+        const subPath = map[expression] || map['neutral'];
         
         const basePath = `/production-deploy/assets/avatars/${this.state.avatar}/`;
         const isKenNeutral = this.state.avatar === 'ken' && expression === 'neutral';
         const finalPath = isKenNeutral ? `${basePath}${subPath}` : `${basePath}optimized/${subPath}`;
 
         const img = new Image();
-        img.onload = () => {
-            this.dom.avatarBackground.style.backgroundImage = `url('${finalPath}')`;
-            this.dom.avatarBackground.style.backgroundColor = ''; // Remove fallback color on success
-        };
-        img.onerror = () => {
-            console.error(`Failed to load avatar image at path: ${finalPath}`);
-            this.dom.avatarBackground.style.backgroundImage = '';
-            this.dom.avatarBackground.style.backgroundColor = '#e0e0e0'; // Solid color fallback
-        };
+        img.onload = () => { this.dom.avatarBackground.style.backgroundImage = `url('${finalPath}')`; this.dom.avatarBackground.style.backgroundColor = ''; };
+        img.onerror = () => { console.error(`Failed to load avatar image: ${finalPath}`); this.dom.avatarBackground.style.backgroundColor = '#e0e0e0'; };
         img.src = finalPath;
     }
 
     _updateProgressBar() {
         const phaseCount = this.dom.progress.steps.length;
         const currentPhase = this.state.phase;
-        
-        this.dom.progress.steps.forEach((step, i) => {
-            step.classList.remove('active', 'completed');
-            if (i < currentPhase) step.classList.add('completed');
-            if (i === currentPhase) step.classList.add('active');
-        });
-        
-        this.dom.progress.clickableSteps.forEach((step, i) => {
-            step.classList.remove('active', 'completed');
-            if (i < currentPhase) step.classList.add('completed');
-            if (i === currentPhase) step.classList.add('active');
-        });
-
-        const percentage = (currentPhase / (phaseCount - 1)) * 100;
-        this.dom.progress.lineFill.style.height = `${percentage}%`;
+        this.dom.progress.steps.forEach((step, i) => { step.classList.toggle('completed', i < currentPhase); step.classList.toggle('active', i === currentPhase); });
+        this.dom.progress.clickableSteps.forEach((step, i) => { step.classList.toggle('completed', i < currentPhase); step.classList.toggle('active', i === currentPhase); });
+        this.dom.progress.lineFill.style.height = `${(currentPhase / (phaseCount - 1)) * 100}%`;
     }
     
     _updateInspectors() {
@@ -535,8 +410,7 @@ export class UniversalLessonPlayer {
             const onMouseDown = (e) => {
                 isDragging = true;
                 const rect = panel.getBoundingClientRect();
-                offset.x = e.clientX - rect.left;
-                offset.y = e.clientY - rect.top;
+                offset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
                 header.style.cursor = 'grabbing';
                 document.addEventListener('mousemove', onMouseMove);
                 document.addEventListener('mouseup', onMouseUp);
