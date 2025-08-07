@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn How - TEST V3: The Sun Lesson</title>
+    <link rel="stylesheet" href="/mynextlesson-synthesis/css/synthesis_integration.css">
+    <style>
+        body { font-family: sans-serif; display: flex; }
+        .left-options-panel { padding: 1em; border-right: 1px solid #ccc; }
+        .main-content { padding: 1em; }
+        .phase { display: none; }
+        .phase.active { display: block; }
+        #loading { position: fixed; inset: 0; background: white; display:flex; align-items:center; justify-content:center; }
+    </style>
+</head>
+<body>
+    <div id="loading"><p>Initializing...</p></div>
+    <div class="left-options-panel">
+        <div class="options-section-title">Avatar</div>
+        <div class="options-grid">
+            <button class="ios-btn active" data-avatar="kelly">Kelly</button>
+            <button class="ios-btn" data-avatar="ken">Ken</button>
+        </div>
+        <div class="options-section-title">Age Group</div>
+        <div class="options-grid">
+            <button class="ios-btn" data-age="2">2</button>
+            <button class="ios-btn" data-age="5">5</button>
+            <button class="ios-btn" data-age="8">8</button>
+            <button class="ios-btn" data-age="12">12</button>
+            <button class="ios-btn" data-age="16">16</button>
+            <button class="ios-btn active" data-age="25">25</button>
+            <button class="ios-btn" data-age="40">40</button>
+            <button class="ios-btn" data-age="60">60</button>
+            <button class="ios-btn" data-age="80">80</button>
+            <button class="ios-btn" data-age="102">102</button>
+        </div>
+        <div class="options-section-title">Tone</div>
+        <div class="options-grid">
+            <button class="ios-btn active" data-tone="neutral">Neutral</button>
+            <button class="ios-btn" data-tone="fun">Fun</button>
+            <button class="ios-btn" data-tone="grandmother">Grandmother</button>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="phase active" id="welcome-phase"><h2 id="lesson-title">...</h2><p id="lesson-preview">...</p></div>
+        <div class="phase" id="beginning-phase"><p id="beginning-question">...</p><button id="beginning-choice-a">...</button><button id="beginning-choice-b">...</button></div>
+        <div class="phase" id="middle-phase"><p id="middle-question">...</p><button id="middle-choice-a">...</button><button id="middle-choice-b">...</button></div>
+        <div class="phase" id="end-phase"><p id="end-question">...</p><button id="end-choice-a">...</button><button id="end-choice-b">...</button></div>
+        <div class="phase" id="wisdom-phase"><p id="daily-fortune">...</p></div>
+    </div>
+    <div class="control-panel">
+        <button id="prev-btn">Prev</button>
+        <button id="next-btn">Next</button>
+        <button id="restart-btn">Restart</button>
+    </div>
+    <div id="avatar-background" class="avatar-background kelly"></div>
+
+    <script type="module">
+        import { UniversalLessonPlayer } from '/src/player.js';
+        
+        // This is now the only line needed to start the lesson.
+        // The static `create` method handles everything.
+        UniversalLessonPlayer.create(1);
+    </script>
+</body>
+</html>

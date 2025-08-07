@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Player Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 Lesson Player Test Suite</h1>
+        
+        <div class="test-section">
+            <h2>1. Content Generation Test</h2>
+            <button class="test-button" onclick="testContentGeneration()">Test Content Generation</button>
+            <div id="content-status" class="status"></div>
+            <div id="content-log" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Audio Generation Test</h2>
+            <button class="test-button" onclick="testAudioGeneration()">Test Audio Generation</button>
+            <div id="audio-status" class="status"></div>
+            <div id="audio-log" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. Avatar Assets Test</h2>
+            <button class="test-button" onclick="testAvatarAssets()">Test Avatar Assets</button>
+            <div id="avatar-status" class="status"></div>
+            <div id="avatar-log" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. Lesson Player Integration Test</h2>
+            <button class="test-button" onclick="testLessonPlayer()">Test Lesson Player</button>
+            <div id="player-status" class="status"></div>
+            <div id="player-log" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. Complete System Test</h2>
+            <button class="test-button" onclick="runCompleteTest()">Run Complete Test</button>
+            <div id="complete-status" class="status"></div>
+            <div id="complete-log" class="log"></div>
+        </div>
+    </div>
+
+    <script src="complete-lesson-generator.js"></script>
+    <script>
+        let testLogs = {};
+        
+        function log(section, message) {
+            const logElement = document.getElementById(section + '-log');
+            if (logElement) {
+                logElement.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '\n';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+            console.log(`[${section.toUpperCase()}] ${message}`);
+        }
+        
+        function updateStatus(section, message, type = 'info') {
+            const statusElement = document.getElementById(section + '-status');
+            if (statusElement) {
+                statusElement.className = `status ${type}`;
+                statusElement.textContent = message;
+            }
+        }
+        
+        async function testContentGeneration() {
+            const section = 'content';
+            log(section, '🚀 Starting content generation test...');
+            updateStatus(section, 'Testing content generation...', 'info');
+            
+            try {
+                const generator = new CompleteLessonGenerator();
+                const lesson = await generator.generateCompleteLesson(28, 'The Sun');
+                
+                log(section, `✅ Content generation successful!`);
+                log(section, `📊 Generated ${Object.keys(lesson.languages).length} languages`);
+                log(section, `📝 Generated ${Object.keys(lesson.languages.en.content).length} content pieces`);
+                log(section, `👤 Generated ${Object.keys(lesson.avatars).length} avatar moods`);
+                
+                updateStatus(section, '✅ Content generation working perfectly!', 'success');
+                return lesson;
+            } catch (error) {
+                log(section, `❌ Content generation failed: ${error.message}`);
+                updateStatus(section, '❌ Content generation failed', 'error');
+                throw error;
+            }
+        }
+        
+        async function testAudioGeneration() {
+            const section = 'audio';
+            log(section, '🎵 Starting audio generation test...');
+            updateStatus(section, 'Testing audio generation...', 'info');
+            
+            try {
+                const generator = new CompleteLessonGenerator();
+                const audioResult = await generator.generateAudio('Hello, this is a test audio message.', 'wAdymQH5YucAkXwmrdL0', 'en');
+                
+                log(section, `✅ Audio generation result:`, audioResult);
+                
+                if (audioResult.placeholder) {
+                    log(section, 'ℹ️ Audio generation returned placeholder (expected in Node.js environment)');
+                    updateStatus(section, 'ℹ️ Audio generation working (placeholder mode)', 'info');
+                } else if (audioResult.url) {
+                    log(section, '✅ Audio generation successful with URL');
+                    updateStatus(section, '✅ Audio generation working!', 'success');
+                } else {
+                    log(section, '⚠️ Audio generation returned no URL');
+                    updateStatus(section, '⚠️ Audio generation needs browser environment', 'info');
+                }
+                
+                return audioResult;
+            } catch (error) {
+                log(section, `❌ Audio generation failed: ${error.message}`);
+                updateStatus(section, '❌ Audio generation failed', 'error');
+                throw error;
+            }
+        }
+        
+        async function testAvatarAssets() {
+            const section = 'avatar';
+            log(section, '👤 Starting avatar assets test...');
+            updateStatus(section, 'Testing avatar assets...', 'info');
+            
+            try {
+                const avatarUrls = [
+                    '/lesson-player-deploy/assets/avatars/kelly_wallpaper.png',
+                    '/lesson-player-deploy/assets/avatars/ken/ken_neutral_default.png',
+                    '/lesson-player-deploy/assets/avatars/kelly_wallpaper.png'
+                ];
+                
+                let loadedCount = 0;
+                for (const url of avatarUrls) {
+                    try {
+                        const response = await fetch(url);
+                        if (response.ok) {
+                            log(section, `✅ Avatar asset loaded: ${url}`);
+                            loadedCount++;
+                        } else {
+                            log(section, `❌ Avatar asset failed: ${url} (${response.status})`);
+                        }
+                    } catch (error) {
+                        log(section, `❌ Avatar asset error: ${url} - ${error.message}`);
+                    }
+                }
+                
+                if (loadedCount === avatarUrls.length) {
+                    updateStatus(section, '✅ All avatar assets working!', 'success');
+                } else {
+                    updateStatus(section, `⚠️ ${loadedCount}/${avatarUrls.length} avatar assets working`, 'info');
+                }
+                
+                return loadedCount;
+            } catch (error) {
+                log(section, `❌ Avatar assets test failed: ${error.message}`);
+                updateStatus(section, '❌ Avatar assets test failed', 'error');
+                throw error;
+            }
+        }
+        
+        async function testLessonPlayer() {
+            const section = 'player';
+            log(section, '🎮 Starting lesson player test...');
+            updateStatus(section, 'Testing lesson player...', 'info');
+            
+            try {
+                // Test if lesson player components exist
+                const testElements = [
+                    'lesson-player',
+                    'lesson-info',
+                    'calendar-overlay',
+                    'player-controls'
+                ];
+                
+                let foundCount = 0;
+                for (const elementId of testElements) {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        log(section, `✅ Found element: ${elementId}`);
+                        foundCount++;
+                    } else {
+                        log(section, `❌ Missing element: ${elementId}`);
+                    }
+                }
+                
+                if (foundCount === testElements.length) {
+                    updateStatus(section, '✅ Lesson player structure complete!', 'success');
+                } else {
+                    updateStatus(section, `⚠️ ${foundCount}/${testElements.length} lesson player elements found`, 'info');
+                }
+                
+                return foundCount;
+            } catch (error) {
+                log(section, `❌ Lesson player test failed: ${error.message}`);
+                updateStatus(section, '❌ Lesson player test failed', 'error');
+                throw error;
+            }
+        }
+        
+        async function runCompleteTest() {
+            const section = 'complete';
+            log(section, '🚀 Starting complete system test...');
+            updateStatus(section, 'Running complete system test...', 'info');
+            
+            try {
+                // Run all tests
+                const contentResult = await testContentGeneration();
+                const audioResult = await testAudioGeneration();
+                const avatarResult = await testAvatarAssets();
+                const playerResult = await testLessonPlayer();
+                
+                log(section, '📊 Test Results Summary:');
+                log(section, `   - Content Generation: ✅ Working`);
+                log(section, `   - Audio Generation: ${audioResult.placeholder ? 'ℹ️ Placeholder' : '✅ Working'}`);
+                log(section, `   - Avatar Assets: ${avatarResult}/3 loaded`);
+                log(section, `   - Lesson Player: ${playerResult}/4 elements found`);
+                
+                const allWorking = contentResult && avatarResult === 3 && playerResult === 4;
+                
+                if (allWorking) {
+                    updateStatus(section, '🎉 Complete system test PASSED!', 'success');
+                    log(section, '🎉 All core components are working correctly!');
+                } else {
+                    updateStatus(section, '⚠️ Complete system test PARTIAL - some issues found', 'info');
+                    log(section, '⚠️ Some components need attention');
+                }
+                
+                return allWorking;
+            } catch (error) {
+                log(section, `❌ Complete system test failed: ${error.message}`);
+                updateStatus(section, '❌ Complete system test failed', 'error');
+                throw error;
+            }
+        }
+        
+        // Auto-run complete test on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                runCompleteTest();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

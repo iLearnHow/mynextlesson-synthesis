@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn Fixes Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 iLearn Fixes Test Suite</h1>
+    
+    <div class="test-section">
+        <h2>1. Lesson Player Initialization</h2>
+        <button onclick="testLessonPlayerInit()">Test Lesson Player</button>
+        <div id="init-result"></div>
+        <div id="init-log" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Curriculum Loading</h2>
+        <button onclick="testCurriculumLoading()">Test Curriculum</button>
+        <div id="curriculum-result"></div>
+        <div id="curriculum-log" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Lesson Content Generation</h2>
+        <button onclick="testContentGeneration()">Test Content</button>
+        <div id="content-result"></div>
+        <div id="content-log" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Lesson Flow</h2>
+        <button onclick="testLessonFlow()">Test Lesson Flow</button>
+        <div id="flow-result"></div>
+        <div id="flow-log" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Variant System</h2>
+        <button onclick="testVariantSystem()">Test Variants</button>
+        <div id="variant-result"></div>
+        <div id="variant-log" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>6. Complete System Test</h2>
+        <button onclick="runCompleteTest()">Run Complete Test</button>
+        <div id="complete-result"></div>
+        <div id="complete-log" class="log"></div>
+    </div>
+
+    <script src="complete-curriculum.js"></script>
+    <script src="corrected-variant-generator-v2.js"></script>
+    <script src="complete-elevenlabs-integration.js"></script>
+    <script src="complete-lesson-player.js"></script>
+    
+    <script>
+        let lessonPlayer = null;
+        let testResults = {};
+        
+        function log(elementId, message) {
+            const logElement = document.getElementById(elementId);
+            if (logElement) {
+                logElement.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '\n';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+        
+        function showResult(elementId, message, type = 'success') {
+            const resultElement = document.getElementById(elementId);
+            if (resultElement) {
+                resultElement.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+            }
+        }
+        
+        async function testLessonPlayerInit() {
+            log('init-log', 'Starting lesson player initialization test...');
+            
+            try {
+                // Test if UniversalLessonPlayer class exists
+                if (typeof UniversalLessonPlayer === 'undefined') {
+                    throw new Error('UniversalLessonPlayer class not found');
+                }
+                log('init-log', '✅ UniversalLessonPlayer class found');
+                
+                // Initialize lesson player
+                lessonPlayer = new UniversalLessonPlayer();
+                log('init-log', '✅ Lesson player initialized');
+                
+                // Test basic properties
+                if (!lessonPlayer.lessonPhases) {
+                    throw new Error('Lesson phases not defined');
+                }
+                log('init-log', '✅ Lesson phases defined: ' + lessonPlayer.lessonPhases.length);
+                
+                if (!lessonPlayer.currentVariant) {
+                    throw new Error('Current variant not defined');
+                }
+                log('init-log', '✅ Current variant defined');
+                
+                showResult('init-result', '✅ Lesson Player initialization successful!', 'success');
+                testResults.init = true;
+                
+            } catch (error) {
+                log('init-log', '❌ Error: ' + error.message);
+                showResult('init-result', '❌ Lesson Player initialization failed: ' + error.message, 'error');
+                testResults.init = false;
+            }
+        }
+        
+        async function testCurriculumLoading() {
+            log('curriculum-log', 'Starting curriculum loading test...');
+            
+            try {
+                if (!lessonPlayer) {
+                    throw new Error('Lesson player not initialized');
+                }
+                
+                // Test curriculum loading
+                await lessonPlayer.loadUniversalCurriculum();
+                log('curriculum-log', '✅ Curriculum loading completed');
+                
+                // Test if curriculum data is available
+                if (!lessonPlayer.universalCurriculum) {
+                    throw new Error('Universal curriculum not loaded');
+                }
+                log('curriculum-log', '✅ Universal curriculum loaded');
+                
+                // Test getting lesson data for current day
+                const currentDay = lessonPlayer.getCurrentDayOfYear();
+                const lessonData = lessonPlayer.getLessonDataForDay(currentDay);
+                
+                if (!lessonData) {
+                    throw new Error('No lesson data for current day');
+                }
+                log('curriculum-log', '✅ Lesson data retrieved for day ' + currentDay + ': ' + lessonData.title);
+                
+                showResult('curriculum-result', '✅ Curriculum loading successful!', 'success');
+                testResults.curriculum = true;
+                
+            } catch (error) {
+                log('curriculum-log', '❌ Error: ' + error.message);
+                showResult('curriculum-result', '❌ Curriculum loading failed: ' + error.message, 'error');
+                testResults.curriculum = false;
+            }
+        }
+        
+        async function testContentGeneration() {
+            log('content-log', 'Starting content generation test...');
+            
+            try {
+                if (!lessonPlayer) {
+                    throw new Error('Lesson player not initialized');
+                }
+                
+                // Test content generation
+                lessonPlayer.generateUniversalContent();
+                log('content-log', '✅ Content generation completed');
+                
+                if (!lessonPlayer.universalContent) {
+                    throw new Error('Universal content not generated');
+                }
+                log('content-log', '✅ Universal content generated');
+                
+                // Test content structure
+                if (!lessonPlayer.universalContent.introduction) {
+                    throw new Error('Introduction content missing');
+                }
+                log('content-log', '✅ Introduction content present');
+                
+                if (!lessonPlayer.universalContent.questions) {
+                    throw new Error('Questions content missing');
+                }
+                log('content-log', '✅ Questions content present');
+                
+                showResult('content-result', '✅ Content generation successful!', 'success');
+                testResults.content = true;
+                
+            } catch (error) {
+                log('content-log', '❌ Error: ' + error.message);
+                showResult('content-result', '❌ Content generation failed: ' + error.message, 'error');
+                testResults.content = false;
+            }
+        }
+        
+        async function testLessonFlow() {
+            log('flow-log', 'Starting lesson flow test...');
+            
+            try {
+                if (!lessonPlayer) {
+                    throw new Error('Lesson player not initialized');
+                }
+                
+                // Test lesson start
+                lessonPlayer.startUniversalLesson();
+                log('flow-log', '✅ Lesson started');
+                
+                // Test phase progression
+                if (lessonPlayer.currentPhase !== 0) {
+                    throw new Error('Lesson phase not reset to 0');
+                }
+                log('flow-log', '✅ Lesson phase reset to 0');
+                
+                // Test phase content
+                const phase = lessonPlayer.lessonPhases[0];
+                const content = lessonPlayer.getPhaseContent(phase);
+                if (!content) {
+                    throw new Error('No content for phase: ' + phase);
+                }
+                log('flow-log', '✅ Phase content retrieved for: ' + phase);
+                
+                showResult('flow-result', '✅ Lesson flow test successful!', 'success');
+                testResults.flow = true;
+                
+            } catch (error) {
+                log('flow-log', '❌ Error: ' + error.message);
+                showResult('flow-result', '❌ Lesson flow test failed: ' + error.message, 'error');
+                testResults.flow = false;
+            }
+        }
+        
+        async function testVariantSystem() {
+            log('variant-log', 'Starting variant system test...');
+            
+            try {
+                if (!lessonPlayer) {
+                    throw new Error('Lesson player not initialized');
+                }
+                
+                // Test avatar change
+                const originalAvatar = lessonPlayer.currentVariant.avatar;
+                lessonPlayer.onAvatarChange('ken');
+                log('variant-log', '✅ Avatar changed to ken');
+                
+                if (lessonPlayer.currentVariant.avatar !== 'ken') {
+                    throw new Error('Avatar not updated');
+                }
+                log('variant-log', '✅ Avatar variant updated');
+                
+                // Test tone change
+                const originalTone = lessonPlayer.currentVariant.tone;
+                lessonPlayer.onToneChange('fun');
+                log('variant-log', '✅ Tone changed to fun');
+                
+                if (lessonPlayer.currentVariant.tone !== 'fun') {
+                    throw new Error('Tone not updated');
+                }
+                log('variant-log', '✅ Tone variant updated');
+                
+                // Test age change
+                const originalAge = lessonPlayer.currentVariant.age;
+                lessonPlayer.onAgeChange('age_8');
+                log('variant-log', '✅ Age changed to age_8');
+                
+                if (lessonPlayer.currentVariant.age !== 'age_8') {
+                    throw new Error('Age not updated');
+                }
+                log('variant-log', '✅ Age variant updated');
+                
+                // Restore original values
+                lessonPlayer.onAvatarChange(originalAvatar);
+                lessonPlayer.onToneChange(originalTone);
+                lessonPlayer.onAgeChange(originalAge);
+                log('variant-log', '✅ Original variants restored');
+                
+                showResult('variant-result', '✅ Variant system test successful!', 'success');
+                testResults.variant = true;
+                
+            } catch (error) {
+                log('variant-log', '❌ Error: ' + error.message);
+                showResult('variant-result', '❌ Variant system test failed: ' + error.message, 'error');
+                testResults.variant = false;
+            }
+        }
+        
+        async function runCompleteTest() {
+            log('complete-log', 'Starting complete system test...');
+            
+            // Run all tests in sequence
+            await testLessonPlayerInit();
+            await testCurriculumLoading();
+            await testContentGeneration();
+            await testLessonFlow();
+            await testVariantSystem();
+            
+            // Check overall results
+            const allPassed = Object.values(testResults).every(result => result === true);
+            
+            if (allPassed) {
+                log('complete-log', '🎉 ALL TESTS PASSED! System is working correctly.');
+                showResult('complete-result', '🎉 ALL TESTS PASSED! System is ready for use.', 'success');
+            } else {
+                log('complete-log', '⚠️ Some tests failed. Check individual test results.');
+                showResult('complete-result', '⚠️ Some tests failed. Check individual test results above.', 'warning');
+            }
+            
+            // Log summary
+            log('complete-log', 'Test Summary:');
+            Object.entries(testResults).forEach(([test, result]) => {
+                log('complete-log', `  ${test}: ${result ? '✅ PASS' : '❌ FAIL'}`);
+            });
+        }
+        
+        // Auto-run complete test on page load
+        window.addEventListener('load', () => {
+            setTimeout(runCompleteTest, 1000);
+        });
+    </script>
+</body>
+</html> 

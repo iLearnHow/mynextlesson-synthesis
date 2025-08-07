@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn How - Immersive UI v40 (Production)</title>
+    <style>
+        :root {
+            --glass-bg: rgba(242, 242, 247, 0.8); --glass-blur: blur(50px);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6); --shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            --text-primary: #1d1d1f; --accent-blue: #007AFF; --icon-size: 44px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; overflow: hidden; height: 100vh; background-color: #fff; }
+        .immersive-container { position: relative; width: 100vw; height: 100vh; }
+        .avatar-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; transition: background-image 0.5s ease-in-out; background-color: #e0e0e0; }
+        .avatar-background.kelly { background-image: url('/production-deploy/assets/avatars/kelly/optimized/base-states/kelly_neutral_default.png'); }
+        .avatar-background.ken { background-image: url('/production-deploy/assets/avatars/ken/ken_neutral_default.png'); }
+        .main-content-area, .ui-overlays { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .ui-overlays { z-index: 10; pointer-events: none; }
+        .ui-overlays > * { pointer-events: auto; }
+        .phase { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out; pointer-events: none; }
+        .phase.active { opacity: 1; visibility: visible; pointer-events: auto; }
+        .ios-panel { background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-radius: 22px; border: var(--glass-border); box-shadow: var(--shadow); color: var(--text-primary); position: absolute; transition: all 0.3s ease; }
+        .content-note { font-weight: 500; font-size: 19px; max-width: 400px; padding: 22px 28px; }
+        .position-question-deck { top: 18%; right: 20px; }
+        .position-lower-deck { top: 45%; left: 50%; transform: translateX(-50%); width: 50%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; background: transparent; box-shadow: none; backdrop-filter: none; border: none; align-items: center; }
+        .phase[data-question-side="left"] .position-lower-deck { left: 20px; transform: translateX(0); align-items: flex-start; }
+        .phase[data-question-side="right"] .position-lower-deck { right: 20px; left: auto; transform: translateX(0); align-items: flex-end; }
+        .position-centered-moment { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .choice-note { cursor: pointer; transition: all 0.2s ease; padding: 18px 22px; }
+        .choice-note:hover { transform: scale(1.03); box-shadow: 0 12px 40px rgba(0,0,0,0.2); }
+        .choice-note.selected { border: 2px solid var(--accent-blue); background: rgba(0, 122, 255, 0.1); }
+        .inspector-panel { width: 360px; height: 380px; display: none; flex-direction: column; resize: both; overflow: hidden; z-index: 400; }
+        .inspector-panel.visible { display: flex; }
+        .inspector-header { padding: 10px 10px 10px 20px; cursor: grab; background: rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .inspector-header .pill-label { font-size: 13px; font-weight: 600; }
+        .inspector-close-btn { width: 28px; height: 28px; border: none; background: rgba(0,0,0,0.1); border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
+        .inspector-close-btn:hover { background: rgba(0,0,0,0.2); }
+        .inspector-content { padding: 15px; flex-grow: 1; overflow-y: auto; }
+        .inspector-content pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; }
+        #state-inspector { top: 20px; left: 20px; } #content-inspector { bottom: 20px; left: 20px; } #code-inspector { top: 20px; right: 20px; }
+        
+        .bottom-right-controls { position: fixed; z-index: 500; bottom: 20px; right: 20px; display: flex; align-items: flex-end; gap: 12px; }
+        .control-btn { width: var(--icon-size); height: var(--icon-size); border-radius: 50%; border: none; background: var(--glass-bg); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease-in-out; color: #333; }
+        .control-btn:hover { background: rgba(255,255,255,0.9); transform: scale(1.05); }
+        .control-btn.active { background: var(--accent-blue); color: white; }
+        .control-btn svg { width: 55%; height: 55%; stroke-width: 1.5; pointer-events: none; }
+        
+        .master-flyout-container { position: relative; }
+        .master-flyout-menu { position: absolute; bottom: calc(100% + 10px); right: 0; width: 300px; padding: 15px; display: flex; flex-direction: column; gap: 15px; opacity: 0; pointer-events: none; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+        .master-flyout-container.active .master-flyout-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .flyout-section { display: flex; flex-direction: column; gap: 8px; }
+        .flyout-section-label { font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.5); padding-left: 5px; }
+        .flyout-btn-group { display: flex; justify-content: space-around; background: rgba(0,0,0,0.05); border-radius: 12px; padding: 5px; }
+        .flyout-btn { flex-grow: 1; text-align: center; border: none; background: transparent; font-size: 15px; padding: 8px; border-radius: 9px; cursor: pointer; transition: background-color 0.2s; }
+        .flyout-btn.active { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        #read-along-player { 
+            position: fixed;
+            bottom: 80px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: auto; 
+            max-width: 60%; 
+            text-align: center; 
+            font-size: 20px; 
+            font-weight: 500; 
+            padding: 12px 25px;
+            background: rgba(0, 0, 0, 0.05);
+            color: #333;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .progress-bar-container { 
+            position: fixed; 
+            top: 50%; 
+            left: 30px; 
+            transform: translateY(-50%); 
+            width: auto;
+            z-index: 2; 
+        }
+        .progress-bar { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            position: relative; 
+            gap: 25px;
+        }
+        .progress-line { 
+            position: absolute; 
+            width: 2px; 
+            background-color: rgba(0,0,0,0.1); 
+            height: 100%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: -1; 
+        }
+        .progress-line-fill { 
+            position: absolute; 
+            width: 2px; 
+            background-color: var(--accent-blue); 
+            height: 0%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: -1; 
+            transition: height 0.4s ease-in-out; 
+        }
+        .progress-label-group { 
+            display: flex; 
+            align-items: center; 
+            cursor: pointer; 
+            width: 120px; /* Give it some width for the label */
+        }
+        .progress-step {
+            flex-shrink: 0; /* Prevent step from shrinking */
+        }
+        .progress-label { 
+            font-size: 12px; 
+            color: #888; 
+            margin-left: 15px; 
+            font-weight: 500; 
+            transition: color 0.3s; 
+        }
+        .progress-label-group.completed .progress-label { color: var(--text-primary); }
+        .progress-label-group.active .progress-label { color: var(--accent-blue); font-weight: 600; }
+        .progress-step { width: 12px; height: 12px; border-radius: 50%; background-color: rgba(255,255,255,0.4); transition: all 0.4s ease-in-out; }
+        .progress-step.active, .progress-step.completed { background-color: #fff; }
+        .progress-step.active { transform: scale(1.3); }
+    </style>
+</head>
+<body>
+    <div class="immersive-container">
+        <div id="start-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+            <button id="start-lesson-btn" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 500; padding: 18px 35px; border-radius: 18px; border: none; background: #fff; color: #007AFF; cursor: pointer; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">Start Lesson</button>
+        </div>
+        <div id="avatar-background" class="avatar-background kelly"></div>
+        <div class="main-content-area">
+            <!-- Persistent Question Area -->
+            <div id="persistent-question-container" class="ios-panel content-note position-question-deck" style="visibility: hidden;"></div>
+
+            <div class="phase" id="welcome-phase"><div class="ios-panel content-note position-right-shoulder" id="welcome-content"></div></div>
+            
+            <div class="phase" id="beginning-phase" data-question-side="center"><div class="ios-panel position-lower-deck"><div class="choice-note" id="beginning-choice-a"></div><div class="choice-note" id="beginning-choice-b"></div></div></div>
+            <div class="phase" id="middle-phase" data-question-side="center"><div class="ios-panel position-lower-deck"><div class="choice-note" id="middle-choice-a"></div><div class="choice-note" id="middle-choice-b"></div></div></div>
+            <div class="phase" id="end-phase" data-question-side="center"><div class="ios-panel position-lower-deck"><div class="choice-note" id="end-choice-a"></div><div class="choice-note" id="end-choice-b"></div></div></div>
+
+            <div class="phase" id="wisdom-phase" data-question-side="right"><div class="ios-panel content-note position-right-shoulder" id="wisdom-content"></div></div>
+            <div class="phase" id="teaching-moment-phase"><div class="ios-panel content-note position-centered-moment" id="teaching-moment-content"></div></div>
+        </div>
+        <div class="ui-overlays">
+            <div id="state-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Live State</span><button class="inspector-close-btn" data-inspector="state-inspector">&times;</button></div><div class="inspector-content"><pre id="state-inspector-content"></pre></div></div>
+            <div id="content-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Content Inspector</span><button class="inspector-close-btn" data-inspector="content-inspector">&times;</button></div><div class="inspector-content"><pre id="content-inspector-content"></pre></div></div>
+            <div id="code-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Lesson DNA</span><button class="inspector-close-btn" data-inspector="code-inspector">&times;</button></div><div class="inspector-content"><pre id="code-inspector-content"></pre></div></div>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-line"></div>
+                    <div class="progress-line-fill" id="progress-line-fill"></div>
+                    <div class="progress-label-group" data-phase="0"><div class="progress-step" id="progress-step-0"></div><span class="progress-label">Welcome</span></div>
+                    <div class="progress-line-connector"></div>
+                    <div class="progress-label-group" data-phase="1"><div class="progress-step" id="progress-step-1"></div><span class="progress-label">Beginning</span></div>
+                    <div class="progress-line-connector"></div>
+                    <div class="progress-label-group" data-phase="2"><div class="progress-step" id="progress-step-2"></div><span class="progress-label">Middle</span></div>
+                    <div class="progress-line-connector"></div>
+                    <div class="progress-label-group" data-phase="3"><div class="progress-step" id="progress-step-3"></div><span class="progress-label">End</span></div>
+                    <div class="progress-line-connector"></div>
+                    <div class="progress-label-group" data-phase="4"><div class="progress-step" id="progress-step-4"></div><span class="progress-label">Wisdom</span></div>
+                </div>
+            </div>
+            <div id="read-along-player" class="ios-panel"></div>
+            <div class="bottom-right-controls">
+                <button class="control-btn" id="inspector-state-toggle" data-inspector="state-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg></button>
+                <button class="control-btn" id="inspector-content-toggle" data-inspector="content-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg></button>
+                <button class="control-btn" id="inspector-code-toggle" data-inspector="code-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" /></svg></button>
+                <div class="master-flyout-container">
+                    <button class="control-btn" id="master-trigger"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg></button>
+                    <div class="master-flyout-menu ios-panel">
+                        <div class="flyout-section" id="avatar-controls"><span class="flyout-section-label">Avatar</span><div class="flyout-btn-group"><button class="flyout-btn" data-avatar="kelly">Kelly</button><button class="flyout-btn" data-avatar="ken">Ken</button></div></div>
+                        <div class="flyout-section" id="tone-controls"><span class="flyout-section-label">Tone</span><div class="flyout-btn-group"><button class="flyout-btn" data-tone="neutral">Neutral</button><button class="flyout-btn" data-tone="fun">Fun</button><button class="flyout-btn" data-tone="grandmother">Grandma</button></div></div>
+                        <div class="flyout-section" id="age-controls"><span class="flyout-section-label">Age</span><div class="flyout-btn-group"><button class="flyout-btn" data-age="2">2</button><button class="flyout-btn" data-age="8">8</button><button class="flyout-btn" data-age="16">16</button><button class="flyout-btn" data-age="25">25</button><button class="flyout-btn" data-age="60">60</button></div></div>
+                        <div class="flyout-section" id="media-controls"><span class="flyout-section-label">Media</span><div class="flyout-btn-group"><button class="flyout-btn" id="play-pause">Play/Pause</button><button class="flyout-btn" id="volume-up">Vol +</button><button class="flyout-btn" id="volume-down">Vol -</button></div></div>
+                        <div class="flyout-section" id="progress-controls"><span class="flyout-section-label">Progress</span><div class="flyout-btn-group"><button class="flyout-btn" id="save-progress">Save</button><button class="flyout-btn" id="load-progress">Load</button></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="/src/player.js"></script>
+</body>
+</html>

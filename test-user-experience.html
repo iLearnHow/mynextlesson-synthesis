@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn User Experience Test - Phase 1 Controls</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-step {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 iLearn Phase 1 Controls Test</h1>
+    
+    <div class="test-step">
+        <h2>Step 1: Phase 1 Controls Structure</h2>
+        <button onclick="testPhase1Controls()">Test Phase 1 Controls</button>
+        <div id="phase1-result"></div>
+        <div id="phase1-log" class="log"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>Step 2: Button Functionality</h2>
+        <button onclick="testButtonFunctionality()">Test Button Clicks</button>
+        <div id="button-result"></div>
+        <div id="button-log" class="log"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>Step 3: Overlay Systems</h2>
+        <button onclick="testOverlaySystems()">Test Overlay Systems</button>
+        <div id="overlay-result"></div>
+        <div id="overlay-log" class="log"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>Step 4: Content Controls Visibility</h2>
+        <button onclick="testContentControls()">Test Content Controls</button>
+        <div id="content-result"></div>
+        <div id="content-log" class="log"></div>
+    </div>
+    
+    <div class="test-step">
+        <h2>Step 5: Live Interface Test</h2>
+        <p>This will open the actual interface in an iframe for manual testing:</p>
+        <button onclick="openLiveTest()">Open Live Test</button>
+        <div id="live-test"></div>
+    </div>
+
+    <script>
+        function log(elementId, message) {
+            const logElement = document.getElementById(elementId);
+            if (logElement) {
+                logElement.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '\n';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+        
+        function showResult(elementId, message, type = 'success') {
+            const resultElement = document.getElementById(elementId);
+            if (resultElement) {
+                resultElement.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+            }
+        }
+        
+        async function testPhase1Controls() {
+            log('phase1-log', 'Testing Phase 1 controls structure...');
+            
+            try {
+                const response = await fetch('http://localhost:8000/');
+                if (response.ok) {
+                    const html = await response.text();
+                    
+                    // Check for Phase 1 controls structure
+                    const hasPhase1Controls = html.includes('phase1-controls');
+                    const hasHoldButton = html.includes('hold-button') && html.includes('✋');
+                    const hasMenuButton = html.includes('menu-button') && html.includes('☰');
+                    const hasExpandedControls = html.includes('expanded-controls');
+                    
+                    log('phase1-log', `✅ Phase 1 controls container: ${hasPhase1Controls}`);
+                    log('phase1-log', `✅ Hold button with icon: ${hasHoldButton}`);
+                    log('phase1-log', `✅ Menu button with icon: ${hasMenuButton}`);
+                    log('phase1-log', `✅ Expanded controls container: ${hasExpandedControls}`);
+                    
+                    if (hasPhase1Controls && hasHoldButton && hasMenuButton && hasExpandedControls) {
+                        showResult('phase1-result', '✅ Phase 1 controls structure is correct!', 'success');
+                    } else {
+                        showResult('phase1-result', '⚠️ Some Phase 1 control elements may be missing', 'warning');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log('phase1-log', '❌ Error testing Phase 1 controls: ' + error.message);
+                showResult('phase1-result', '❌ Failed to test Phase 1 controls: ' + error.message, 'error');
+            }
+        }
+        
+        async function testButtonFunctionality() {
+            log('button-log', 'Testing button functionality...');
+            
+            try {
+                const response = await fetch('http://localhost:8000/');
+                const html = await response.text();
+                
+                // Check for event listeners and toggle function
+                const hasToggleAllControls = html.includes('function toggleAllControls()');
+                const hasEventListeners = html.includes('addEventListener') && html.includes('DOMContentLoaded');
+                const hasHoldButtonClick = html.includes('hold-button') && html.includes('onclick="toggleAllControls()"');
+                const hasMenuButtonClick = html.includes('menu-button') && html.includes('onclick="toggleAllControls()"');
+                
+                log('button-log', `✅ toggleAllControls function: ${hasToggleAllControls}`);
+                log('button-log', `✅ Event listeners setup: ${hasEventListeners}`);
+                log('button-log', `✅ Hold button click handler: ${hasHoldButtonClick}`);
+                log('button-log', `✅ Menu button click handler: ${hasMenuButtonClick}`);
+                
+                if (hasToggleAllControls && hasEventListeners && hasHoldButtonClick && hasMenuButtonClick) {
+                    showResult('button-result', '✅ Button functionality setup is correct!', 'success');
+                } else {
+                    showResult('button-result', '⚠️ Some button functionality may be missing', 'warning');
+                }
+            } catch (error) {
+                log('button-log', '❌ Error testing button functionality: ' + error.message);
+                showResult('button-result', '❌ Failed to test button functionality: ' + error.message, 'error');
+            }
+        }
+        
+        async function testOverlaySystems() {
+            log('overlay-log', 'Testing overlay systems...');
+            
+            try {
+                const response = await fetch('http://localhost:8000/');
+                const html = await response.text();
+                
+                // Check for overlay functions and elements
+                const hasToggleCalendar = html.includes('function toggleCalendar()');
+                const hasToggleTone = html.includes('function toggleTone()');
+                const hasToggleAvatar = html.includes('function toggleAvatar()');
+                const hasToggleLanguage = html.includes('function toggleLanguage()');
+                const hasToggleAge = html.includes('function toggleAge()');
+                
+                const hasCalendarOverlay = html.includes('id="calendar-overlay"');
+                const hasToneOverlay = html.includes('id="tone-overlay"');
+                const hasAvatarOverlay = html.includes('id="avatar-overlay"');
+                const hasLanguageOverlay = html.includes('id="language-overlay"');
+                const hasAgeOverlay = html.includes('id="age-overlay"');
+                
+                log('overlay-log', `✅ toggleCalendar function: ${hasToggleCalendar}`);
+                log('overlay-log', `✅ toggleTone function: ${hasToggleTone}`);
+                log('overlay-log', `✅ toggleAvatar function: ${hasToggleAvatar}`);
+                log('overlay-log', `✅ toggleLanguage function: ${hasToggleLanguage}`);
+                log('overlay-log', `✅ toggleAge function: ${hasToggleAge}`);
+                
+                log('overlay-log', `✅ Calendar overlay element: ${hasCalendarOverlay}`);
+                log('overlay-log', `✅ Tone overlay element: ${hasToneOverlay}`);
+                log('overlay-log', `✅ Avatar overlay element: ${hasAvatarOverlay}`);
+                log('overlay-log', `✅ Language overlay element: ${hasLanguageOverlay}`);
+                log('overlay-log', `✅ Age overlay element: ${hasAgeOverlay}`);
+                
+                const allFunctionsPresent = hasToggleCalendar && hasToggleTone && hasToggleAvatar && hasToggleLanguage && hasToggleAge;
+                const allOverlaysPresent = hasCalendarOverlay && hasToneOverlay && hasAvatarOverlay && hasLanguageOverlay && hasAgeOverlay;
+                
+                if (allFunctionsPresent && allOverlaysPresent) {
+                    showResult('overlay-result', '✅ All overlay systems are properly implemented!', 'success');
+                } else {
+                    showResult('overlay-result', '⚠️ Some overlay systems may be missing', 'warning');
+                }
+            } catch (error) {
+                log('overlay-log', '❌ Error testing overlay systems: ' + error.message);
+                showResult('overlay-result', '❌ Failed to test overlay systems: ' + error.message, 'error');
+            }
+        }
+        
+        async function testContentControls() {
+            log('content-log', 'Testing content controls visibility...');
+            
+            try {
+                const response = await fetch('http://localhost:8000/');
+                const html = await response.text();
+                
+                // Check for content controls visibility settings
+                const hasContentControls = html.includes('class="content-controls"');
+                const isHiddenByDefault = html.includes('style="display: none"') || html.includes('style="display: none !important"');
+                const hasExpandedControls = html.includes('expanded-controls');
+                
+                log('content-log', `✅ Content controls element: ${hasContentControls}`);
+                log('content-log', `✅ Hidden by default: ${isHiddenByDefault}`);
+                log('content-log', `✅ Expanded controls container: ${hasExpandedControls}`);
+                
+                if (hasContentControls && isHiddenByDefault && hasExpandedControls) {
+                    showResult('content-result', '✅ Content controls are properly hidden in Phase 1!', 'success');
+                } else {
+                    showResult('content-result', '⚠️ Content controls visibility may need adjustment', 'warning');
+                }
+            } catch (error) {
+                log('content-log', '❌ Error testing content controls: ' + error.message);
+                showResult('content-result', '❌ Failed to test content controls: ' + error.message, 'error');
+            }
+        }
+        
+        function openLiveTest() {
+            const liveTestDiv = document.getElementById('live-test');
+            liveTestDiv.innerHTML = `
+                <h3>Live Interface Test</h3>
+                <p>This iframe shows the actual interface. You can interact with it to test the Phase 1 controls:</p>
+                <iframe src="http://localhost:8000/" title="iLearn Live Test"></iframe>
+                <p><strong>Test Instructions:</strong></p>
+                <ol>
+                    <li>Wait for the page to load completely</li>
+                    <li>Check that only Hold (✋) and Menu (☰) buttons are visible in bottom corners</li>
+                    <li>Click the Hold button - should expand all controls with red background test</li>
+                    <li>Click the Menu button - should do the same as Hold button</li>
+                    <li>Check that content controls (Calendar, Tone, etc.) are hidden by default</li>
+                    <li>Test overlay systems by clicking icons in expanded controls</li>
+                    <li>Check console for debug messages confirming button clicks</li>
+                </ol>
+            `;
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testPhase1Controls();
+                setTimeout(() => {
+                    testButtonFunctionality();
+                    setTimeout(() => {
+                        testOverlaySystems();
+                        setTimeout(() => {
+                            testContentControls();
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

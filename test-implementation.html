@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn Implementation Test Suite</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .pass { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 iLearn Implementation Test Suite</h1>
+    <p>Testing all implemented changes and functionality</p>
+
+    <div class="test-section">
+        <h2>✅ Phase 1: Testing Elements Removed</h2>
+        <div id="red-test-results"></div>
+        <button onclick="testRedElements()">Test Red Elements Removed</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🗣️ Phase 2: Talk to Continue</h2>
+        <div id="talk-continue-results"></div>
+        <button onclick="testTalkToContinue()">Test Talk to Continue</button>
+    </div>
+
+    <div class="test-section">
+        <h2>😊 Phase 3: Tone Selection</h2>
+        <div id="tone-results"></div>
+        <button onclick="testToneSelection()">Test Tone Selection</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🎭 Phase 4: Avatar Selection</h2>
+        <div id="avatar-results"></div>
+        <button onclick="testAvatarSelection()">Test Avatar Selection</button>
+    </div>
+
+    <div class="test-section">
+        <h2>👶 Phase 5: Age System</h2>
+        <div id="age-results"></div>
+        <button onclick="testAgeSystem()">Test Age System</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Phase 6: Create System</h2>
+        <div id="create-results"></div>
+        <button onclick="testCreateSystem()">Test Create System</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🎤 Phase 7: TTS System</h2>
+        <div id="tts-results"></div>
+        <button onclick="testTTSSystem()">Test TTS System</button>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Overall Results</h2>
+        <div id="overall-results"></div>
+        <button onclick="runAllTests()">Run All Tests</button>
+    </div>
+
+    <script>
+        let testResults = {
+            redElements: false,
+            talkToContinue: false,
+            toneSelection: false,
+            avatarSelection: false,
+            ageSystem: false,
+            createSystem: false,
+            ttsSystem: false
+        };
+
+        function showResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.textContent = message;
+            container.appendChild(resultDiv);
+        }
+
+        function testRedElements() {
+            const container = document.getElementById('red-test-results');
+            container.innerHTML = '';
+            
+            // Test if red background flash code is removed
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const hasRedFlash = html.includes('rgba(255, 0, 0, 0.3)');
+                    
+                    if (!hasRedFlash) {
+                        showResult('red-test-results', '✅ PASS: Red testing elements removed', 'pass');
+                        testResults.redElements = true;
+                    } else {
+                        showResult('red-test-results', '❌ FAIL: Red testing elements still present', 'fail');
+                        testResults.redElements = false;
+                    }
+                });
+        }
+
+        function testTalkToContinue() {
+            const container = document.getElementById('talk-continue-results');
+            container.innerHTML = '';
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const hasTalkButton = html.includes('tellAvatar(\'talk\')');
+                    const hasContinueButton = html.includes('tellAvatar(\'continue\')');
+                    const hasContinueCase = html.includes('case \'continue\':');
+                    const hasContinueResponse = html.includes('I\'m ready. Continue, please.');
+                    
+                    if (!hasTalkButton && hasContinueButton && hasContinueCase && hasContinueResponse) {
+                        showResult('talk-continue-results', '✅ PASS: Talk changed to Continue', 'pass');
+                        testResults.talkToContinue = true;
+                    } else {
+                        showResult('talk-continue-results', '❌ FAIL: Talk to Continue not fully implemented', 'fail');
+                        testResults.talkToContinue = false;
+                    }
+                });
+        }
+
+        function testToneSelection() {
+            const container = document.getElementById('tone-results');
+            container.innerHTML = '';
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const hasGrandparent = html.includes('setTone(\'grandparent\')');
+                    const hasGrandparentButton = html.includes('Grandparent</button>');
+                    const hasGrandmother = html.includes('setTone(\'grandmother\')');
+                    
+                    if (hasGrandparent && hasGrandparentButton && !hasGrandmother) {
+                        showResult('tone-results', '✅ PASS: Grandmother changed to Grandparent', 'pass');
+                        testResults.toneSelection = true;
+                    } else {
+                        showResult('tone-results', '❌ FAIL: Tone selection not updated', 'fail');
+                        testResults.toneSelection = false;
+                    }
+                });
+        }
+
+        function testAvatarSelection() {
+            const container = document.getElementById('avatar-results');
+            container.innerHTML = '';
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const hasKenFirst = html.includes('setAvatar(\'ken\')">Ken</button>');
+                    const hasKellySecond = html.includes('setAvatar(\'kelly\')">Kelly</button>');
+                    const hasYouThird = html.includes('setAvatar(\'you\')">You</button>');
+                    const hasKenDefault = html.includes('currentAvatar = \'ken\'');
+                    
+                    if (hasKenFirst && hasKellySecond && hasYouThird && hasKenDefault) {
+                        showResult('avatar-results', '✅ PASS: Avatar order updated (Ken, Kelly, You)', 'pass');
+                        testResults.avatarSelection = true;
+                    } else {
+                        showResult('avatar-results', '❌ FAIL: Avatar selection not updated', 'fail');
+                        testResults.avatarSelection = false;
+                    }
+                });
+        }
+
+        function testAgeSystem() {
+            const container = document.getElementById('age-results');
+            container.innerHTML = '';
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const hasAge2 = html.includes('setAge(\'age_2\')');
+                    const hasAge5 = html.includes('setAge(\'age_5\')');
+                    const hasAge8 = html.includes('setAge(\'age_8\')');
+                    const hasAge12 = html.includes('setAge(\'age_12\')');
+                    const hasAge16 = html.includes('setAge(\'age_16\')');
+                    const hasAge25 = html.includes('setAge(\'age_25\')');
+                    const hasAge40 = html.includes('setAge(\'age_40\')');
+                    const hasAge60 = html.includes('setAge(\'age_60\')');
+                    const hasAge80 = html.includes('setAge(\'age_80\')');
+                    const hasAge102 = html.includes('setAge(\'age_102\')');
+                    
+                    const allAges = [hasAge2, hasAge5, hasAge8, hasAge12, hasAge16, hasAge25, hasAge40, hasAge60, hasAge80, hasAge102];
+                    
+                    if (allAges.every(age => age)) {
+                        showResult('age-results', '✅ PASS: All 10 age buckets implemented', 'pass');
+                        testResults.ageSystem = true;
+                    } else {
+                        showResult('age-results', '❌ FAIL: Age system not fully implemented', 'fail');
+                        testResults.ageSystem = false;
+                    }
+                });
+        }
+
+        function testCreateSystem() {
+            const container = document.getElementById('create-results');
+            container.innerHTML = '';
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const hasTypeTell = html.includes('"Type" or "Tell" me what you want to know');
+                    const hasVoiceInput = html.includes('useVoiceInput()');
+                    const hasTextInput = html.includes('useTextInput()');
+                    const hasTokenCalculation = html.includes('calculateTokenCost()');
+                    const hasStripePayment = html.includes('stripe-payment-form');
+                    const hasNotification = html.includes('notification-preferences');
+                    
+                    if (hasTypeTell && hasVoiceInput && hasTextInput && hasTokenCalculation && hasStripePayment && hasNotification) {
+                        showResult('create-results', '✅ PASS: Enhanced create system implemented', 'pass');
+                        testResults.createSystem = true;
+                    } else {
+                        showResult('create-results', '❌ FAIL: Create system not fully implemented', 'fail');
+                        testResults.createSystem = false;
+                    }
+                });
+        }
+
+        function testTTSSystem() {
+            const container = document.getElementById('tts-results');
+            container.innerHTML = '';
+            
+            // Test if homegrown TTS file exists
+            fetch('homegrown-tts-system.js')
+                .then(response => {
+                    if (response.ok) {
+                        return response.text();
+                    } else {
+                        throw new Error('TTS file not found');
+                    }
+                })
+                .then(content => {
+                    const hasHomegrownTTS = content.includes('HomegrownTTSSystem');
+                    const hasVoiceModels = content.includes('kelly_voice_model');
+                    const hasRunpodEndpoint = content.includes('runpod.io');
+                    const hasGenerateAudio = content.includes('generateAudio');
+                    
+                    if (hasHomegrownTTS && hasVoiceModels && hasRunpodEndpoint && hasGenerateAudio) {
+                        showResult('tts-results', '✅ PASS: Homegrown TTS system implemented', 'pass');
+                        testResults.ttsSystem = true;
+                    } else {
+                        showResult('tts-results', '❌ FAIL: TTS system not fully implemented', 'fail');
+                        testResults.ttsSystem = false;
+                    }
+                })
+                .catch(error => {
+                    showResult('tts-results', '❌ FAIL: TTS system file not found', 'fail');
+                    testResults.ttsSystem = false;
+                });
+        }
+
+        function runAllTests() {
+            testRedElements();
+            setTimeout(() => testTalkToContinue(), 500);
+            setTimeout(() => testToneSelection(), 1000);
+            setTimeout(() => testAvatarSelection(), 1500);
+            setTimeout(() => testAgeSystem(), 2000);
+            setTimeout(() => testCreateSystem(), 2500);
+            setTimeout(() => testTTSSystem(), 3000);
+            setTimeout(() => showOverallResults(), 3500);
+        }
+
+        function showOverallResults() {
+            const container = document.getElementById('overall-results');
+            container.innerHTML = '';
+            
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(result => result).length;
+            const failedTests = totalTests - passedTests;
+            
+            const percentage = Math.round((passedTests / totalTests) * 100);
+            
+            let resultClass = 'pass';
+            if (percentage < 50) resultClass = 'fail';
+            else if (percentage < 100) resultClass = 'info';
+            
+            showResult('overall-results', `📊 Overall Results: ${passedTests}/${totalTests} tests passed (${percentage}%)`, resultClass);
+            
+            if (failedTests > 0) {
+                const failedTestsList = Object.entries(testResults)
+                    .filter(([test, result]) => !result)
+                    .map(([test]) => test.replace(/([A-Z])/g, ' $1').toLowerCase())
+                    .join(', ');
+                
+                showResult('overall-results', `❌ Failed tests: ${failedTestsList}`, 'fail');
+            } else {
+                showResult('overall-results', '🎉 All tests passed! Implementation complete!', 'pass');
+            }
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html> 

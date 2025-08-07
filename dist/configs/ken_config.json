@@ -1,0 +1,6 @@
+{
+  "id": "ken",
+  "sample_rate": 22050,
+  "segments_path": "data/ken/segments",
+  "metadata_path": "data/ken/metadata/enhanced_segments.json"
+}

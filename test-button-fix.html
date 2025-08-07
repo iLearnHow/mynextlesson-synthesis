@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .button-test {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .test-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Button Fix Test</h1>
+    
+    <div class="test-container">
+        <h2>Test the Fixed Buttons</h2>
+        <p>Click the buttons below to test if they're working properly:</p>
+        
+        <div class="button-test">
+            <div class="test-button" id="hold-test">
+                <div>✋</div>
+                <div style="font-size: 10px;">Hold</div>
+            </div>
+            <div class="test-button" id="menu-test">
+                <div>☰</div>
+            </div>
+        </div>
+        
+        <div id="status"></div>
+        <div id="log" class="log"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Live Site Test</h2>
+        <p>Test the actual live site:</p>
+        <a href="https://ilearnhow.pages.dev" target="_blank">Open Live Site</a>
+        <br><br>
+        <p><strong>Instructions:</strong></p>
+        <ol>
+            <li>Open the live site</li>
+            <li>Open browser console (F12)</li>
+            <li>Click the Hold button (✋) in bottom-left corner</li>
+            <li>Click the Menu button (☰) in bottom-right corner</li>
+            <li>Check console for debug messages</li>
+            <li>Look for red background flash when expanded</li>
+        </ol>
+    </div>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            if (logElement) {
+                logElement.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '\n';
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+        }
+        
+        function showStatus(message, type = 'success') {
+            const statusElement = document.getElementById('status');
+            if (statusElement) {
+                statusElement.innerHTML = `<div class="status ${type}">${message}</div>`;
+            }
+        }
+        
+        // Test the toggleAllControls function
+        function testToggleAllControls() {
+            console.log('🧪 Testing toggleAllControls function...');
+            log('🧪 Testing toggleAllControls function...');
+            
+            if (typeof window.toggleAllControls === 'function') {
+                log('✅ toggleAllControls function is available');
+                showStatus('✅ toggleAllControls function is available', 'success');
+                return true;
+            } else {
+                log('❌ toggleAllControls function not found');
+                showStatus('❌ toggleAllControls function not found', 'error');
+                return false;
+            }
+        }
+        
+        // Test button clicks
+        document.getElementById('hold-test').addEventListener('click', function() {
+            log('✋ Hold test button clicked');
+            console.log('✋ Hold test button clicked');
+            testToggleAllControls();
+        });
+        
+        document.getElementById('menu-test').addEventListener('click', function() {
+            log('☰ Menu test button clicked');
+            console.log('☰ Menu test button clicked');
+            testToggleAllControls();
+        });
+        
+        // Auto-test on load
+        window.addEventListener('load', function() {
+            log('🚀 Button fix test loaded');
+            testToggleAllControls();
+        });
+    </script>
+</body>
+</html> 

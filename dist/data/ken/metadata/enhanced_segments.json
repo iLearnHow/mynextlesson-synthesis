@@ -1,0 +1,331 @@
+{
+  "speaker": "ken",
+  "total_segments": 25,
+  "segments": [
+    {
+      "start_sample": 3457,
+      "end_sample": 24658,
+      "duration": 0.9614965986394558,
+      "quality_metrics": {
+        "snr": 12.785489633889732,
+        "clarity": 16.159942636354586,
+        "energy_stability": 13.199810056300784,
+        "pitch_stability": 0.08729151817278868,
+        "spectral_flatness": 0.20576246082782745
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_000.wav"
+    },
+    {
+      "start_sample": 24658,
+      "end_sample": 80078,
+      "duration": 2.513378684807256,
+      "quality_metrics": {
+        "snr": 5.7018057571127745,
+        "clarity": 17.918690680749176,
+        "energy_stability": 12.299814458154739,
+        "pitch_stability": 0.10302098546845376,
+        "spectral_flatness": 0.13872762024402618
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_001.wav"
+    },
+    {
+      "start_sample": 80078,
+      "end_sample": 166872,
+      "duration": 3.936235827664399,
+      "quality_metrics": {
+        "snr": 6.727635952813885,
+        "clarity": 20.748212773177254,
+        "energy_stability": 16.9915849936955,
+        "pitch_stability": 0.07135750651013431,
+        "spectral_flatness": 0.05167754739522934
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_002.wav"
+    },
+    {
+      "start_sample": 166872,
+      "end_sample": 194404,
+      "duration": 1.2486167800453514,
+      "quality_metrics": {
+        "snr": 5.053852162237816,
+        "clarity": 19.058120357235488,
+        "energy_stability": 14.702985013114807,
+        "pitch_stability": 0.15491845529378684,
+        "spectral_flatness": 0.05271775647997856
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_003.wav"
+    },
+    {
+      "start_sample": 194404,
+      "end_sample": 219293,
+      "duration": 1.1287528344671203,
+      "quality_metrics": {
+        "snr": 5.285911986602551,
+        "clarity": 19.281625823805808,
+        "energy_stability": 13.60775127924455,
+        "pitch_stability": 0.07381662041060313,
+        "spectral_flatness": 0.10271042585372925
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_004.wav"
+    },
+    {
+      "start_sample": 219293,
+      "end_sample": 260138,
+      "duration": 1.8523809523809525,
+      "quality_metrics": {
+        "snr": 8.09863033556793,
+        "clarity": 19.096665685206265,
+        "energy_stability": 14.97805232909956,
+        "pitch_stability": 0.18093555790136132,
+        "spectral_flatness": 0.08813297748565674
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_005.wav"
+    },
+    {
+      "start_sample": 260138,
+      "end_sample": 291277,
+      "duration": 1.4121995464852608,
+      "quality_metrics": {
+        "snr": 14.158884261162088,
+        "clarity": 20.15369998653662,
+        "energy_stability": 10.923913019159716,
+        "pitch_stability": 0.10736277230764173,
+        "spectral_flatness": 0.11937065422534943
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_006.wav"
+    },
+    {
+      "start_sample": 291277,
+      "end_sample": 309788,
+      "duration": 0.8395011337868481,
+      "quality_metrics": {
+        "snr": 9.371854485907878,
+        "clarity": 21.25237555222363,
+        "energy_stability": 24.44489509241685,
+        "pitch_stability": 0.22958109680490535,
+        "spectral_flatness": 0.012043562717735767
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_007.wav"
+    },
+    {
+      "start_sample": 309788,
+      "end_sample": 323444,
+      "duration": 0.6193197278911564,
+      "quality_metrics": {
+        "snr": -1.7495226328190807,
+        "clarity": 14.702103723913552,
+        "energy_stability": 72.77589024558065,
+        "pitch_stability": NaN,
+        "spectral_flatness": 0.19807645678520203
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_008.wav"
+    },
+    {
+      "start_sample": 323444,
+      "end_sample": 429786,
+      "duration": 4.822766439909297,
+      "quality_metrics": {
+        "snr": 6.572811758191467,
+        "clarity": 20.026032955740643,
+        "energy_stability": 14.293068213993461,
+        "pitch_stability": 0.09998301910146658,
+        "spectral_flatness": 0.053545814007520676
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_009.wav"
+    },
+    {
+      "start_sample": 429786,
+      "end_sample": 487441,
+      "duration": 2.614739229024943,
+      "quality_metrics": {
+        "snr": 10.764785656058162,
+        "clarity": 19.95311872362762,
+        "energy_stability": 14.137190985734893,
+        "pitch_stability": 0.12689595329813916,
+        "spectral_flatness": 0.041227344423532486
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_010.wav"
+    },
+    {
+      "start_sample": 487441,
+      "end_sample": 507787,
+      "duration": 0.9227210884353741,
+      "quality_metrics": {
+        "snr": 5.4691931361986725,
+        "clarity": 17.75432413554539,
+        "energy_stability": 12.462050346787091,
+        "pitch_stability": 0.14316101094903302,
+        "spectral_flatness": 0.07944782078266144
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_011.wav"
+    },
+    {
+      "start_sample": 507787,
+      "end_sample": 538661,
+      "duration": 1.4001814058956916,
+      "quality_metrics": {
+        "snr": 6.641864556146587,
+        "clarity": 16.83449371998086,
+        "energy_stability": 14.416845051362667,
+        "pitch_stability": 0.18310040681454356,
+        "spectral_flatness": 0.14092883467674255
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_012.wav"
+    },
+    {
+      "start_sample": 538661,
+      "end_sample": 564363,
+      "duration": 1.1656235827664398,
+      "quality_metrics": {
+        "snr": 13.39726544673459,
+        "clarity": 16.205697895389683,
+        "energy_stability": 13.139116230543781,
+        "pitch_stability": 0.14157134780072875,
+        "spectral_flatness": 0.10501253604888916
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_013.wav"
+    },
+    {
+      "start_sample": 564363,
+      "end_sample": 576036,
+      "duration": 0.5293877551020408,
+      "quality_metrics": {
+        "snr": 5.242466435538366,
+        "clarity": 17.890940042184965,
+        "energy_stability": 11.932988126096902,
+        "pitch_stability": 0.3190670658766644,
+        "spectral_flatness": 0.12509402632713318
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_014.wav"
+    },
+    {
+      "start_sample": 576036,
+      "end_sample": 594562,
+      "duration": 0.8401814058956916,
+      "quality_metrics": {
+        "snr": 4.521872836503364,
+        "clarity": 15.783085158309802,
+        "energy_stability": 19.07721780945001,
+        "pitch_stability": 0.43111497593326675,
+        "spectral_flatness": 0.1459406167268753
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_015.wav"
+    },
+    {
+      "start_sample": 594562,
+      "end_sample": 656663,
+      "duration": 2.816371882086168,
+      "quality_metrics": {
+        "snr": 8.359023832904173,
+        "clarity": 20.39630218208505,
+        "energy_stability": 15.475550049388467,
+        "pitch_stability": 0.09724853059811824,
+        "spectral_flatness": 0.04928195849061012
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_016.wav"
+    },
+    {
+      "start_sample": 666385,
+      "end_sample": 730040,
+      "duration": 2.8868480725623584,
+      "quality_metrics": {
+        "snr": 14.38160849185703,
+        "clarity": 20.44299739140057,
+        "energy_stability": 12.851815335524607,
+        "pitch_stability": 0.12923757410404713,
+        "spectral_flatness": 0.04621531814336777
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_017.wav"
+    },
+    {
+      "start_sample": 730040,
+      "end_sample": 762130,
+      "duration": 1.455328798185941,
+      "quality_metrics": {
+        "snr": 8.466599099329041,
+        "clarity": 21.01963919599291,
+        "energy_stability": 13.581552961587748,
+        "pitch_stability": 0.14725907618370293,
+        "spectral_flatness": 0.03373837471008301
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_018.wav"
+    },
+    {
+      "start_sample": 762130,
+      "end_sample": 784861,
+      "duration": 1.0308843537414967,
+      "quality_metrics": {
+        "snr": 12.050836431879207,
+        "clarity": 16.72801741688,
+        "energy_stability": 16.980098432609548,
+        "pitch_stability": 0.13060378297823427,
+        "spectral_flatness": 0.20155158638954163
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_019.wav"
+    },
+    {
+      "start_sample": 784861,
+      "end_sample": 823158,
+      "duration": 1.7368253968253968,
+      "quality_metrics": {
+        "snr": 7.659278457952303,
+        "clarity": 19.78503337008584,
+        "energy_stability": 12.057291325077585,
+        "pitch_stability": 0.051849287992452205,
+        "spectral_flatness": 0.09345693141222
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_020.wav"
+    },
+    {
+      "start_sample": 829728,
+      "end_sample": 855445,
+      "duration": 1.1663038548752835,
+      "quality_metrics": {
+        "snr": 3.611238042688126,
+        "clarity": 19.85548818128038,
+        "energy_stability": 14.934704659552047,
+        "pitch_stability": 0.12617988731994664,
+        "spectral_flatness": 0.07417888194322586
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_021.wav"
+    },
+    {
+      "start_sample": 855445,
+      "end_sample": 899172,
+      "duration": 1.9830839002267573,
+      "quality_metrics": {
+        "snr": 5.814281529400027,
+        "clarity": 18.567147862461788,
+        "energy_stability": 14.072832683235918,
+        "pitch_stability": 0.14499242192118292,
+        "spectral_flatness": 0.10642018169164658
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_022.wav"
+    },
+    {
+      "start_sample": 899172,
+      "end_sample": 1029481,
+      "duration": 5.909705215419502,
+      "quality_metrics": {
+        "snr": 8.717777105446476,
+        "clarity": 20.129254145319972,
+        "energy_stability": 14.562345165814943,
+        "pitch_stability": 0.07667104408351871,
+        "spectral_flatness": 0.054993920028209686
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_023.wav"
+    },
+    {
+      "start_sample": 1029481,
+      "end_sample": 1062084,
+      "duration": 1.4785941043083901,
+      "quality_metrics": {
+        "snr": 10.257722600614137,
+        "clarity": 19.55124039195177,
+        "energy_stability": 9.342753641546658,
+        "pitch_stability": 0.07078753995315298,
+        "spectral_flatness": 0.08495930582284927
+      },
+      "file": "processed_data/tts_training_data/ken/enhanced_segments/segment_024.wav"
+    }
+  ]
+}

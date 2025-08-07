@@ -1,0 +1,6 @@
+{
+  "id": "kelly",
+  "sample_rate": 22050,
+  "segments_path": "data/kelly/segments",
+  "metadata_path": "data/kelly/metadata/enhanced_segments.json"
+}

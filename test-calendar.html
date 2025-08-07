@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Test - iLearn 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .calendar-preview {
+            background: #000;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🎯 Calendar Test - iLearn 2025</h1>
+        <p>Testing the complete 365-day calendar functionality with tooltips and lesson loading.</p>
+
+        <div class="test-section">
+            <div class="test-title">📚 Data Loading Test</div>
+            <div id="data-test-results"></div>
+            <button onclick="testDataLoading()">Test Data Loading</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📅 Calendar Generation Test</div>
+            <div id="calendar-test-results"></div>
+            <button onclick="testCalendarGeneration()">Test Calendar Generation</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Lesson Loading Test</div>
+            <div id="lesson-test-results"></div>
+            <button onclick="testLessonLoading()">Test Lesson Loading</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔍 Tooltip Test</div>
+            <div id="tooltip-test-results"></div>
+            <button onclick="testTooltips()">Test Tooltips</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Full Year Test</div>
+            <div id="full-year-test-results"></div>
+            <button onclick="testFullYear()">Test All 365 Days</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎮 Live Calendar Preview</div>
+            <div class="calendar-preview">
+                <div id="calendar-preview"></div>
+            </div>
+            <button onclick="showCalendarPreview()">Show Calendar Preview</button>
+        </div>
+    </div>
+
+    <script src="complete-lesson-generator.js"></script>
+    <script src="complete-lesson-player.js"></script>
+    <script>
+        let lessonPlayer;
+        let testResults = {};
+
+        // Initialize test environment
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Initializing test environment...');
+            lessonPlayer = new CompleteLessonPlayer();
+        });
+
+        function addTestResult(section, message, type = 'info') {
+            const container = document.getElementById(section);
+            const result = document.createElement('div');
+            result.className = `test-result ${type}`;
+            result.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            container.appendChild(result);
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        async function testDataLoading() {
+            addTestResult('data-test-results', 'Starting data loading test...', 'info');
+            
+            try {
+                // Test loading all 12 months
+                const months = ['january', 'february', 'march', 'april', 'may', 'june',
+                              'july', 'august', 'september', 'october', 'november', 'december'];
+                
+                let loadedMonths = 0;
+                let totalDays = 0;
+                
+                for (const month of months) {
+                    try {
+                        const response = await fetch(`data/${month}_curriculum.json`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            loadedMonths++;
+                            totalDays += data.days ? data.days.length : 0;
+                            addTestResult('data-test-results', `✅ Loaded ${month}: ${data.days ? data.days.length : 0} days`, 'success');
+                        } else {
+                            addTestResult('data-test-results', `❌ Failed to load ${month}`, 'error');
+                        }
+                    } catch (error) {
+                        addTestResult('data-test-results', `❌ Error loading ${month}: ${error.message}`, 'error');
+                    }
+                }
+                
+                addTestResult('data-test-results', `📊 Summary: ${loadedMonths}/12 months loaded, ${totalDays} total days`, 'success');
+                
+            } catch (error) {
+                addTestResult('data-test-results', `❌ Data loading failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCalendarGeneration() {
+            addTestResult('calendar-test-results', 'Starting calendar generation test...', 'info');
+            
+            try {
+                // Wait for lesson player to be ready
+                if (!lessonPlayer || !lessonPlayer.fullYearData) {
+                    addTestResult('calendar-test-results', '⏳ Waiting for lesson player to load data...', 'info');
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+                
+                if (lessonPlayer && lessonPlayer.fullYearData) {
+                    const monthsWithData = Object.keys(lessonPlayer.fullYearData).length;
+                    addTestResult('calendar-test-results', `✅ Calendar data loaded: ${monthsWithData} months`, 'success');
+                    
+                    // Test calendar generation for each month
+                    for (let month = 1; month <= 12; month++) {
+                        const monthName = lessonPlayer.getMonthName(month).toLowerCase();
+                        const monthData = lessonPlayer.fullYearData[monthName];
+                        
+                        if (monthData && monthData.days) {
+                            addTestResult('calendar-test-results', `✅ Month ${month}: ${monthData.days.length} days`, 'success');
+                        } else {
+                            addTestResult('calendar-test-results', `❌ Month ${month}: No data`, 'error');
+                        }
+                    }
+                } else {
+                    addTestResult('calendar-test-results', '❌ Lesson player not ready', 'error');
+                }
+                
+            } catch (error) {
+                addTestResult('calendar-test-results', `❌ Calendar generation failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testLessonLoading() {
+            addTestResult('lesson-test-results', 'Starting lesson loading test...', 'info');
+            
+            try {
+                // Test loading lessons for different days
+                const testDays = [
+                    { month: 1, day: 1, expected: 'The Sun - Our Magnificent Life-Giving Star' },
+                    { month: 7, day: 1, expected: 'Zoology - The Study of Animals' },
+                    { month: 12, day: 25, expected: null } // Christmas day might not have data
+                ];
+                
+                for (const test of testDays) {
+                    const lessonData = lessonPlayer.getLessonData(test.month, test.day);
+                    
+                    if (lessonData) {
+                        addTestResult('lesson-test-results', `✅ Day ${test.month}/${test.day}: "${lessonData.title}"`, 'success');
+                        
+                        if (test.expected && lessonData.title.includes(test.expected.split(' - ')[0])) {
+                            addTestResult('lesson-test-results', `✅ Title matches expected: ${test.expected}`, 'success');
+                        }
+                    } else {
+                        addTestResult('lesson-test-results', `⚠️ Day ${test.month}/${test.day}: No lesson data`, 'info');
+                    }
+                }
+                
+            } catch (error) {
+                addTestResult('lesson-test-results', `❌ Lesson loading failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testTooltips() {
+            addTestResult('tooltip-test-results', 'Starting tooltip test...', 'info');
+            
+            try {
+                // Test tooltip generation for various days
+                const testDays = [
+                    { month: 1, day: 1 },
+                    { month: 7, day: 15 },
+                    { month: 12, day: 31 }
+                ];
+                
+                for (const test of testDays) {
+                    const lessonData = lessonPlayer.getLessonData(test.month, test.day);
+                    
+                    if (lessonData) {
+                        const tooltip = `${lessonData.title}\n\n${lessonData.learning_objective}`;
+                        addTestResult('tooltip-test-results', `✅ Day ${test.month}/${test.day}: Tooltip generated (${tooltip.length} chars)`, 'success');
+                    } else {
+                        addTestResult('tooltip-test-results', `⚠️ Day ${test.month}/${test.day}: No tooltip (no lesson data)`, 'info');
+                    }
+                }
+                
+            } catch (error) {
+                addTestResult('tooltip-test-results', `❌ Tooltip test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFullYear() {
+            addTestResult('full-year-test-results', 'Starting full year test (365 days)...', 'info');
+            
+            try {
+                let totalDays = 0;
+                let daysWithLessons = 0;
+                let daysWithoutLessons = 0;
+                
+                // Test all 365 days
+                for (let month = 1; month <= 12; month++) {
+                    const daysInMonth = new Date(2025, month, 0).getDate();
+                    
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        totalDays++;
+                        const lessonData = lessonPlayer.getLessonData(month, day);
+                        
+                        if (lessonData) {
+                            daysWithLessons++;
+                        } else {
+                            daysWithoutLessons++;
+                        }
+                    }
+                }
+                
+                addTestResult('full-year-test-results', `📊 Full year summary:`, 'info');
+                addTestResult('full-year-test-results', `   Total days: ${totalDays}`, 'success');
+                addTestResult('full-year-test-results', `   Days with lessons: ${daysWithLessons}`, 'success');
+                addTestResult('full-year-test-results', `   Days without lessons: ${daysWithoutLessons}`, 'info');
+                addTestResult('full-year-test-results', `   Coverage: ${((daysWithLessons/totalDays)*100).toFixed(1)}%`, 'success');
+                
+            } catch (error) {
+                addTestResult('full-year-test-results', `❌ Full year test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function showCalendarPreview() {
+            addTestResult('calendar-test-results', 'Showing calendar preview...', 'info');
+            
+            const preview = document.getElementById('calendar-preview');
+            preview.innerHTML = `
+                <h3>Calendar Preview</h3>
+                <p>Current month: ${lessonPlayer ? lessonPlayer.getMonthName(lessonPlayer.currentMonth) : 'Loading...'}</p>
+                <p>Current day: ${lessonPlayer ? lessonPlayer.currentDay : 'Loading...'}</p>
+                <p>Selected day: ${lessonPlayer ? lessonPlayer.selectedDay : 'Loading...'}</p>
+                <div style="margin-top: 10px;">
+                    <button onclick="testMonthNavigation()">Test Month Navigation</button>
+                    <button onclick="testDaySelection()">Test Day Selection</button>
+                </div>
+            `;
+        }
+
+        function testMonthNavigation() {
+            addTestResult('calendar-test-results', 'Testing month navigation...', 'info');
+            
+            if (lessonPlayer) {
+                const originalMonth = lessonPlayer.currentMonth;
+                
+                // Test next month
+                lessonPlayer.currentMonth = lessonPlayer.currentMonth === 12 ? 1 : lessonPlayer.currentMonth + 1;
+                addTestResult('calendar-test-results', `✅ Navigated to ${lessonPlayer.getMonthName(lessonPlayer.currentMonth)}`, 'success');
+                
+                // Test previous month
+                lessonPlayer.currentMonth = lessonPlayer.currentMonth === 1 ? 12 : lessonPlayer.currentMonth - 1;
+                addTestResult('calendar-test-results', `✅ Navigated to ${lessonPlayer.getMonthName(lessonPlayer.currentMonth)}`, 'success');
+                
+                // Restore original
+                lessonPlayer.currentMonth = originalMonth;
+                addTestResult('calendar-test-results', `✅ Restored to ${lessonPlayer.getMonthName(lessonPlayer.currentMonth)}`, 'success');
+            }
+        }
+
+        function testDaySelection() {
+            addTestResult('calendar-test-results', 'Testing day selection...', 'info');
+            
+            if (lessonPlayer) {
+                const testDay = 15;
+                const testMonth = 7;
+                
+                lessonPlayer.selectDay(testDay, testMonth);
+                addTestResult('calendar-test-results', `✅ Selected day ${testDay} of month ${testMonth}`, 'success');
+                
+                const lessonData = lessonPlayer.getLessonData(testMonth, testDay);
+                if (lessonData) {
+                    addTestResult('calendar-test-results', `✅ Loaded lesson: "${lessonData.title}"`, 'success');
+                } else {
+                    addTestResult('calendar-test-results', `⚠️ No lesson data for selected day`, 'info');
+                }
+            }
+        }
+    </script>
+</body>
+</html> 

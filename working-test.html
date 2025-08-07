@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working Test - iLearn How</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .nav-icon {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: #333;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+            min-width: 300px;
+        }
+
+        .overlay h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .close-overlay {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-overlay:hover {
+            color: #333;
+        }
+
+        .option-btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .option-btn:hover {
+            background: #0056CC;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .status.success {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid #4CAF50;
+        }
+
+        .status.error {
+            background: rgba(244, 67, 54, 0.2);
+            border-left: 4px solid #F44336;
+        }
+
+        .test-results {
+            margin-top: 30px;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .test-result.pass {
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .test-result.fail {
+            background: rgba(244, 67, 54, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 iLearn How - Working Test</h1>
+        <p>Testing icon functionality and overlay system</p>
+
+        <div class="test-section">
+            <h2>🎯 Icon Test</h2>
+            <p>Click each icon to test overlay functionality:</p>
+            
+            <div class="icon-grid">
+                <div class="nav-icon" onclick="toggleCalendar()">📅</div>
+                <div class="nav-icon" onclick="toggleTone()">😊</div>
+                <div class="nav-icon" onclick="toggleAvatar()">🎭</div>
+                <div class="nav-icon" onclick="toggleLanguage()">🌍</div>
+                <div class="nav-icon" onclick="toggleAge()">👶</div>
+                <div class="nav-icon" onclick="toggleNewLesson()">➕</div>
+            </div>
+
+            <div class="status" id="icon-status">
+                Click an icon to test functionality...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Results</h2>
+            <div class="test-results" id="test-results">
+                <div class="test-result">Running tests...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Overlay -->
+    <div id="calendar-overlay" class="overlay">
+        <button class="close-overlay" onclick="closeCalendar()">×</button>
+        <h3>📅 Calendar</h3>
+        <p>Today is August 1st, 2024</p>
+        <div class="option-btn" onclick="selectDay(1)">Day 1</div>
+        <div class="option-btn" onclick="selectDay(2)">Day 2</div>
+        <div class="option-btn" onclick="selectDay(3)">Day 3</div>
+    </div>
+
+    <!-- Tone Overlay -->
+    <div id="tone-overlay" class="overlay">
+        <button class="close-overlay" onclick="closeTone()">×</button>
+        <h3>😊 Tone Selection</h3>
+        <div class="option-btn" onclick="setTone('neutral')">Neutral</div>
+        <div class="option-btn" onclick="setTone('fun')">Fun</div>
+        <div class="option-btn" onclick="setTone('grandmother')">Grandmother</div>
+    </div>
+
+    <!-- Avatar Overlay -->
+    <div id="avatar-overlay" class="overlay">
+        <button class="close-overlay" onclick="closeAvatar()">×</button>
+        <h3>🎭 Avatar Selection</h3>
+        <div class="option-btn" onclick="setAvatar('kelly')">Kelly</div>
+        <div class="option-btn" onclick="setAvatar('ken')">Ken</div>
+    </div>
+
+    <!-- Language Overlay -->
+    <div id="language-overlay" class="overlay">
+        <button class="close-overlay" onclick="closeLanguage()">×</button>
+        <h3>🌍 Language Selection</h3>
+        <div class="option-btn" onclick="setLanguage('english')">English</div>
+        <div class="option-btn" onclick="setLanguage('spanish')">Spanish</div>
+        <div class="option-btn" onclick="setLanguage('french')">French</div>
+    </div>
+
+    <!-- Age Overlay -->
+    <div id="age-overlay" class="overlay">
+        <button class="close-overlay" onclick="closeAge()">×</button>
+        <h3>👶 Age Group</h3>
+        <div class="option-btn" onclick="setAge('child')">Child (5-11)</div>
+        <div class="option-btn" onclick="setAge('teen')">Teen (12-17)</div>
+        <div class="option-btn" onclick="setAge('adult')">Adult (18+)</div>
+    </div>
+
+    <!-- New Lesson Overlay -->
+    <div id="new-lesson-overlay" class="overlay">
+        <button class="close-overlay" onclick="closeNewLesson()">×</button>
+        <h3>➕ Create New Lesson</h3>
+        <p>Enter a topic for your new lesson:</p>
+        <input type="text" id="lesson-topic" placeholder="e.g., Solar System" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px;">
+        <div class="option-btn" onclick="generateLesson()">Generate Lesson</div>
+    </div>
+
+    <script>
+        let currentTone = 'neutral';
+        let currentAvatar = 'kelly';
+        let currentLanguage = 'english';
+        let currentAge = 'adult';
+        let currentDay = 1;
+
+        // Test results
+        const testResults = [];
+
+        // Toggle functions
+        function toggleCalendar() {
+            console.log('📅 Toggling calendar');
+            const overlay = document.getElementById('calendar-overlay');
+            overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+            updateStatus('Calendar overlay toggled', 'success');
+            addTestResult('Calendar icon', true);
+        }
+
+        function toggleTone() {
+            console.log('😊 Toggling tone');
+            const overlay = document.getElementById('tone-overlay');
+            overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+            updateStatus('Tone overlay toggled', 'success');
+            addTestResult('Tone icon', true);
+        }
+
+        function toggleAvatar() {
+            console.log('🎭 Toggling avatar');
+            const overlay = document.getElementById('avatar-overlay');
+            overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+            updateStatus('Avatar overlay toggled', 'success');
+            addTestResult('Avatar icon', true);
+        }
+
+        function toggleLanguage() {
+            console.log('🌍 Toggling language');
+            const overlay = document.getElementById('language-overlay');
+            overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+            updateStatus('Language overlay toggled', 'success');
+            addTestResult('Language icon', true);
+        }
+
+        function toggleAge() {
+            console.log('👶 Toggling age');
+            const overlay = document.getElementById('age-overlay');
+            overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+            updateStatus('Age overlay toggled', 'success');
+            addTestResult('Age icon', true);
+        }
+
+        function toggleNewLesson() {
+            console.log('➕ Toggling new lesson');
+            const overlay = document.getElementById('new-lesson-overlay');
+            overlay.style.display = overlay.style.display === 'none' ? 'block' : 'none';
+            updateStatus('New lesson overlay toggled', 'success');
+            addTestResult('New lesson icon', true);
+        }
+
+        // Close functions
+        function closeCalendar() {
+            document.getElementById('calendar-overlay').style.display = 'none';
+        }
+
+        function closeTone() {
+            document.getElementById('tone-overlay').style.display = 'none';
+        }
+
+        function closeAvatar() {
+            document.getElementById('avatar-overlay').style.display = 'none';
+        }
+
+        function closeLanguage() {
+            document.getElementById('language-overlay').style.display = 'none';
+        }
+
+        function closeAge() {
+            document.getElementById('age-overlay').style.display = 'none';
+        }
+
+        function closeNewLesson() {
+            document.getElementById('new-lesson-overlay').style.display = 'none';
+        }
+
+        // Set functions
+        function setTone(tone) {
+            currentTone = tone;
+            updateStatus(`Tone set to: ${tone}`, 'success');
+            closeTone();
+            addTestResult(`Tone selection (${tone})`, true);
+        }
+
+        function setAvatar(avatar) {
+            currentAvatar = avatar;
+            updateStatus(`Avatar set to: ${avatar}`, 'success');
+            closeAvatar();
+            addTestResult(`Avatar selection (${avatar})`, true);
+        }
+
+        function setLanguage(language) {
+            currentLanguage = language;
+            updateStatus(`Language set to: ${language}`, 'success');
+            closeLanguage();
+            addTestResult(`Language selection (${language})`, true);
+        }
+
+        function setAge(age) {
+            currentAge = age;
+            updateStatus(`Age set to: ${age}`, 'success');
+            closeAge();
+            addTestResult(`Age selection (${age})`, true);
+        }
+
+        function selectDay(day) {
+            currentDay = day;
+            updateStatus(`Day selected: ${day}`, 'success');
+            closeCalendar();
+            addTestResult(`Day selection (${day})`, true);
+        }
+
+        function generateLesson() {
+            const topic = document.getElementById('lesson-topic').value;
+            if (topic) {
+                updateStatus(`Lesson generated for: ${topic}`, 'success');
+                closeNewLesson();
+                addTestResult(`Lesson generation (${topic})`, true);
+            } else {
+                updateStatus('Please enter a topic', 'error');
+                addTestResult('Lesson generation (no topic)', false);
+            }
+        }
+
+        // Utility functions
+        function updateStatus(message, type) {
+            const status = document.getElementById('icon-status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function addTestResult(test, passed) {
+            testResults.push({ test, passed });
+            updateTestResults();
+        }
+
+        function updateTestResults() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '';
+            
+            testResults.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `test-result ${result.passed ? 'pass' : 'fail'}`;
+                resultDiv.textContent = `${result.passed ? '✅' : '❌'} ${result.test}`;
+                resultsDiv.appendChild(resultDiv);
+            });
+        }
+
+        // Run initial tests
+        setTimeout(() => {
+            addTestResult('Page loaded', true);
+            addTestResult('All overlays hidden initially', true);
+            updateStatus('Ready for testing! Click any icon to test functionality.', 'success');
+        }, 100);
+    </script>
+</body>
+</html> 

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f0f0f0;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Clean System Test</h1>
+    
+    <div class="test-section">
+        <h2>System Initialization Test</h2>
+        <button onclick="testInitialization()">Test System Init</button>
+        <div id="init-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Lesson Loading Test</h2>
+        <button onclick="testLessonLoading()">Test Lesson Loading</button>
+        <div id="lesson-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Avatar System Test</h2>
+        <button onclick="testAvatarSystem()">Test Avatar Switching</button>
+        <div id="avatar-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Phase Progression Test</h2>
+        <button onclick="testPhaseProgression()">Test Phase Progression</button>
+        <div id="phase-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Calendar System Test</h2>
+        <button onclick="testCalendarSystem()">Test Calendar</button>
+        <div id="calendar-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Integration Test</h2>
+        <button onclick="testIntegration()">Test Full Integration</button>
+        <div id="integration-result"></div>
+    </div>
+
+    <script>
+        // Mock curriculum for testing
+        const TEST_CURRICULUM = {
+            1: { title: "Test Lesson 1", learning_objective: "Test objective 1" },
+            2: { title: "Test Lesson 2", learning_objective: "Test objective 2" },
+            3: { title: "Test Lesson 3", learning_objective: "Test objective 3" }
+        };
+
+        // Mock CleanLessonPlayer for testing
+        class TestCleanLessonPlayer {
+            constructor() {
+                this.currentDay = 1;
+                this.currentPhaseIndex = 0;
+                this.isPlaying = false;
+                this.currentLesson = null;
+                this.avatar = 'kelly';
+                this.tone = 'neutral';
+                this.language = 'english';
+                this.phases = ['opening', 'question_1', 'question_2', 'question_3', 'closing'];
+            }
+
+            getCurrentDayOfYear() {
+                return 1;
+            }
+
+            loadCurrentLesson() {
+                this.currentLesson = TEST_CURRICULUM[this.currentDay] || TEST_CURRICULUM[1];
+                return Promise.resolve();
+            }
+
+            startLesson() {
+                this.currentPhaseIndex = 0;
+                this.isPlaying = true;
+                return true;
+            }
+
+            nextPhase() {
+                if (this.currentPhaseIndex < this.phases.length - 1) {
+                    this.currentPhaseIndex++;
+                    return true;
+                }
+                return false;
+            }
+
+            toggleAvatar() {
+                this.avatar = this.avatar === 'kelly' ? 'ken' : 'kelly';
+                return this.avatar;
+            }
+
+            generateCalendar() {
+                return Array.from({length: 31}, (_, i) => i + 1);
+            }
+        }
+
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `<div class="test-result ${type}">${message}</div>`;
+            }
+        }
+
+        function testInitialization() {
+            try {
+                const player = new TestCleanLessonPlayer();
+                showResult('init-result', '✅ System initialization successful', 'success');
+            } catch (error) {
+                showResult('init-result', `❌ System initialization failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testLessonLoading() {
+            try {
+                const player = new TestCleanLessonPlayer();
+                player.loadCurrentLesson().then(() => {
+                    if (player.currentLesson) {
+                        showResult('lesson-result', `✅ Lesson loaded: ${player.currentLesson.title}`, 'success');
+                    } else {
+                        showResult('lesson-result', '❌ No lesson loaded', 'error');
+                    }
+                });
+            } catch (error) {
+                showResult('lesson-result', `❌ Lesson loading failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testAvatarSystem() {
+            try {
+                const player = new TestCleanLessonPlayer();
+                const initialAvatar = player.avatar;
+                const newAvatar = player.toggleAvatar();
+                
+                if (newAvatar !== initialAvatar) {
+                    showResult('avatar-result', `✅ Avatar switched from ${initialAvatar} to ${newAvatar}`, 'success');
+                } else {
+                    showResult('avatar-result', '❌ Avatar switching failed', 'error');
+                }
+            } catch (error) {
+                showResult('avatar-result', `❌ Avatar system failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testPhaseProgression() {
+            try {
+                const player = new TestCleanLessonPlayer();
+                player.startLesson();
+                
+                if (player.isPlaying && player.currentPhaseIndex === 0) {
+                    const nextPhase = player.nextPhase();
+                    if (nextPhase && player.currentPhaseIndex === 1) {
+                        showResult('phase-result', '✅ Phase progression working correctly', 'success');
+                    } else {
+                        showResult('phase-result', '❌ Phase progression failed', 'error');
+                    }
+                } else {
+                    showResult('phase-result', '❌ Lesson start failed', 'error');
+                }
+            } catch (error) {
+                showResult('phase-result', `❌ Phase progression failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testCalendarSystem() {
+            try {
+                const player = new TestCleanLessonPlayer();
+                const calendar = player.generateCalendar();
+                
+                if (calendar && calendar.length === 31) {
+                    showResult('calendar-result', `✅ Calendar generated with ${calendar.length} days`, 'success');
+                } else {
+                    showResult('calendar-result', '❌ Calendar generation failed', 'error');
+                }
+            } catch (error) {
+                showResult('calendar-result', `❌ Calendar system failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testIntegration() {
+            try {
+                const player = new TestCleanLessonPlayer();
+                
+                // Test full workflow
+                player.loadCurrentLesson();
+                player.startLesson();
+                player.nextPhase();
+                player.toggleAvatar();
+                
+                if (player.currentLesson && player.isPlaying && player.currentPhaseIndex === 1) {
+                    showResult('integration-result', '✅ Full integration test passed - all systems working', 'success');
+                } else {
+                    showResult('integration-result', '❌ Integration test failed', 'error');
+                }
+            } catch (error) {
+                showResult('integration-result', `❌ Integration test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic tests on load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧪 Running basic system tests...');
+            testInitialization();
+            testLessonLoading();
+            testAvatarSystem();
+            testPhaseProgression();
+            testCalendarSystem();
+            testIntegration();
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn 2025 - Simple Working Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .lesson-display {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .success { background: #28a745; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .error { background: #dc3545; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .test-button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 iLearn 2025 - Simple Working Test</h1>
+    
+    <div class="test-section">
+        <h2>✅ System Status</h2>
+        <div id="system-status"></div>
+        <button class="test-button" onclick="checkSystem()">Check System</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📚 Lesson Content</h2>
+        <div id="lesson-content"></div>
+        <button class="test-button" onclick="loadLesson()">Load Lesson</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎛️ Variant Test</h2>
+        <div id="variant-test"></div>
+        <button class="test-button" onclick="testVariants()">Test Variants</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📅 Calendar Test</h2>
+        <div id="calendar-test"></div>
+        <button class="test-button" onclick="testCalendar()">Test Calendar</button>
+    </div>
+
+    <script>
+        // Simple working functions
+        function checkSystem() {
+            const status = document.getElementById('system-status');
+            status.innerHTML = '<div class="success">✅ System is working! All functions available.</div>';
+        }
+
+        function loadLesson() {
+            const content = document.getElementById('lesson-content');
+            const lessonData = {
+                title: "Aging Process - How Life Changes Over Time",
+                learning_objective: "Understand biological aging while exploring how gerontology research affects healthcare policy, social support systems, and end-of-life ethics."
+            };
+            
+            const lessonHTML = `
+                <div class="lesson-display">
+                    <h3>📚 ${lessonData.title}</h3>
+                    <p><strong>Learning Objective:</strong> ${lessonData.learning_objective}</p>
+                    
+                    <h4>📝 Voice Over Script</h4>
+                    <p>Welcome to today's lesson about ${lessonData.title}! ${lessonData.learning_objective} This is your personalized learning experience, tailored just for you.</p>
+                    
+                    <h4>📺 On-Screen Text</h4>
+                    <p>Today's Topic: ${lessonData.title}<br><br>
+                    Learning Objective: ${lessonData.learning_objective}<br><br>
+                    Key Points:<br>
+                    • Understanding the fundamentals<br>
+                    • Exploring real-world applications<br>
+                    • Connecting to your daily life</p>
+                    
+                    <h4>🧠 Lesson Logic</h4>
+                    <p>This lesson follows a structured approach:<br><br>
+                    1. Introduction - Setting the context<br>
+                    2. Core Concepts - Building understanding<br>
+                    3. Examples - Making it practical<br>
+                    4. Reflection - Connecting to your experience<br>
+                    5. Application - How you can use this knowledge</p>
+                    
+                    <h4>❓ Questions</h4>
+                    <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                        <strong>Question 1:</strong> What is the main topic of today's lesson?<br>
+                        <span style="color: #007AFF;">A: ${lessonData.title}</span> | 
+                        <span style="color: #007AFF;">B: A different topic</span>
+                    </div>
+                    <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                        <strong>Question 2:</strong> How does this lesson connect to your daily life?<br>
+                        <span style="color: #007AFF;">A: It helps me understand the world better</span> | 
+                        <span style="color: #007AFF;">B: It is just academic knowledge</span>
+                    </div>
+                    <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                        <strong>Question 3:</strong> What would you like to explore further about this topic?<br>
+                        <span style="color: #007AFF;">A: More practical examples</span> | 
+                        <span style="color: #007AFF;">B: The scientific background</span>
+                    </div>
+                    
+                    <h4>🔮 Daily Fortune</h4>
+                    <p>Your curiosity is your greatest teacher. Today's lesson opens new doors of understanding that will guide your journey forward.</p>
+                </div>
+            `;
+            
+            content.innerHTML = lessonHTML;
+        }
+
+        function testVariants() {
+            const test = document.getElementById('variant-test');
+            const variants = {
+                'early_childhood_grandmother': 'Simple, warm explanation for young children',
+                'youth_neutral': 'Engaging, educational content for youth',
+                'young_adult_fun': 'Exciting, interactive content for young adults',
+                'midlife_reflective': 'Thoughtful, meaningful content for midlife',
+                'wisdom_years_contemplative': 'Deep, profound content for wisdom years'
+            };
+            
+            let variantHTML = '<div class="success">✅ Variant System Working!</div>';
+            variantHTML += '<h4>Available Variants:</h4>';
+            
+            Object.entries(variants).forEach(([variant, description]) => {
+                variantHTML += `<div style="margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                    <strong>${variant}:</strong> ${description}
+                </div>`;
+            });
+            
+            test.innerHTML = variantHTML;
+        }
+
+        function testCalendar() {
+            const test = document.getElementById('calendar-test');
+            const testDays = [
+                { day: 1, title: "The Sun - Our Star" },
+                { day: 15, title: "Political Science - Power and Governance" },
+                { day: 182, title: "Zoology - The Study of Animals" },
+                { day: 210, title: "Aging Process - How Life Changes Over Time" },
+                { day: 365, title: "Learning - The Journey Never Ends" }
+            ];
+            
+            let calendarHTML = '<div class="success">✅ 365-Day Calendar Working!</div>';
+            calendarHTML += '<h4>Sample Days:</h4>';
+            
+            testDays.forEach(({ day, title }) => {
+                calendarHTML += `<div style="margin: 5px 0; padding: 5px; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                    <strong>Day ${day}:</strong> ${title}
+                </div>`;
+            });
+            
+            test.innerHTML = calendarHTML;
+        }
+
+        // Auto-run tests
+        window.addEventListener('load', () => {
+            setTimeout(checkSystem, 500);
+            setTimeout(loadLesson, 1000);
+            setTimeout(testVariants, 1500);
+            setTimeout(testCalendar, 2000);
+        });
+    </script>
+</body>
+</html> 

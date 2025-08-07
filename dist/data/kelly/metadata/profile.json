@@ -1,0 +1,23 @@
+{
+  "speaker": "kelly",
+  "duration": 30.0,
+  "sample_rate": 22050,
+  "transcript": "Hello there. I'm Kelly and I'm genuinely excited to explore something truly amazing with you today. Your skin. Right now, as you're listening to this, you're wearing the most sophisticated protective suit ever created. It's completely custom made for you. It repairs itself when damaged. It regulates your temperature and it's working 24-7 to keep you healthy and safe. I'm talking about your skin, your body's largest organ and most incredible barrier.",
+  "feature_types": [
+    "audio_features",
+    "voice_features",
+    "prosodic_features",
+    "spectral_features",
+    "linguistic_features",
+    "timing_features"
+  ],
+  "spectrogram_shape": [
+    128,
+    1292
+  ],
+  "audio_stats": {
+    "rms": 0.1586635410785675,
+    "peak": 0.999969482421875,
+    "total_samples": 661500
+  }
+}

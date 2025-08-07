@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Variant System Test - iLearn</title>
+    <meta name="description" content="Test the complete variant display system for today's lesson">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #007AFF;
+        }
+
+        .header p {
+            color: #ccc;
+            font-size: 16px;
+        }
+
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #007AFF;
+        }
+
+        .status-card h3 {
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .status-card p {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .status-card .value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007AFF;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            height: fit-content;
+        }
+
+        .controls-panel h3 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .control-slider {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .control-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #007AFF;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            min-width: 100px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .control-actions {
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .control-btn:hover {
+            background: #0056CC;
+        }
+
+        .control-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .control-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .display-panel {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 8px;
+            min-height: 600px;
+        }
+
+        .display-panel h3 {
+            margin-bottom: 20px;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .content-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            border-left: 3px solid #007AFF;
+        }
+
+        .content-section h4 {
+            color: #fff;
+            margin-bottom: 12px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .content-section p {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .question-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .question-item h5 {
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .options {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .option {
+            color: #ccc;
+            font-size: 13px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .variant-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+        }
+
+        .variant-info h2 {
+            color: #fff;
+            font-size: 22px;
+        }
+
+        .variant-info p {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .variant-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            color: #ccc;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #007AFF;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .variant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .variant-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .variant-card h4 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .variant-card p {
+            color: #ccc;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .variant-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-panel {
+                grid-template-columns: 1fr;
+            }
+            
+            .variant-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎛️ Complete Variant System Test</h1>
+            <p>Generate and display all text variants for today's lesson across every slider combination</p>
+        </div>
+
+        <!-- Status Panel -->
+        <div class="status-panel">
+            <div class="status-card">
+                <h3>📅 Today's Lesson</h3>
+                <p>Day: <span class="value" id="lesson-day">Loading...</span></p>
+                <p>Topic: <span class="value" id="lesson-topic">Loading...</span></p>
+            </div>
+            
+            <div class="status-card">
+                <h3>🎯 Generation Status</h3>
+                <p>Variants: <span class="value" id="variant-count">0</span></p>
+                <p>Status: <span class="value" id="generation-status">Initializing...</span></p>
+            </div>
+            
+            <div class="status-card">
+                <h3>⚡ Performance</h3>
+                <p>Generation Time: <span class="value" id="generation-time">0ms</span></p>
+                <p>Memory Usage: <span class="value" id="memory-usage">0MB</span></p>
+            </div>
+            
+            <div class="status-card">
+                <h3>💰 Cost Tracking</h3>
+                <p>Total Cost: <span class="value" id="total-cost">$0.00</span></p>
+                <p>API Calls: <span class="value" id="api-calls">0</span></p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Controls Panel -->
+            <div class="controls-panel">
+                <h3>🎛️ Variant Controls</h3>
+                
+                <div class="control-group">
+                    <label>👶 Age Group:</label>
+                    <div class="slider-container">
+                        <input type="range" id="age-slider" min="0" max="4" value="2" class="control-slider">
+                        <span class="slider-value" id="age-value">Young Adult</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>🎭 Tone Style:</label>
+                    <div class="slider-container">
+                        <input type="range" id="tone-slider" min="0" max="2" value="1" class="control-slider">
+                        <span class="slider-value" id="tone-value">Neutral</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>🌍 Language:</label>
+                    <div class="slider-container">
+                        <input type="range" id="language-slider" min="0" max="11" value="0" class="control-slider">
+                        <span class="slider-value" id="language-value">English</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label>👤 Avatar:</label>
+                    <div class="slider-container">
+                        <input type="range" id="avatar-slider" min="0" max="1" value="0" class="control-slider">
+                        <span class="slider-value" id="avatar-value">Kelly</span>
+                    </div>
+                </div>
+                
+                <div class="control-actions">
+                    <button class="control-btn" id="generate-all-btn">Generate All Variants</button>
+                    <button class="control-btn secondary" id="show-stats-btn">Show Statistics</button>
+                    <button class="control-btn secondary" id="export-data-btn">Export Data</button>
+                    <button class="control-btn secondary" id="clear-cache-btn">Clear Cache</button>
+                </div>
+                
+                <div class="progress-bar" id="progress-bar" style="display: none;">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Display Panel -->
+            <div class="display-panel">
+                <div class="variant-info">
+                    <div>
+                        <h2 id="variant-title">Today's Lesson</h2>
+                        <p id="variant-subtitle">Personalized for your preferences</p>
+                    </div>
+                    <div class="variant-stats">
+                        <span id="current-variant-id">young_adult_neutral</span>
+                        <span id="variant-timestamp">Generated: Just now</span>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h4>📝 Voice Over Script</h4>
+                    <p id="voice-over-text">Loading voice over script...</p>
+                </div>
+                
+                <div class="content-section">
+                    <h4>📺 On-Screen Text</h4>
+                    <p id="on-screen-text">Loading on-screen text...</p>
+                </div>
+                
+                <div class="content-section">
+                    <h4>🧠 Lesson Logic</h4>
+                    <p id="lesson-logic-text">Loading lesson logic...</p>
+                </div>
+                
+                <div class="content-section">
+                    <h4>❓ Questions</h4>
+                    <div id="questions-text">Loading questions...</div>
+                </div>
+                
+                <div class="content-section">
+                    <h4>🔮 Daily Fortune</h4>
+                    <p id="fortune-text">Loading daily fortune...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="error-message"></div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="complete-dna-variant-generator.js"></script>
+    <script src="complete-variant-display-system.js"></script>
+    <script>
+        // Global variables
+        let variantSystem = null;
+        let currentVariants = {};
+        let isGenerating = false;
+
+        // Initialize the test system
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Initializing Complete Variant System Test...');
+            
+            try {
+                // Initialize variant system
+                variantSystem = new CompleteVariantDisplaySystem();
+                
+                // Setup controls
+                setupVariantControls();
+                
+                // Update initial status
+                updateStatus();
+                
+                console.log('✅ Test system initialized');
+                
+            } catch (error) {
+                console.error('❌ Failed to initialize test system:', error);
+                showError('Failed to initialize test system');
+            }
+        });
+
+        function setupVariantControls() {
+            // Age slider
+            const ageSlider = document.getElementById('age-slider');
+            const ageValue = document.getElementById('age-value');
+            const ageOptions = ['Early Childhood', 'Youth', 'Young Adult', 'Midlife', 'Wisdom Years'];
+            
+            if (ageSlider && ageValue) {
+                ageSlider.addEventListener('input', (e) => {
+                    ageValue.textContent = ageOptions[e.target.value];
+                    updateVariantDisplay();
+                });
+            }
+
+            // Tone slider
+            const toneSlider = document.getElementById('tone-slider');
+            const toneValue = document.getElementById('tone-value');
+            const toneOptions = ['Grandmother', 'Fun', 'Neutral'];
+            
+            if (toneSlider && toneValue) {
+                toneSlider.addEventListener('input', (e) => {
+                    toneValue.textContent = toneOptions[e.target.value];
+                    updateVariantDisplay();
+                });
+            }
+
+            // Language slider
+            const languageSlider = document.getElementById('language-slider');
+            const languageValue = document.getElementById('language-value');
+            const languageOptions = ['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Russian', 'Chinese', 'Japanese', 'Korean', 'Arabic', 'Hindi'];
+            
+            if (languageSlider && languageValue) {
+                languageSlider.addEventListener('input', (e) => {
+                    languageValue.textContent = languageOptions[e.target.value];
+                    updateVariantDisplay();
+                });
+            }
+
+            // Avatar slider
+            const avatarSlider = document.getElementById('avatar-slider');
+            const avatarValue = document.getElementById('avatar-value');
+            const avatarOptions = ['Kelly', 'Ken'];
+            
+            if (avatarSlider && avatarValue) {
+                avatarSlider.addEventListener('input', (e) => {
+                    avatarValue.textContent = avatarOptions[e.target.value];
+                    updateVariantDisplay();
+                });
+            }
+
+            // Generate all variants button
+            const generateAllBtn = document.getElementById('generate-all-btn');
+            if (generateAllBtn) {
+                generateAllBtn.addEventListener('click', () => {
+                    generateAllVariants();
+                });
+            }
+
+            // Show statistics button
+            const showStatsBtn = document.getElementById('show-stats-btn');
+            if (showStatsBtn) {
+                showStatsBtn.addEventListener('click', () => {
+                    showStatistics();
+                });
+            }
+
+            // Export data button
+            const exportDataBtn = document.getElementById('export-data-btn');
+            if (exportDataBtn) {
+                exportDataBtn.addEventListener('click', () => {
+                    exportVariantData();
+                });
+            }
+
+            // Clear cache button
+            const clearCacheBtn = document.getElementById('clear-cache-btn');
+            if (clearCacheBtn) {
+                clearCacheBtn.addEventListener('click', () => {
+                    clearVariantCache();
+                });
+            }
+        }
+
+        async function generateAllVariants() {
+            if (isGenerating) {
+                console.log('⚠️ Generation already in progress...');
+                return;
+            }
+
+            console.log('🎯 Starting generation of all variants...');
+            
+            isGenerating = true;
+            showLoading();
+            updateStatus('Generating variants...');
+            
+            try {
+                // Get today's lesson day
+                const today = new Date();
+                const lessonDay = today.getDate();
+                
+                // Generate all variants
+                const result = await variantSystem.dnaGenerator.generateAllVariants(lessonDay);
+                
+                currentVariants = result.variants;
+                
+                console.log(`✅ Generated ${result.variants.length} variants`);
+                console.log('📊 Generation stats:', result.stats);
+                
+                // Update display
+                updateVariantDisplay();
+                updateStatus(`Generated ${result.variants.length} variants`);
+                
+                // Update statistics
+                updateStatistics(result.stats);
+                
+            } catch (error) {
+                console.error('❌ Failed to generate variants:', error);
+                showError('Failed to generate variants: ' + error.message);
+                updateStatus('Generation failed');
+            } finally {
+                isGenerating = false;
+                hideLoading();
+            }
+        }
+
+        function updateVariantDisplay() {
+            if (!currentVariants || currentVariants.length === 0) {
+                console.log('⏳ No variants available yet...');
+                return;
+            }
+
+            // Get current settings
+            const ageSlider = document.getElementById('age-slider');
+            const toneSlider = document.getElementById('tone-slider');
+            
+            const ageOptions = ['early_childhood', 'youth', 'young_adult', 'midlife', 'wisdom_years'];
+            const toneOptions = ['grandmother', 'fun', 'neutral'];
+            
+            const currentAge = ageOptions[ageSlider.value];
+            const currentTone = toneOptions[toneSlider.value];
+            
+            // Find matching variant
+            const matchingVariant = currentVariants.find(variant => {
+                return variant.metadata.ageGroup === currentAge && 
+                       variant.metadata.tone === currentTone;
+            });
+            
+            if (matchingVariant) {
+                updateVariantContent(matchingVariant);
+                updateVariantInfo(currentAge, currentTone);
+            } else {
+                console.log('⚠️ No matching variant found for current settings');
+            }
+        }
+
+        function updateVariantContent(variant) {
+            // Update voice over text
+            const voiceOverText = document.getElementById('voice-over-text');
+            if (voiceOverText) {
+                voiceOverText.textContent = typeof variant.content === 'string' ? 
+                    variant.content : JSON.stringify(variant.content, null, 2);
+            }
+            
+            // Update on-screen text
+            const onScreenText = document.getElementById('on-screen-text');
+            if (onScreenText) {
+                onScreenText.textContent = 'On-screen text content would appear here...';
+            }
+            
+            // Update lesson logic
+            const lessonLogicText = document.getElementById('lesson-logic-text');
+            if (lessonLogicText) {
+                lessonLogicText.textContent = 'Lesson logic and structure would appear here...';
+            }
+            
+            // Update questions
+            const questionsText = document.getElementById('questions-text');
+            if (questionsText) {
+                questionsText.innerHTML = `
+                    <div class="question-item">
+                        <h5>Sample Question</h5>
+                        <p>This is a sample question that would be generated for this variant.</p>
+                        <div class="options">
+                            <span class="option">A: Sample option A</span>
+                            <span class="option">B: Sample option B</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update fortune
+            const fortuneText = document.getElementById('fortune-text');
+            if (fortuneText) {
+                fortuneText.textContent = 'Your daily fortune would appear here...';
+            }
+        }
+
+        function updateVariantInfo(ageGroup, tone) {
+            const variantTitle = document.getElementById('variant-title');
+            const variantSubtitle = document.getElementById('variant-subtitle');
+            const variantId = document.getElementById('current-variant-id');
+            const timestamp = document.getElementById('variant-timestamp');
+            
+            if (variantTitle) {
+                variantTitle.textContent = `Today's Lesson - ${getAgeGroupDisplay(ageGroup)}`;
+            }
+            
+            if (variantSubtitle) {
+                variantSubtitle.textContent = `${getToneDisplay(tone)} style presentation`;
+            }
+            
+            if (variantId) {
+                variantId.textContent = `${ageGroup}_${tone}`;
+            }
+            
+            if (timestamp) {
+                timestamp.textContent = `Generated: ${new Date().toLocaleTimeString()}`;
+            }
+        }
+
+        function updateStatus(status = 'Ready') {
+            const generationStatus = document.getElementById('generation-status');
+            if (generationStatus) {
+                generationStatus.textContent = status;
+            }
+        }
+
+        function updateStatistics(stats) {
+            const variantCount = document.getElementById('variant-count');
+            const generationTime = document.getElementById('generation-time');
+            const totalCost = document.getElementById('total-cost');
+            const apiCalls = document.getElementById('api-calls');
+            
+            if (variantCount) {
+                variantCount.textContent = stats.totalVariants || 0;
+            }
+            
+            if (generationTime) {
+                const duration = stats.endTime && stats.startTime ? 
+                    (stats.endTime - stats.startTime) / 1000 : 0;
+                generationTime.textContent = `${duration.toFixed(1)}s`;
+            }
+            
+            if (totalCost) {
+                totalCost.textContent = `$${(stats.totalCost || 0).toFixed(4)}`;
+            }
+            
+            if (apiCalls) {
+                apiCalls.textContent = stats.successfulGenerations + stats.failedGenerations || 0;
+            }
+        }
+
+        function showStatistics() {
+            if (!currentVariants || currentVariants.length === 0) {
+                alert('No variants generated yet. Please generate variants first.');
+                return;
+            }
+            
+            const stats = {
+                totalVariants: currentVariants.length,
+                ageGroups: {},
+                tones: {},
+                contentTypes: {},
+                averageLength: 0
+            };
+            
+            // Analyze variants
+            currentVariants.forEach(variant => {
+                const { ageGroup, tone, contentType } = variant.metadata;
+                
+                stats.ageGroups[ageGroup] = (stats.ageGroups[ageGroup] || 0) + 1;
+                stats.tones[tone] = (stats.tones[tone] || 0) + 1;
+                stats.contentTypes[contentType] = (stats.contentTypes[contentType] || 0) + 1;
+                
+                if (variant.content) {
+                    const contentLength = typeof variant.content === 'string' ? 
+                        variant.content.length : JSON.stringify(variant.content).length;
+                    stats.averageLength += contentLength;
+                }
+            });
+            
+            stats.averageLength = Math.round(stats.averageLength / currentVariants.length);
+            
+            // Display statistics
+            const statsMessage = `
+                📊 Variant Statistics:
+                
+                Total Variants: ${stats.totalVariants}
+                Average Content Length: ${stats.averageLength} characters
+                
+                Age Groups:
+                ${Object.entries(stats.ageGroups).map(([age, count]) => 
+                    `  ${getAgeGroupDisplay(age)}: ${count} variants`
+                ).join('\n')}
+                
+                Tones:
+                ${Object.entries(stats.tones).map(([tone, count]) => 
+                    `  ${getToneDisplay(tone)}: ${count} variants`
+                ).join('\n')}
+                
+                Content Types:
+                ${Object.entries(stats.contentTypes).map(([type, count]) => 
+                    `  ${type.replace(/_/g, ' ')}: ${count} variants`
+                ).join('\n')}
+            `;
+            
+            alert(statsMessage);
+        }
+
+        function exportVariantData() {
+            if (!currentVariants || currentVariants.length === 0) {
+                alert('No variants to export. Please generate variants first.');
+                return;
+            }
+            
+            const exportData = {
+                lessonDay: new Date().getDate(),
+                lessonTopic: variantSystem?.currentLessonTopic?.title || 'Unknown',
+                generationTime: new Date().toISOString(),
+                variants: currentVariants,
+                statistics: {
+                    totalVariants: currentVariants.length,
+                    successfulGenerations: currentVariants.length,
+                    failedGenerations: 0
+                }
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `lesson-variants-day-${exportData.lessonDay}.json`;
+            link.click();
+            
+            console.log('✅ Variant data exported');
+        }
+
+        function clearVariantCache() {
+            if (variantSystem) {
+                variantSystem.dnaGenerator.clearStoredVariants();
+                currentVariants = {};
+                updateVariantDisplay();
+                updateStatus('Cache cleared');
+                console.log('🗑️ Variant cache cleared');
+            }
+        }
+
+        function showLoading() {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'flex';
+            }
+        }
+
+        function hideLoading() {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                
+                setTimeout(() => {
+                    errorElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Helper functions for display
+        function getAgeGroupDisplay(ageGroup) {
+            const displays = {
+                'early_childhood': 'Early Childhood',
+                'youth': 'Youth',
+                'young_adult': 'Young Adult',
+                'midlife': 'Midlife',
+                'wisdom_years': 'Wisdom Years'
+            };
+            return displays[ageGroup] || ageGroup;
+        }
+
+        function getToneDisplay(tone) {
+            const displays = {
+                'grandmother': 'Grandmother',
+                'fun': 'Fun',
+                'neutral': 'Neutral'
+            };
+            return displays[tone] || tone;
+        }
+
+        // Initialize lesson info
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const lessonDay = today.getDate();
+            
+            const lessonDayElement = document.getElementById('lesson-day');
+            if (lessonDayElement) {
+                lessonDayElement.textContent = lessonDay;
+            }
+            
+            const lessonTopicElement = document.getElementById('lesson-topic');
+            if (lessonTopicElement) {
+                lessonTopicElement.textContent = 'Loading...';
+            }
+        });
+    </script>
+</body>
+</html> 

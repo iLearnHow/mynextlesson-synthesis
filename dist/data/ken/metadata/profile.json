@@ -1,0 +1,23 @@
+{
+  "speaker": "ken",
+  "duration": 48.21333333333333,
+  "sample_rate": 22050,
+  "transcript": "Hey there. Let's talk about the human skeleton. It's easy to just think of it as a bunch of bones, but it's actually a brilliant, dynamic system. It's the framework that everything else is built on. Today we're going to break down how it works. I've got three questions lined up to help you understand the core principles of this system. We'll get to a daily fortune after we're done, but first, let's get into it. Okay, first question. A baby skeleton is very different from an adult. They're born with more bones around 300 and many are made of soft cartilage. This isn't a random quirk. It's a solution to specific engineering problems. What do you think is the primary functional reason for a baby to be born with a soft, multi-part skeleton? Here are your options.",
+  "feature_types": [
+    "audio_features",
+    "voice_features",
+    "prosodic_features",
+    "spectral_features",
+    "linguistic_features",
+    "timing_features"
+  ],
+  "spectrogram_shape": [
+    128,
+    2077
+  ],
+  "audio_stats": {
+    "rms": 0.05882330238819122,
+    "peak": 0.44399428367614746,
+    "total_samples": 1063104
+  }
+}
