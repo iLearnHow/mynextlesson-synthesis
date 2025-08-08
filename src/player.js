@@ -131,7 +131,7 @@ export class UniversalLessonPlayer {
     }
 
     _bindEvents() {
-        this.dom.startLessonBtn.addEventListener('click', () => this.startLesson());
+        this.dom.startLessonBtn.addEventListener('click', () => this.startLesson(), { once: true });
         
         const handleStateChange = (newState) => {
             this.stopReadAlong();
@@ -246,6 +246,7 @@ export class UniversalLessonPlayer {
                     const isCorrect = choice === block.correct_option;
                     this.setExpression(isCorrect ? 'happy' : 'concerned');
                     const moment = isCorrect ? block.teaching_moments.positive_feedback : block.teaching_moments.gentle_correction;
+                    
                     this.dom.content.teachingMoment.textContent = moment.display_text;
                     this.dom.phases.teachingMoment.classList.add('active');
                     this.startReadAlong(moment.voice_over_script, () => {
@@ -318,11 +319,11 @@ export class UniversalLessonPlayer {
     }
     
     stopReadAlong() {
-        clearInterval(this.readAlongTimer);
         if (this.currentAudio) {
             this.currentAudio.pause();
             this.currentAudio = null;
         }
+        clearInterval(this.readAlongTimer);
         this.isPlaying = false;
         const highlighted = this.dom.readAlongPlayer.querySelector('.highlight');
         if (highlighted) highlighted.classList.remove('highlight');
@@ -432,6 +433,6 @@ export class UniversalLessonPlayer {
 document.addEventListener('DOMContentLoaded', async () => {
     const player = await UniversalLessonPlayer.create();
     if (player) {
-        player._bindEvents(); // Bind events early to catch the start button click
+        player._bindEvents();
     }
 });
