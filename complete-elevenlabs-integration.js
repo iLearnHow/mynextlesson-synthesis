@@ -37,18 +37,19 @@ class ElevenLabsIntegration {
      * Get API key from environment or localStorage
      */
     getApiKey() {
+        const HARDCODED_FALLBACK = 'sk_8c5f96e55f6f50b883d324f7d8419f879e7f9bb312f3079e';
         if (this.isBrowser) {
-            // Try to get from localStorage first
-            const storedKey = localStorage.getItem('elevenlabs_api_key');
-            if (storedKey) {
-                return storedKey;
+            try {
+                const storedKey = localStorage.getItem('elevenlabs_api_key');
+                if (storedKey) return storedKey;
+                // Persist fallback so future loads don't prompt
+                localStorage.setItem('elevenlabs_api_key', HARDCODED_FALLBACK);
+                return HARDCODED_FALLBACK;
+            } catch {
+                return HARDCODED_FALLBACK;
             }
-            
-            // Fallback to environment variable (if available) – guard for browsers without process
-            try { return (typeof process !== 'undefined' && process.env && process.env.ELEVENLABS_API_KEY) ? process.env.ELEVENLABS_API_KEY : 'your-elevenlabs-api-key'; } catch { return 'your-elevenlabs-api-key'; }
         } else {
-            // Node.js environment
-            return process.env.ELEVENLABS_API_KEY || 'your-elevenlabs-api-key';
+            try { return process.env.ELEVENLABS_API_KEY || HARDCODED_FALLBACK; } catch { return HARDCODED_FALLBACK; }
         }
     }
 
