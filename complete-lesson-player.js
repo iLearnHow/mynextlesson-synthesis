@@ -80,6 +80,14 @@ class UniversalLessonPlayer {
         this.ensureAvatarVisible();
         
         console.log('✅ Universal Lesson Player initialized');
+
+        // Read-along setup
+        this.readAlong = {
+            el: document.getElementById('read-along-player'),
+            timer: null,
+            words: [],
+            index: 0
+        };
     }
 
     /**
@@ -526,9 +534,16 @@ class UniversalLessonPlayer {
             // Show A/B choice buttons
             const choicesContainer = questionSection.querySelector('.choices-container');
             if (choicesContainer) {
+                // Pull content for this question
+                const qKey = ['question_1','question_2','question_3'][questionNumber-1] || 'question_1';
+                const age = this.currentVariant.age || 'age_25';
+                const dnaAge = this.mapAgeVariantToNumeric(age);
+                const blk = this.currentDNA?.core_lesson_structure?.[qKey]?.ages?.[dnaAge];
+                const aText = blk?.option_a?.display_text || this.universalContent?.questions?.[questionNumber-1]?.choices?.[0] || 'Option A';
+                const bText = blk?.option_b?.display_text || this.universalContent?.questions?.[questionNumber-1]?.choices?.[1] || 'Option B';
                 choicesContainer.innerHTML = `
-                    <button class="choice-btn choice-a" data-choice="a">A</button>
-                    <button class="choice-btn choice-b" data-choice="b">B</button>
+                    <button class="choice-btn choice-a" data-choice="a">${aText}</button>
+                    <button class="choice-btn choice-b" data-choice="b">${bText}</button>
                 `;
                 
                 // Add click handlers
@@ -772,10 +787,11 @@ class UniversalLessonPlayer {
         try {
             const content = this.getPhaseContent(phase);
             const avatar = this.currentVariant.avatar;
+            const vo = this.getVoiceOverForPhase(phase, content);
+            this.startReadAlong(vo);
             
             if (this.elevenLabs) {
-                const text = typeof content === 'string' ? content : (content?.question || '');
-                const audioUrl = await this.elevenLabs.generateAudio(text, avatar);
+                const audioUrl = await this.elevenLabs.generateAudio(vo, avatar);
                 
                 if (audioUrl) {
                     this.audioElement.src = audioUrl;
@@ -795,6 +811,52 @@ class UniversalLessonPlayer {
             console.error('❌ Audio generation error:', error);
             this.useFallbackAudio(phase);
         }
+    }
+
+    getVoiceOverForPhase(phase, content){
+        try {
+            const tone = this.currentVariant.tone || 'neutral';
+            const ageVariant = this.currentVariant.age || 'age_25';
+            const age = this.mapAgeVariantToNumeric(ageVariant);
+            if (phase === 'welcome') {
+                const vo = this.currentDNA?.age_expressions?.[age]?.concept_name?.[tone]?.voice_over_script || '';
+                if (vo) return vo;
+                return (typeof content === 'string') ? content : (content?.question || 'Welcome');
+            }
+            if (['beginning','middle','end'].includes(phase)) {
+                const idx = {beginning:1, middle:2, end:3}[phase];
+                const qKey = ['question_1','question_2','question_3'][idx-1];
+                const blk = this.currentDNA?.core_lesson_structure?.[qKey]?.ages?.[age];
+                const qText = blk?.question?.[tone]?.display_text || blk?.question?.neutral?.display_text || content?.question || '';
+                const aText = blk?.option_a?.display_text || (content?.choices?.[0] || '');
+                const bText = blk?.option_b?.display_text || (content?.choices?.[1] || '');
+                return `Question ${idx}. ${qText}. Option A: ${aText}. Option B: ${bText}. Choose when you are ready.`;
+            }
+            if (phase === 'wisdom') {
+                const fortune = this.currentDNA?.wisdom_phase_content?.fortune?.[tone]?.voice_over_script || this.universalContent?.conclusion || '';
+                return fortune || 'Well done today.';
+            }
+        } catch {}
+        return (typeof content === 'string') ? content : (content?.question || '');
+    }
+
+    startReadAlong(text){
+        const ra = this.readAlong; if (!ra || !ra.el) return;
+        clearInterval(ra.timer); ra.timer = null; ra.index = 0;
+        const words = String(text||'').split(/\s+/).filter(Boolean);
+        ra.words = words;
+        ra.el.innerHTML = words.map((w,i)=>`<span data-w="${i}">${w}</span>`).join(' ');
+        const spans = ra.el.querySelectorAll('span');
+        const wps = 180/60 * (this.playbackSpeed || 1.0);
+        const intervalMs = Math.max(80, Math.floor(1000 / wps));
+        ra.timer = setInterval(()=>{
+            if (ra.index>0 && spans[ra.index-1]) spans[ra.index-1].style.background='transparent';
+            if (ra.index<spans.length) {
+                spans[ra.index].style.background='rgba(0,122,255,0.18)';
+                spans[ra.index].style.borderRadius='6px';
+                ra.index++;
+            } else { clearInterval(ra.timer); ra.timer=null; }
+        }, intervalMs);
     }
 
     /**
@@ -957,6 +1019,15 @@ class UniversalLessonPlayer {
                 <p>${feedback}</p>
             </div>
         `;
+        // Avatar + speak feedback
+        const correct = this.isSelectedCorrect(questionIndex, selectedOption);
+        this.updateAvatar(this.currentVariant.avatar, correct ? 'happy_celebrating' : 'concerned_thinking');
+        this.startReadAlong(feedback);
+        if (this.elevenLabs) {
+            this.elevenLabs.generateAudio(feedback, this.currentVariant.avatar).then(url=>{
+                if (typeof url === 'string' && url.startsWith('blob:')) { this.audioElement.src = url; this.audioElement.play().catch(()=>{}); }
+            }).catch(()=>{});
+        }
     }
 
     /**
