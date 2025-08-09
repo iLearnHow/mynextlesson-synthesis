@@ -462,6 +462,53 @@
             window.lessonPlayer?.setSpeed(next);
             alert(`Speed: ${next}x`);
         });
+
+        // Wire additional rail icons to modals
+        const openModal = id => document.getElementById(id)?.classList.add('visible');
+        const closeById = id => document.getElementById(id)?.classList.remove('visible');
+        document.getElementById('icon-find')?.addEventListener('click', () => openModal('find-modal'));
+        document.getElementById('icon-settings')?.addEventListener('click', () => openModal('settings-modal'));
+        document.getElementById('icon-controls')?.addEventListener('click', () => openModal('controls-modal'));
+
+        // Master menu toggle
+        document.getElementById('master-trigger')?.addEventListener('click', () => {
+            document.querySelector('.master-flyout-container')?.classList.toggle('active');
+        });
+
+        // Inspector toggles
+        const toggleInspector = id => document.getElementById(id)?.classList.toggle('visible');
+        document.getElementById('inspector-state-toggle')?.addEventListener('click', () => toggleInspector('state-inspector'));
+        document.getElementById('inspector-content-toggle')?.addEventListener('click', () => toggleInspector('content-inspector'));
+        document.getElementById('inspector-code-toggle')?.addEventListener('click', () => toggleInspector('code-inspector'));
+        document.querySelectorAll('.inspector-close-btn').forEach(btn => btn.addEventListener('click', (e)=>{
+            const id = e.currentTarget.dataset.inspector; closeById(id);
+        }));
+
+        // Modal close buttons
+        document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', (e)=>{
+            const id = e.currentTarget.dataset.close; closeById(id);
+        }));
+
+        // Find modal: search curriculum titles
+        const findInput = document.getElementById('find-input');
+        const findResults = document.getElementById('find-results');
+        async function ensureIndex(){
+            if (window.__ml_index) return window.__ml_index;
+            const months = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+            const topics = [];
+            await Promise.all(months.map(async m=>{ try{ const r=await fetch(`/data/${m}_curriculum.json`); if(r.ok){ const j=await r.json(); j.days?.forEach(d=>topics.push({m: j.month||m, day:d.day, title:d.title})); } }catch{} }));
+            window.__ml_index = topics; return topics;
+        }
+        findInput?.addEventListener('input', async (e)=>{
+            const q = e.currentTarget.value.trim().toLowerCase();
+            const idx = await ensureIndex();
+            const matches = q ? idx.filter(t=>t.title.toLowerCase().includes(q)).slice(0,20) : [];
+            if (!findResults) return;
+            findResults.innerHTML = matches.map(m=>`<div class="result-item" data-day="${m.day}">${m.title}<div style="font-size:12px;opacity:0.7;">${m.m} ${m.day}</div></div>`).join('');
+            findResults.querySelectorAll('.result-item').forEach(el=> el.addEventListener('click',()=>{
+                const day = Number(el.getAttribute('data-day')); closeById('find-modal'); window.lessonPlayer?.loadLessonByDay(day);
+            }));
+        });
     });
     </script>
 </body>
