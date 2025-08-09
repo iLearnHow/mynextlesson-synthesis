@@ -1,177 +1,468 @@
-<!DOCTYPE html>
-<html lang="en">
+          <!DOCTYPE html>
+<html lang="en">                                                                                                           
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyNextLesson - Real-Time Educational Synthesis</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>iLearn How - Immersive UI v40 (Production)</title>
+    <style>
+        :root {
+            --glass-bg: rgba(242, 242, 247, 0.8); --glass-blur: blur(50px);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6); --shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            --text-primary: #1d1d1f; --accent-blue: #007AFF; --icon-size: 44px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; overflow: hidden; height: 100vh; background-color: #fff; }
+        .immersive-container { position: relative; width: 100vw; height: 100vh; }
+        .avatar-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; transition: background-image 0.5s ease-in-out; background-color: #e0e0e0; }
+        .avatar-background.kelly { background-image: url('/production-deploy/assets/avatars/kelly/optimized/base-states/kelly_neutral_default.png'); }
+        .avatar-background.ken { background-image: url('/production-deploy/assets/avatars/ken/ken_neutral_default.png'); }
+        .main-content-area, .ui-overlays { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .ui-overlays { z-index: 10; pointer-events: none; }
+        .ui-overlays > * { pointer-events: auto; }
+        .phase { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out; pointer-events: none; }
+        .phase.active { opacity: 1; visibility: visible; pointer-events: auto; }
+        .ios-panel { background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-radius: 22px; border: var(--glass-border); box-shadow: var(--shadow); color: var(--text-primary); position: absolute; transition: all 0.3s ease; }
+        .content-note { font-weight: 500; font-size: 19px; max-width: 400px; padding: 22px 28px; }
+        .position-question-deck { top: 18%; right: 20px; }
+        .position-lower-deck { top: 45%; left: 50%; transform: translateX(-50%); width: 50%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; background: transparent; box-shadow: none; backdrop-filter: none; border: none; align-items: center; }
+        .phase[data-question-side="left"] .position-lower-deck { left: 20px; transform: translateX(0); align-items: flex-start; }
+        .phase[data-question-side="right"] .position-lower-deck { right: 20px; left: auto; transform: translateX(0); align-items: flex-end; }
+        .position-centered-moment { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .choice-note { cursor: pointer; transition: all 0.2s ease; padding: 18px 22px; }
+        .choice-note:hover { transform: scale(1.03); box-shadow: 0 12px 40px rgba(0,0,0,0.2); }
+        .choice-note.selected { border: 2px solid var(--accent-blue); background: rgba(0, 122, 255, 0.1); }
+        .inspector-panel { width: 360px; height: 380px; display: none; flex-direction: column; resize: both; overflow: hidden; z-index: 400; }
+        .inspector-panel.visible { display: flex; }
+        .inspector-header { padding: 10px 10px 10px 20px; cursor: grab; background: rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .inspector-header .pill-label { font-size: 13px; font-weight: 600; }
+        .inspector-close-btn { width: 28px; height: 28px; border: none; background: rgba(0,0,0,0.1); border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
+        .inspector-close-btn:hover { background: rgba(0,0,0,0.2); }
+        .inspector-content { padding: 15px; flex-grow: 1; overflow-y: auto; }
+        .inspector-content pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; }
+        #state-inspector { top: 20px; left: 20px; } #content-inspector { bottom: 20px; left: 20px; } #code-inspector { top: 20px; right: 20px; }
+        
+        .bottom-right-controls { position: fixed; z-index: 500; bottom: 20px; right: 20px; display: flex; align-items: flex-end; gap: 12px; }
+        .control-btn { width: var(--icon-size); height: var(--icon-size); border-radius: 50%; border: none; background: var(--glass-bg); backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease-in-out; color: #333; }
+        .control-btn:hover { background: rgba(255,255,255,0.9); transform: scale(1.05); }
+        .control-btn.active { background: var(--accent-blue); color: white; }
+        .control-btn svg { width: 55%; height: 55%; stroke-width: 1.5; pointer-events: none; }
+        
+        .master-flyout-container { position: relative; }
+        .master-flyout-menu { position: absolute; bottom: calc(100% + 10px); right: 0; width: 300px; padding: 15px; display: flex; flex-direction: column; gap: 15px; opacity: 0; pointer-events: none; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+        .master-flyout-container.active .master-flyout-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .flyout-section { display: flex; flex-direction: column; gap: 8px; }
+        .flyout-section-label { font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.5); padding-left: 5px; }
+        .flyout-btn-group { display: flex; justify-content: space-around; background: rgba(0,0,0,0.05); border-radius: 12px; padding: 5px; }
+        .flyout-btn { flex-grow: 1; text-align: center; border: none; background: transparent; font-size: 15px; padding: 8px; border-radius: 9px; cursor: pointer; transition: background-color 0.2s; }
+        .flyout-btn.active { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        #read-along-player { 
+            position: fixed;
+            bottom: 80px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: auto; 
+            max-width: 60%; 
+            text-align: center; 
+            font-size: 20px; 
+            font-weight: 500; 
+            padding: 12px 25px;
+            background: rgba(0, 0, 0, 0.05);
+            color: #333;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .progress-bar-container { 
+            position: fixed; 
+            top: 50%; 
+            left: 30px; 
+            transform: translateY(-50%); 
+            width: auto;
+            z-index: 2; 
+        }
+        .progress-bar { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            position: relative; 
+            gap: 25px;
+        }
+        .progress-line { 
+            position: absolute; 
+            width: 2px; 
+            background-color: rgba(0,0,0,0.1); 
+            height: 100%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: -1; 
+        }
+        .progress-line-fill { 
+            position: absolute; 
+            width: 2px; 
+            background-color: var(--accent-blue); 
+            height: 0%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: -1; 
+            transition: height 0.4s ease-in-out; 
+        }
+        .progress-label-group { 
+            display: flex; 
+            align-items: center; 
+            cursor: pointer; 
+            width: 120px; /* Give it some width for the label */
+        }
+        .progress-step {
+            flex-shrink: 0; /* Prevent step from shrinking */
+        }
+        .progress-label { 
+            font-size: 12px; 
+            color: #888; 
+            margin-left: 15px; 
+            font-weight: 500; 
+            transition: color 0.3s; 
+        }
+        .progress-label-group.completed .progress-label { color: var(--text-primary); }
+        .progress-label-group.active .progress-label { color: var(--accent-blue); font-weight: 600; }
+        .progress-step { width: 12px; height: 12px; border-radius: 50%; background-color: rgba(255,255,255,0.4); transition: all 0.4s ease-in-out; }
+        .progress-step.active, .progress-step.completed { background-color: #fff; }
+        .progress-step.active { transform: scale(1.3); }
+                                                                              
+        /* Right-side vertical icon rail */
+        .right-icon-rail { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); z-index: 600; display: flex; flex-direction: column; gap: 12px; }
+        .rail-btn { width: var(--icon-size); height: var(--icon-size); border-radius: 14px; border: none; background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease-in-out; color: #333; }
+        .rail-btn:hover { background: rgba(255,255,255,0.9); transform: translateY(-1px); }
+        .rail-btn.active { background: var(--accent-blue); color: white; }
+
+        /* Panels / Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 700; }
+        .modal-overlay.visible { display: flex; }
+        .modal-card { width: min(680px, 92vw); max-height: 78vh; overflow: auto; border-radius: 20px; border: var(--glass-border); background: var(--glass-bg); box-shadow: var(--shadow); padding: 18px; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .modal-title { font-weight: 700; font-size: 18px; }
+        .modal-close { border: none; background: rgba(0,0,0,0.08); border-radius: 10px; padding: 6px 10px; cursor: pointer; }
+        .search-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-size: 16px; }
+        .result-item { padding: 10px 12px; border-radius: 12px; cursor: pointer; transition: background 0.15s; }
+        .result-item:hover { background: rgba(255,255,255,0.8); }
+        .pill { display: inline-block; background: rgba(0,0,0,0.06); padding: 6px 10px; border-radius: 999px; font-size: 12px; margin-right: 6px; }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .row .pill { margin-bottom: 8px; }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <h1>MyNextLesson</h1>
-                <span class="tagline">Real-Time Educational Synthesis</span>
+    <div class="immersive-container">
+        <div id="start-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+            <button id="start-lesson-btn" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 500; padding: 18px 35px; border-radius: 18px; border: none; background: #fff; color: #007AFF; cursor: pointer; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">Start Lesson</button>
+        </div>
+        <div id="avatar-background" class="avatar-background kelly"></div>
+        <div class="main-content-area">
+            <!-- Persistent Question Area -->
+            <div id="persistent-question-container" class="ios-panel content-note position-question-deck" style="visibility: hidden;"></div>
+
+            <div class="phase" id="welcome-phase">
+                <div class="ios-panel content-note position-right-shoulder" id="welcome-content">
+                    <div id="lesson-title" style="font-weight:700; font-size:22px; margin-bottom:8px;">Lesson</div>
+                    <div id="lesson-preview" style="opacity:0.85;"></div>
+                </div>
             </div>
-            <div class="live-indicator">
-                <div class="pulse"></div>
-                <span>LIVE SYNTHESIS</span>
+            
+            <div class="phase" id="beginning-phase" data-question-side="center">
+                <div class="ios-panel position-lower-deck">
+                    <div style="font-weight:600; margin-bottom:6px;" class="question-text" id="beginning-question"></div>
+                    <div class="choice-note choice-a" id="beginning-choice-a"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                    <div class="choice-note choice-b" id="beginning-choice-b"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                </div>
             </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Controls Panel -->
-            <div class="controls-panel">
-                <h2>Personalize Your Learning</h2>
-                <p class="description">Watch the same educational concept transform in real-time as you adjust these settings</p>
-                
-                <!-- Age Control -->
-                <div class="control-group">
-                    <label for="age-slider">Learning Age</label>
-                    <div class="age-control">
-                        <input type="range" id="age-slider" min="5" max="65" value="25" class="slider">
-                        <div class="age-display">
-                            <span id="age-value">25</span>
-                            <span>years old</span>
-                        </div>
-                    </div>
-                    <div class="age-markers">
-                        <span>Child</span>
-                        <span>Teen</span>
-                        <span>Adult</span>
-                        <span>Wisdom</span>
-                    </div>
+            <div class="phase" id="middle-phase" data-question-side="center">
+                <div class="ios-panel position-lower-deck">
+                    <div style="font-weight:600; margin-bottom:6px;" class="question-text" id="middle-question"></div>
+                    <div class="choice-note choice-a" id="middle-choice-a"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                    <div class="choice-note choice-b" id="middle-choice-b"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
                 </div>
-
-                <!-- Tone Control -->
-                <div class="control-group">
-                    <label>Learning Tone</label>
-                    <div class="tone-buttons">
-                        <button class="tone-btn" data-tone="grandmother">
-                            <span class="tone-emoji">👵</span>
-                            <span class="tone-name">Grandmother</span>
-                            <span class="tone-desc">Warm & Nurturing</span>
-                        </button>
-                        <button class="tone-btn active" data-tone="fun">
-                            <span class="tone-emoji">🎉</span>
-                            <span class="tone-name">Fun</span>
-                            <span class="tone-desc">Energetic & Playful</span>
-                        </button>
-                        <button class="tone-btn" data-tone="neutral">
-                            <span class="tone-emoji">🎓</span>
-                            <span class="tone-name">Neutral</span>
-                            <span class="tone-desc">Clear & Educational</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Language Control -->
-                <div class="control-group">
-                    <label for="language-select">Language</label>
-                    <select id="language-select" class="language-select">
-                        <option value="english">🇺🇸 English</option>
-                        <option value="spanish">🇪🇸 Español</option>
-                        <option value="french">🇫🇷 Français</option>
-                    </select>
-                </div>
-
-                <!-- Synthesis Stats -->
-                <div class="synthesis-stats">
-                    <div class="stat">
-                        <span class="stat-value" id="synthesis-time">--</span>
-                        <span class="stat-label">Synthesis Time (ms)</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-value" id="variations-possible">274M+</span>
-                        <span class="stat-label">Possible Variations</span>
-                    </div>
+            </div>
+            <div class="phase" id="end-phase" data-question-side="center">
+                <div class="ios-panel position-lower-deck">
+                    <div style="font-weight:600; margin-bottom:6px;" class="question-text" id="end-question"></div>
+                    <div class="choice-note choice-a" id="end-choice-a"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                    <div class="choice-note choice-b" id="end-choice-b"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
                 </div>
             </div>
 
-            <!-- Lesson Display -->
-            <div class="lesson-panel">
-                <div class="lesson-header">
-                    <h2 id="lesson-title">The Sun - Our Magnificent Life-Giving Star</h2>
-                    <div class="lesson-meta">
-                        <span id="lesson-complexity">Intermediate</span>
-                        <span id="lesson-duration">6 minutes</span>
-                        <span class="synthesis-indicator" id="synthesis-status">Ready</span>
-                    </div>
-                </div>
-
-                <!-- Avatar Display -->
-                <div class="avatar-container">
-                    <div class="avatar" id="avatar-display">
-                        <div class="avatar-face">
-                            <div class="avatar-eyes"></div>
-                            <div class="avatar-mouth"></div>
-                        </div>
-                    </div>
-                    <div class="avatar-name" id="avatar-name">Ken</div>
-                </div>
-
-                <!-- Lesson Content -->
-                <div class="lesson-content">
-                    <div class="lesson-section" id="lesson-intro">
-                        <h3>Introduction</h3>
-                        <p id="intro-text">Loading your personalized lesson...</p>
-                    </div>
-
-                    <div class="lesson-section" id="lesson-concept">
-                        <h3>Core Concept</h3>
-                        <p id="concept-text">Preparing content for your learning style...</p>
-                    </div>
-
-                    <div class="lesson-section" id="lesson-examples">
-                        <h3>Real-World Examples</h3>
-                        <p id="examples-text">Customizing examples for your age...</p>
-                    </div>
-
-                    <div class="lesson-section" id="lesson-reflection">
-                        <h3>Reflection Question</h3>
-                        <p id="reflection-text">Generating thought-provoking questions...</p>
-                    </div>
-                </div>
-
-                <!-- Lesson Controls -->
-                <div class="lesson-controls">
-                    <button class="btn btn-primary" id="play-btn">
-                        <span>▶️</span>
-                        Experience This Lesson
-                    </button>
-                    <button class="btn btn-secondary" id="share-btn">
-                        <span>🔗</span>
-                        Share This Magic
-                    </button>
+            <div class="phase" id="wisdom-phase" data-question-side="right">
+                <div class="ios-panel content-note position-right-shoulder" id="wisdom-content">
+                    <div id="daily-fortune"></div>
                 </div>
             </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <p><strong>Revolutionary Concept:</strong> Same educational truth, infinite authentic expressions</p>
-                <p>This demo proves real-time synthesis can deliver perfect personalized learning at infinite scale</p>
+            <div class="phase" id="teaching-moment-phase"><div class="ios-panel content-note position-centered-moment" id="teaching-moment-content"></div></div>
+        </div>
+        <div class="ui-overlays">
+            <div id="state-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Live State</span><button class="inspector-close-btn" data-inspector="state-inspector">&times;</button></div><div class="inspector-content"><pre id="state-inspector-content"></pre></div></div>
+            <div id="content-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Content Inspector</span><button class="inspector-close-btn" data-inspector="content-inspector">&times;</button></div><div class="inspector-content"><pre id="content-inspector-content"></pre></div></div>
+            <div id="code-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Lesson DNA</span><button class="inspector-close-btn" data-inspector="code-inspector">&times;</button></div><div class="inspector-content"><pre id="code-inspector-content"></pre></div></div>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-line"></div>
+                    <div class="progress-line-fill" id="progress-line-fill"></div>
+                    <div class="progress-label-group" data-phase="0"><div class="progress-step" id="progress-step-0"></div><span class="progress-label">Welcome</span></div>
+                    <div class="progress-line-connector"></div>
+                    <div class="progress-label-group" data-phase="1"><div class="progress-step" id="progress-step-1"></div><span class="progress-label">Beginning</span></div>
+                    <div class="progress-line-connector"></div>
+                    <div class="progress-label-group" data-phase="2"><div class="progress-step" id="progress-step-2"></div><span class="progress-label">Middle</span></div>
+                    <div class="progress-line-connector"></div>
+                    <div class="progress-label-group" data-phase="3"><div class="progress-step" id="progress-step-3"></div><span class="progress-label">End</span></div>
+                    <div class="progress-line-connector"></div>
+                    <div class="progress-label-group" data-phase="4"><div class="progress-step" id="progress-step-4"></div><span class="progress-label">Wisdom</span></div>
+                </div>
             </div>
-        </footer>
+            <div id="read-along-player" class="ios-panel"></div>
+            <div class="bottom-right-controls">
+                <button class="control-btn" id="inspector-state-toggle" data-inspector="state-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg></button>
+                <button class="control-btn" id="inspector-content-toggle" data-inspector="content-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg></button>
+                <button class="control-btn" id="inspector-code-toggle" data-inspector="code-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" /></svg></button>
+                <div class="master-flyout-container">
+                    <button class="control-btn" id="master-trigger"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg></button>
+                    <div class="master-flyout-menu ios-panel">
+                        <div class="flyout-section" id="avatar-controls"><span class="flyout-section-label">Avatar</span><div class="flyout-btn-group"><button class="flyout-btn" data-avatar="kelly">Kelly</button><button class="flyout-btn" data-avatar="ken">Ken</button></div></div>
+                        <div class="flyout-section" id="tone-controls"><span class="flyout-section-label">Tone</span><div class="flyout-btn-group"><button class="flyout-btn" data-tone="neutral">Neutral</button><button class="flyout-btn" data-tone="fun">Fun</button><button class="flyout-btn" data-tone="grandmother">Grandma</button></div></div>
+                        <div class="flyout-section" id="age-controls"><span class="flyout-section-label">Age</span><div class="flyout-btn-group"><button class="flyout-btn" data-age="infant">Infant</button><button class="flyout-btn" data-age="toddler">Toddler</button><button class="flyout-btn" data-age="early_childhood">5-7</button><button class="flyout-btn" data-age="middle_childhood">8-10</button><button class="flyout-btn" data-age="pre_teen">Pre-teen</button></div></div>
+                        <div class="flyout-section" id="age-controls-2"><div class="flyout-btn-group"><button class="flyout-btn" data-age="teen">Teen</button><button class="flyout-btn" data-age="young_adult">Young Adult</button><button class="flyout-btn" data-age="adult">Adult</button><button class="flyout-btn" data-age="middle_age">Middle Age</button><button class="flyout-btn" data-age="senior">Senior</button><button class="flyout-btn" data-age="elder">Elder</button></div></div>
+                        <div class="flyout-section" id="media-controls"><span class="flyout-section-label">Media</span><div class="flyout-btn-group"><button class="flyout-btn" id="play-pause">Play/Pause</button><button class="flyout-btn" id="volume-up">Vol +</button><button class="flyout-btn" id="volume-down">Vol -</button></div></div>
+                        <div class="flyout-section" id="progress-controls"><span class="flyout-section-label">Progress</span><div class="flyout-btn-group"><button class="flyout-btn" id="save-progress">Save</button><button class="flyout-btn" id="load-progress">Load</button></div></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right-side rail -->
+            <div class="right-icon-rail" id="right-icon-rail">
+                <button class="rail-btn" id="icon-live" title="Live">🟢</button>
+                <button class="rail-btn" id="icon-find" title="Find">🔎</button>
+                <button class="rail-btn" id="icon-settings" title="Settings">⚙️</button>
+                <button class="rail-btn" id="icon-calendar" title="Calendar">📅</button>
+                <button class="rail-btn" id="icon-model" title="Model">🧑‍🏫</button>
+                <button class="rail-btn" id="icon-tone" title="Tone">🎚️</button>
+                <button class="rail-btn" id="icon-language" title="Language">🌍</button>
+                <button class="rail-btn" id="icon-age" title="Age">🎯</button>
+                <button class="rail-btn" id="icon-speed" title="Speed">⏩</button>
+                <button class="rail-btn" id="icon-controls" title="Controls">🎛️</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-spinner"></div>
-        <p>Synthesizing your personalized lesson...</p>
+    <!-- Live Modal -->
+    <div class="modal-overlay" id="live-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Live Class</div><button class="modal-close" data-close="live-modal">Close</button></div>
+            <div id="live-countdown" class="pill">Starting in: --:--</div>
+            <div style="margin-top:10px; opacity:0.85">At the top of the hour, the live class will automatically start.</div>
+            <div style="margin-top:14px;" class="row"><button class="pill" id="start-live-now">Start Now</button></div>
+        </div>
     </div>
 
-    <!-- Enterprise Integration -->
-    <script src="js/synthesis-integration.js"></script>
-    <script src="js/lesson-player-enhanced.js"></script>
-    <link rel="stylesheet" href="css/synthesis-integration.css">
-    
-    <!-- Original Scripts -->
-    <script src="js/synthesis-engine.js"></script>
-    <script src="js/lesson-player.js"></script>
+    <!-- Find Modal -->
+    <div class="modal-overlay" id="find-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Find a Daily Lesson</div><button class="modal-close" data-close="find-modal">Close</button></div>
+            <input id="find-input" class="search-input" placeholder="Search 366 topics by title..."/>
+            <div id="find-results" style="margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Settings</div><button class="modal-close" data-close="settings-modal">Close</button></div>
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:260px;">
+                    <div class="pill" style="margin-bottom:8px;">Account</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <input id="login-username" class="search-input" placeholder="Username"/>
+                        <input id="login-password" class="search-input" placeholder="Password" type="password"/>
+                        <div class="row"><button class="pill" id="btn-login">Login</button><button class="pill" id="btn-register">Register</button><button class="pill" id="btn-logout">Logout</button></div>
+                        <div id="auth-status" style="font-size:13px; opacity:0.8;"></div>
+                    </div>
+                </div>
+                <div style="flex:1; min-width:260px;">
+                    <div class="pill" style="margin-bottom:8px;">Preferences</div>
+                    <div class="row">
+                        <span class="pill" data-avatar="kelly">Avatar: Kelly</span>
+                        <span class="pill" data-avatar="ken">Avatar: Ken</span>
+                        <span class="pill" data-tone="neutral">Tone: Neutral</span>
+                        <span class="pill" data-tone="fun">Tone: Fun</span>
+                        <span class="pill" data-tone="grandmother">Tone: Grandma</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div class="modal-overlay" id="calendar-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Calendar</div><button class="modal-close" data-close="calendar-modal">Close</button></div>
+            <div class="row" style="margin-bottom:10px;">
+                <button class="pill" id="go-yesterday">Yesterday</button>
+                <button class="pill" id="go-today">Today</button>
+                <button class="pill" id="go-tomorrow">Tomorrow</button>
+            </div>
+            <div id="calendar-results"></div>
+        </div>
+    </div>
+
+    <!-- Language Modal -->
+    <div class="modal-overlay" id="language-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Language</div><button class="modal-close" data-close="language-modal">Close</button></div>
+            <div class="row" id="language-options">
+                <span class="pill" data-language="english">English</span>
+                <span class="pill" data-language="spanish">Spanish</span>
+                <span class="pill" data-language="french">French</span>
+            </div>
+            <div style="opacity:0.75; font-size:13px; margin-top:8px;">Languages available depend on the selected lesson DNA.</div>
+        </div>
+    </div>
+
+    <!-- Speed Modal -->
+    <div class="modal-overlay" id="speed-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Playback Speed</div><button class="modal-close" data-close="speed-modal">Close</button></div>
+            <div class="row" id="speed-options">
+                <span class="pill" data-speed="0.8">0.8x</span>
+                <span class="pill" data-speed="1.0">1.0x</span>
+                <span class="pill" data-speed="1.25">1.25x</span>
+                <span class="pill" data-speed="1.5">1.5x</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls Modal (quick nav) -->
+    <div class="modal-overlay" id="controls-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Controls</div><button class="modal-close" data-close="controls-modal">Close</button></div>
+            <div class="row"><button class="pill" id="prev-btn">Prev</button><button class="pill" id="next-btn">Next</button><button class="pill" id="restart-btn">Restart</button></div>
+        </div>
+    </div>
+
+    <!-- Hidden audio element for ElevenLabs playback -->
+    <audio id="tts-audio" preload="auto" style="display:none;"></audio>
+    <!-- Core systems: use existing architecture -->
+    <script src="/complete-elevenlabs-integration.js"></script>
+    <script src="/complete-curriculum.js"></script>
+    <script src="/corrected-variant-generator-v2.js"></script>
+    <script src="/complete-lesson-player.js"></script>
+
+    <!-- Required containers for the universal player (kept minimal within existing layout) -->
+    <div id="avatar-container" style="position:absolute; inset:0; background-size:cover; background-position:center; z-index:1; display:none;"></div>
+    <div id="lesson-content-overlay" style="position:absolute; inset:0; display:none; z-index:12;">
+        <div id="lesson-content" class="ios-panel content-note position-centered-moment" style="display:none;">
+            <div class="current-phase-label" style="font-weight:700; margin-bottom:6px;"></div>
+            <div id="lesson-text"></div>
+            <div class="choice-feedback hidden"></div>
+        </div>
+    </div>
+    <div id="calendar-overlay" style="position:absolute; top:10%; right:90px; width:340px; max-height:70vh; overflow:auto; display:none; z-index:15;" class="ios-panel">
+        <div id="calendar-grid" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; padding:10px;"></div>
+    </div>
+    <div id="tone-overlay" class="ios-panel" style="position:absolute; top:20%; right:90px; padding:10px; display:none; z-index:15;">
+        <select id="tone-select"><option value="grandmother">Grandmother</option><option value="fun">Fun</option><option value="neutral" selected>Neutral</option></select>
+    </div>
+    <div id="avatar-overlay" class="ios-panel" style="position:absolute; top:28%; right:90px; padding:10px; display:none; z-index:15;">
+        <select id="avatar-select"><option value="kelly" selected>Kelly</option><option value="ken">Ken</option></select>
+    </div>
+    <div id="language-overlay" class="ios-panel" style="position:absolute; top:36%; right:90px; padding:10px; display:none; z-index:15;">
+        <select id="language-select"><option value="english" selected>English</option><option value="spanish">Spanish</option><option value="french">French</option></select>
+    </div>
+    <div id="age-overlay" class="ios-panel" style="position:absolute; top:44%; right:90px; padding:10px; display:none; z-index:15;">
+        <select id="age-select">
+            <option value="age_2">2</option><option value="age_5">5</option><option value="age_8">8</option><option value="age_12">12</option><option value="age_16">16</option>
+            <option value="age_25" selected>25</option><option value="age_40">40</option><option value="age_60">60</option><option value="age_80">80</option><option value="age_102">102</option>
+        </select>
+    </div>
+    <div style="position:fixed; left:30px; bottom:24px; z-index:20; display:flex; align-items:center; gap:10px;">
+        <button id="play-btn" class="pill">▶️</button>
+        <div style="width:200px; height:6px; background:rgba(0,0,0,0.1); border-radius:6px; overflow:hidden;">
+            <div id="progress-fill" style="height:100%; width:0%; background:var(--accent-blue);"></div>
+        </div>
+        <input id="volume-slider" type="range" min="0" max="100" value="50"/>
+    </div>
+
+    <!-- Data source mapping: DNA by day (Sun, Moon, Ocean) and Puppies compatibility -->
+    <script>
+    window.getDNALessonData = async function(day) {
+        try {
+            // Day mappings based on January curriculum
+            if (day === 1) { // Sun
+                let res = await fetch('/data/sun_normalized.json'); if (res.ok) return await res.json();
+                res = await fetch('/dna-templates/the-sun.json'); if (res.ok) return await res.json();
+            }
+            if (day === 10) { // Moon
+                let res = await fetch('/data/moon_normalized.json'); if (res.ok) return await res.json();
+                res = await fetch('/data/the-moon.json'); if (res.ok) return await res.json();
+            }
+            if (day === 24) { // Oceans
+                const res = await fetch('/data/ocean_normalized.json'); if (res.ok) return await res.json();
+            }
+            // Puppies special-case using phases JSON -> simple DNA
+            const qp = new URLSearchParams(location.search);
+            if (qp.get('topic') === 'puppies') {
+                let res = await fetch('/data/puppies_normalized.json');
+                if (res.ok) return await res.json();
+                res = await fetch('/lessons/puppies-lesson-final.json');
+                if (res.ok) {
+                    const j = await res.json();
+                    const q1 = j.phases.find(p=>p.type==='beginning');
+                    const q2 = j.phases.find(p=>p.type==='middle')||q1; const q3 = j.phases.find(p=>p.type==='end')||q1;
+                    return {
+                        lesson_metadata: { lesson_id: 'puppies', day: 0, universal_concept: j.title, learning_essence: j.objective || '' },
+                        age_expressions: { '25': { concept_name: { neutral: { display_text: j.title, voice_over_script: j.title } } } },
+                        core_lesson_structure: {
+                            question_1: { concept_focus: 'Care', ages: { '25': { question: { neutral: { display_text: q1?.question_text || '' } }, option_a: { display_text: q1?.choices?.option_a?.text || '' }, option_b: { display_text: q1?.choices?.option_b?.text || '' }, teaching_moments: { option_a_response: q1?.choices?.option_a?.teaching_moment?.neutral?.young_adult || '', option_b_response: q1?.choices?.option_b?.teaching_moment?.neutral?.young_adult || '' } } } },
+                            question_2: { concept_focus: 'Training', ages: { '25': { question: { neutral: { display_text: q2?.question_text || '' } }, option_a: { display_text: q2?.choices?.option_a?.text || '' }, option_b: { display_text: q2?.choices?.option_b?.text || '' }, teaching_moments: { option_a_response: q2?.choices?.option_a?.teaching_moment?.neutral?.young_adult || '', option_b_response: q2?.choices?.option_b?.teaching_moment?.neutral?.young_adult || '' } } } },
+                            question_3: { concept_focus: 'Bond', ages: { '25': { question: { neutral: { display_text: q3?.question_text || '' } }, option_a: { display_text: q3?.choices?.option_a?.text || '' }, option_b: { display_text: q3?.choices?.option_b?.text || '' }, teaching_moments: { option_a_response: q3?.choices?.option_a?.teaching_moment?.neutral?.young_adult || '', option_b_response: q3?.choices?.option_b?.teaching_moment?.neutral?.young_adult || '' } } } }
+                        },
+                        wisdom_phase_content: { fortune: { neutral: { display_text: 'Puppies learn with love and patience.', voice_over_script: 'Puppies learn with love and patience.' } } }
+                    };
+                }
+            }
+            return null;
+        } catch(e) { console.warn('getDNALessonData failed', e); return null; }
+    };
+
+    // Initialize the universal lesson player
+    window.addEventListener('DOMContentLoaded', () => {
+        window.lessonPlayer = new UniversalLessonPlayer();
+
+        // Prompt for ElevenLabs key if missing
+        try {
+            const hasKey = localStorage.getItem('elevenlabs_api_key');
+            if (!hasKey) {
+                const k = prompt('Enter ElevenLabs API key (or Cancel to use browser TTS):');
+                if (k) localStorage.setItem('elevenlabs_api_key', k);
+            }
+        } catch {}
+
+        // Wire right-rail icons to player navigation
+        const map = [
+            ['icon-calendar','calendar'],
+            ['icon-tone','tone'],
+            ['icon-model','avatar'],
+            ['icon-language','language'],
+            ['icon-age','age']
+        ];
+        map.forEach(([id, section]) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('click', () => window.lessonPlayer?.handleNavigation(section));
+        });
+        const play = document.getElementById('icon-live');
+        if (play) play.addEventListener('click', () => window.lessonPlayer?.togglePlayback());
+        const speedBtn = document.getElementById('icon-speed');
+        if (speedBtn) speedBtn.addEventListener('click', () => {
+            const current = window.lessonPlayer?.playbackSpeed || 1.0;
+            const next = current >= 1.5 ? 1.0 : (current >= 1.25 ? 1.5 : 1.25);
+            window.lessonPlayer?.setSpeed(next);
+            alert(`Speed: ${next}x`);
+        });
+    });
+    </script>
 </body>
 </html>
