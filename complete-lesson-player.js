@@ -255,7 +255,7 @@ class UniversalLessonPlayer {
      */
     async loadDNALesson(day) {
         try {
-            // Prefer app-provided DNA resolver
+            // Prefer app-provided DNA resolver (can return PhaseDNA v1)
             if (typeof window.getDNALessonData === 'function') {
                 const dna = await window.getDNALessonData(day);
                 if (dna) { this.currentDNA = dna; console.log(`✅ DNA (app resolver) loaded for day ${day}`); return; }
@@ -308,6 +308,12 @@ class UniversalLessonPlayer {
     async generateUniversalContent() {
         console.log('🎨 Generating universal content for variant:', this.currentVariant);
         try {
+            // PhaseDNA v1 direct path
+            if (this.currentDNA && this.currentDNA?.metadata?.version === 'phase_v1') {
+                this.universalContent = this.buildContentFromPhaseDNA(this.currentDNA);
+                console.log('✅ PhaseDNA v1 content resolved');
+                return;
+            }
             // Prefer DNA-driven variant generation
             if (!this.variantGen && typeof CorrectedVariantGeneratorV2 !== 'undefined') {
                 this.variantGen = new CorrectedVariantGeneratorV2();
@@ -342,6 +348,24 @@ class UniversalLessonPlayer {
         const dummyLesson = { title: this.currentLesson?.title || 'Learning', learning_objective: this.currentLesson?.learning_objective || '' };
         this.universalContent = this.generateFallbackUniversalContent(dummyLesson);
         console.log('✅ Fallback lesson content generated');
+    }
+
+    buildContentFromPhaseDNA(phaseDNA){
+        // Reduce 5 phases into current player’s content interface while we migrate UI fully
+        const getQ = (id) => {
+            const p = phaseDNA.phases.find(x=>x.id===id);
+            if (!p) return null;
+            const q = p.question?.text || '';
+            const a = p.question?.choices?.find(c=>c.id==='a')?.text || '';
+            const b = p.question?.choices?.find(c=>c.id==='b')?.text || '';
+            return { question: q, choices: [a,b].filter(Boolean) };
+        };
+        return {
+            introduction: phaseDNA.phases.find(x=>x.id==='welcome')?.narration?.voiceOver || '',
+            questions: [ getQ('beginning'), getQ('middle'), getQ('end') ].filter(Boolean),
+            conclusion: phaseDNA.phases.find(x=>x.id==='wisdom')?.narration?.voiceOver || '',
+            fortune: phaseDNA.phases.find(x=>x.id==='wisdom')?.screen?.steps?.find(s=>s.show?.some(u=>u.type==='fortune'))?.show?.find(u=>u.type==='fortune')?.text || ''
+        };
     }
 
     hasRichDNASchema(dna) {

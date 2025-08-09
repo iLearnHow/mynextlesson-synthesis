@@ -396,20 +396,27 @@
         try {
             // Day mappings based on January curriculum
             if (day === 1) { // Sun
-                let res = await fetch('/data/sun_normalized.json'); if (res.ok) return await res.json();
+                // PhaseDNA v1 preferred
+                let res = await fetch('/data/the-sun.en.phased.json'); if (res.ok) return await res.json();
+                // Legacy
+                res = await fetch('/data/sun_normalized.json'); if (res.ok) return await res.json();
                 res = await fetch('/dna-templates/the-sun.json'); if (res.ok) return await res.json();
             }
             if (day === 10) { // Moon
-                let res = await fetch('/data/moon_normalized.json'); if (res.ok) return await res.json();
+                let res = await fetch('/data/the-moon.en.phased.json'); if (res.ok) return await res.json();
+                res = await fetch('/data/moon_normalized.json'); if (res.ok) return await res.json();
                 res = await fetch('/data/the-moon.json'); if (res.ok) return await res.json();
             }
             if (day === 24) { // Oceans
-                const res = await fetch('/data/ocean_normalized.json'); if (res.ok) return await res.json();
+                let res = await fetch('/data/earths-magnificent-oceans.en.phased.json'); if (res.ok) return await res.json();
+                res = await fetch('/data/ocean_normalized.json'); if (res.ok) return await res.json();
             }
             // Puppies special-case using phases JSON -> simple DNA
             const qp = new URLSearchParams(location.search);
             if (qp.get('topic') === 'puppies') {
-                let res = await fetch('/data/puppies_normalized.json');
+                let res = await fetch('/data/puppies.en.phased.json');
+                if (res.ok) return await res.json();
+                res = await fetch('/data/puppies_normalized.json');
                 if (res.ok) return await res.json();
                 res = await fetch('/lessons/puppies-lesson-final.json');
                 if (res.ok) {
