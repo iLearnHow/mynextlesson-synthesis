@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "id": "puppies",
+    "day": 0,
+    "version": "phase_v1",
+    "language": "en",
+    "title": "Puppies Learn With Love",
+    "objective": "Understand how consistent care and gentle training help a puppy feel safe and learn fast.",
+    "defaultAvatar": "kelly"
+  },
+  "variants": { "ages": [2,5,8,12,16,25,40,60,80,102], "tones": ["neutral","fun","grandmother"] },
+  "ui": {
+    "regions": ["right_shoulder","lower_deck","question_deck","centered_moment"],
+    "layoutHints": { "questionPhaseSide": "center", "wisdomSide": "right" },
+    "iconPolicy": { "all": ["live","find","settings","calendar","model","tone","language","age","speed","controls"] }
+  },
+  "phases": [
+    {
+      "id": "welcome",
+      "timing": { "minListen": 6, "maxWait": 10 },
+      "narration": { "voiceOver": "Let’s talk about puppies—love, consistency, and tiny habits. I’ll read what appears and guide you through three simple choices. You choose when you’re ready; I’ll help either way." },
+      "screen": { "steps": [ { "at": "start", "show": [ {"type":"text","region":"right_shoulder","id":"welcome_note","text":"Puppies learn best with calm, consistent cues and kindness."} ] } ] },
+      "avatar": { "cues": [ {"at":"start","expression":"teaching_explaining"}, {"at":"end","expression":"happy_celebrating"} ] }
+    },
+    {
+      "id": "beginning",
+      "timing": { "minListen": 8, "maxWait": 16, "autoAdvanceAfterFeedback": 3 },
+      "narration": { "voiceOver": "Question one. What helps a puppy feel safe? Option A: loud corrections when they mess up. Option B: calm routines with clear, gentle cues. I’ll read both, then you choose." },
+      "screen": {
+        "steps": [
+          { "at": "start", "show": [ {"type":"text","region":"question_deck","id":"q1","text":"What helps a puppy feel safe?"} ] },
+          { "at": "start", "show": [ {"type":"choices","region":"lower_deck","id":"q1_choices", "extra": {"a":"Loud corrections","b":"Calm routines with gentle cues"}} ] },
+          { "at": "on_correct", "show": [ {"type":"hint","region":"right_shoulder","id":"q1_tm_b","text":"Exactly—safety grows when cues are calm and predictable."} ], "hide": ["q1_tm_a"] },
+          { "at": "on_incorrect", "show": [ {"type":"hint","region":"right_shoulder","id":"q1_tm_a","text":"Loud corrections can scare; safety grows with calm, consistent cues."} ], "hide": ["q1_tm_b"] }
+        ]
+      },
+      "question": {
+        "text": "What helps a puppy feel safe?",
+        "choices": [ {"id":"a","text":"Loud corrections"}, {"id":"b","text":"Calm routines with gentle cues"} ],
+        "correct": "b",
+        "teachingMoments": { "a": "Fear slows learning; calm patterns build trust.", "b": "Exactly—calm, consistent cues create safety." }
+      },
+      "avatar": { "cues": [ {"at":"start","expression":"question_curious"}, {"at":"on_correct","expression":"happy_celebrating"}, {"at":"on_incorrect","expression":"concerned_thinking"} ] }
+    },
+    {
+      "id": "middle",
+      "timing": { "minListen": 8, "maxWait": 16, "autoAdvanceAfterFeedback": 3 },
+      "narration": { "voiceOver": "Question two. What speeds up training? Option A: tiny steps with quick rewards. Option B: waiting until the puppy is perfect to reward. Choose whenever you’re ready." },
+      "screen": {
+        "steps": [
+          { "at": "start", "show": [ {"type":"text","region":"question_deck","id":"q2","text":"What speeds up training?"} ] },
+          { "at": "start", "show": [ {"type":"choices","region":"lower_deck","id":"q2_choices", "extra": {"a":"Tiny steps with quick rewards","b":"Wait until perfect to reward"}} ] },
+          { "at": "on_correct", "show": [ {"type":"hint","region":"right_shoulder","id":"q2_tm_a","text":"Yes—small wins add up fast when you reward right away."} ], "hide": ["q2_tm_b"] },
+          { "at": "on_incorrect", "show": [ {"type":"hint","region":"right_shoulder","id":"q2_tm_b","text":"Waiting too long confuses the puppy; quick rewards teach what to repeat."} ], "hide": ["q2_tm_a"] }
+        ]
+      },
+      "question": {
+        "text": "What speeds up training?",
+        "choices": [ {"id":"a","text":"Tiny steps with quick rewards"}, {"id":"b","text":"Wait until perfect to reward"} ],
+        "correct": "a",
+        "teachingMoments": { "a": "Exactly—reward tiny progress right away to shape behavior.", "b": "Delaying reward muddles the message; fast feedback teaches clearly." }
+      },
+      "avatar": { "cues": [ {"at":"start","expression":"question_curious"}, {"at":"on_correct","expression":"happy_celebrating"}, {"at":"on_incorrect","expression":"concerned_thinking"} ] }
+    },
+    {
+      "id": "end",
+      "timing": { "minListen": 8, "maxWait": 16, "autoAdvanceAfterFeedback": 3 },
+      "narration": { "voiceOver": "Question three. What’s a kind habit for hard moments? Option A: pause, breathe, and reset the routine. Option B: keep pushing louder. Pick what fits care and learning." },
+      "screen": {
+        "steps": [
+          { "at": "start", "show": [ {"type":"text","region":"question_deck","id":"q3","text":"What’s a kind habit for hard moments?"} ] },
+          { "at": "start", "show": [ {"type":"choices","region":"lower_deck","id":"q3_choices", "extra": {"a":"Pause, breathe, and reset routine","b":"Push louder"}} ] },
+          { "at": "on_correct", "show": [ {"type":"hint","region":"right_shoulder","id":"q3_tm_a","text":"Right—calm resets teach the next right step."} ], "hide": ["q3_tm_b"] },
+          { "at": "on_incorrect", "show": [ {"type":"hint","region":"right_shoulder","id":"q3_tm_b","text":"Louder often adds stress. Calm resets create safety and focus."} ], "hide": ["q3_tm_a"] }
+        ]
+      },
+      "question": {
+        "text": "What’s a kind habit for hard moments?",
+        "choices": [ {"id":"a","text":"Pause, breathe, and reset routine"}, {"id":"b","text":"Push louder"} ],
+        "correct": "a",
+        "teachingMoments": { "a": "Exactly—calm resets keep trust and learning.", "b": "Volume adds confusion; calm brings clarity." }
+      },
+      "avatar": { "cues": [ {"at":"start","expression":"question_curious"}, {"at":"on_correct","expression":"happy_celebrating"}, {"at":"on_incorrect","expression":"concerned_thinking"} ] }
+    },
+    {
+      "id": "wisdom",
+      "timing": { "minListen": 6, "maxWait": 12 },
+      "narration": { "voiceOver": "Your takeaway: be the calm your puppy learns from—tiny steps, quick rewards, and kind resets. Try one small habit today." },
+      "screen": { "steps": [ { "at": "start", "show": [ {"type":"fortune","region":"right_shoulder","id":"fortune","text":"Be the calm your puppy learns from—tiny steps, quick rewards, kind resets."} ] } ] },
+      "avatar": { "cues": [ {"at":"start","expression":"happy_celebrating"} ] }
+    }
+  ]
+}
+
+
