@@ -247,18 +247,23 @@ class UniversalLessonPlayer {
      */
     async loadDNALesson(day) {
         try {
-            // Try to load specific DNA file for this day
+            // Prefer app-provided DNA resolver
+            if (typeof window.getDNALessonData === 'function') {
+                const dna = await window.getDNALessonData(day);
+                if (dna) { this.currentDNA = dna; console.log(`✅ DNA (app resolver) loaded for day ${day}`); return; }
+            }
+            // Try to load specific DNA file
             const dnaResponse = await fetch(`dna_files/${day.toString().padStart(3, '0')}_lesson.json`);
             if (dnaResponse.ok) {
                 this.currentDNA = await dnaResponse.json();
                 console.log(`✅ DNA data loaded for day ${day}`);
-            } else {
-                // Fallback to the-sun-dna.json
-                const fallbackResponse = await fetch('data/the-sun-dna.json');
-                if (fallbackResponse.ok) {
-                    this.currentDNA = await fallbackResponse.json();
-                    console.log(`✅ Using fallback DNA data for day ${day}`);
-                }
+                return;
+            }
+            // Fallback
+            const fallbackResponse = await fetch('data/the-moon.json');
+            if (fallbackResponse.ok) {
+                this.currentDNA = await fallbackResponse.json();
+                console.log(`✅ Using fallback (moon) DNA for day ${day}`);
             }
         } catch (error) {
             console.warn(`⚠️ No DNA data available for day ${day}, using fallback`);
@@ -275,6 +280,9 @@ class UniversalLessonPlayer {
         }
 
         console.log('🚀 Starting universal lesson with 5 phases...');
+        // Hide start overlay if present
+        const startOverlay = document.getElementById('start-overlay');
+        if (startOverlay) startOverlay.style.display = 'none';
         
         // Reset to first phase
         this.currentPhase = 0;
@@ -291,17 +299,83 @@ class UniversalLessonPlayer {
      */
     async generateUniversalContent() {
         console.log('🎨 Generating universal content for variant:', this.currentVariant);
-        
-        // ALWAYS use dummy lesson for now - no curriculum needed
-        const dummyLesson = {
-            title: "Dummy Lesson - Learning Basics",
-            learning_objective: "Understanding how the lesson player works"
-        };
-        
-        // Generate dummy content that will actually play
+        try {
+            // Prefer DNA-driven variant generation
+            if (!this.variantGen && typeof CorrectedVariantGeneratorV2 !== 'undefined') {
+                this.variantGen = new CorrectedVariantGeneratorV2();
+            }
+            if (this.variantGen && this.currentDNA && this.hasRichDNASchema(this.currentDNA)) {
+                // Keep generator preferences in sync
+                this.variantGen.currentPreferences = { ...this.currentVariant };
+                const generated = await this.variantGen.generatePersonalizedContent(this.currentVariant);
+                // Adapt to universalContent shape expected by player
+                const questions = (generated.questions || []).map(q => ({
+                    question: q.text || q.question || '',
+                    choices: Array.isArray(q.choices) ? q.choices.map(c => (typeof c === 'string' ? c : (c.text || ''))) : []
+                }));
+                this.universalContent = {
+                    introduction: generated.opening || generated.openingText || 'Welcome to today\'s lesson!',
+                    questions,
+                    conclusion: generated.fortune || generated.conclusion || '',
+                    fortune: generated.fortune || ''
+                };
+                console.log('✅ DNA variant content generated');
+                return;
+            }
+            // If we have DNA but not the rich schema, transform simple DNA
+            if (this.currentDNA) {
+                const uc = this.transformSimpleDNA(this.currentDNA, this.currentVariant);
+                if (uc) { this.universalContent = uc; console.log('✅ Simple DNA transformed to universal content'); return; }
+            }
+        } catch (e) {
+            console.warn('Variant generation failed, using fallback', e);
+        }
+        // Fallback content
+        const dummyLesson = { title: this.currentLesson?.title || 'Learning', learning_objective: this.currentLesson?.learning_objective || '' };
         this.universalContent = this.generateFallbackUniversalContent(dummyLesson);
-        
-        console.log('✅ Dummy lesson content generated:', this.universalContent);
+        console.log('✅ Fallback lesson content generated');
+    }
+
+    hasRichDNASchema(dna) {
+        return !!(dna && dna.tone_delivery_dna && dna.language_translations);
+    }
+
+    mapAgeVariantToNumeric(ageVariant) {
+        const map = { age_2: '2', age_5: '5', age_8: '8', age_12: '12', age_16: '16', age_25: '25', age_40: '40', age_60: '60', age_80: '80', age_102: '102' };
+        return map[ageVariant] || '25';
+    }
+
+    transformSimpleDNA(dna, variant) {
+        try {
+            const tone = variant.tone || 'neutral';
+            const dnaAge = this.mapAgeVariantToNumeric(variant.age || 'age_25');
+            const concept = dna.age_expressions?.[dnaAge]?.concept_name?.[tone] || dna.age_expressions?.[dnaAge]?.concept_name?.neutral;
+            const intro = (concept?.voice_over_script || concept?.display_text || dna.lesson_metadata?.universal_concept || '').toString();
+
+            const q = (idx) => {
+                const block = dna.core_lesson_structure?.[`question_${idx}`]?.ages?.[dnaAge];
+                if (!block) return null;
+                // question text can be string or {tone:{display_text}}
+                const qt = block.question || {};
+                const qtext = (
+                    qt?.[tone]?.display_text || qt?.[tone]?.voice_over_script ||
+                    qt?.neutral?.display_text || qt?.neutral?.voice_over_script ||
+                    qt?.display_text || qt?.voice_over_script || ''
+                ).toString();
+                const a = (block.option_a?.display_text || block.option_a?.voice_over_script || '').toString();
+                const b = (block.option_b?.display_text || block.option_b?.voice_over_script || '').toString();
+                return { question: qtext, choices: [a, b].filter(x=>x && x.trim().length>0) };
+            };
+
+            const questions = [q(1), q(2) || q(1), q(3) || q(1)].filter(Boolean);
+            const fortune = (
+                dna.wisdom_phase_content?.fortune?.[tone]?.voice_over_script ||
+                dna.wisdom_phase_content?.fortune?.[tone]?.display_text ||
+                dna.wisdom_phase_content?.fortune?.neutral?.voice_over_script ||
+                dna.wisdom_phase_content?.fortune?.neutral?.display_text || ''
+            ).toString();
+            return { introduction: intro, questions, conclusion: fortune, fortune };
+        } catch (e) { console.warn('Simple DNA transform failed', e); return null; }
     }
 
     /**
@@ -314,6 +388,7 @@ class UniversalLessonPlayer {
         }
 
         const phase = this.lessonPhases[this.currentPhase];
+        const mappedPhase = this.mapPhaseForContent(phase);
         const phaseNumber = this.currentPhase + 1;
         console.log(`🎵 Playing phase ${phaseNumber}/5: ${phase}`);
         
@@ -341,13 +416,13 @@ class UniversalLessonPlayer {
         this.updateAvatarForPhase(phase);
 
         // Display phase content
-        this.showPhaseContent(phase);
+        this.showPhaseContent(mappedPhase);
 
         // Generate and play audio
-        await this.generateAndPlayPhaseAudio(phase);
+        await this.generateAndPlayPhaseAudio(mappedPhase);
 
         // Set up auto-advance
-        const phaseDuration = this.getPhaseDuration(phase);
+        const phaseDuration = this.getPhaseDuration(mappedPhase);
         setTimeout(() => {
             this.nextPhase();
         }, phaseDuration * 1000);
@@ -509,15 +584,19 @@ class UniversalLessonPlayer {
      */
     showChoiceFeedback(questionNumber, choice) {
         const feedbackContainer = document.querySelector('.choice-feedback');
-        if (feedbackContainer) {
-            feedbackContainer.classList.remove('hidden');
-            feedbackContainer.innerHTML = `
-                <div class="feedback-message">
-                    <p>You chose option ${choice.toUpperCase()}!</p>
-                    <p>Great thinking! Let's continue...</p>
-                </div>
-            `;
-        }
+        if (!feedbackContainer) return;
+        feedbackContainer.classList.remove('hidden');
+
+        const idx = questionNumber - 1;
+        const correct = this.isSelectedCorrect(idx, choice);
+        const message = this.getQuestionFeedback(idx, choice);
+        feedbackContainer.innerHTML = `
+            <div class="feedback-message">
+                <p>You chose option ${String(choice).toUpperCase()}.</p>
+                <p>${message}</p>
+            </div>
+        `;
+        this.updateAvatar(this.currentVariant.avatar, correct ? 'happy_celebrating' : 'concerned_thinking');
     }
 
     /**
@@ -583,7 +662,7 @@ class UniversalLessonPlayer {
             }
 
             // Format and display content
-            lessonText.innerHTML = this.formatPhaseContent(phaseContent, phase);
+                lessonText.innerHTML = this.formatPhaseContent(phaseContent, phase);
             
             // Show with animation
             lessonContent.style.display = 'block';
@@ -615,15 +694,15 @@ class UniversalLessonPlayer {
         // Use the dummy content from universalContent
         if (this.universalContent) {
             switch (phase) {
-                case 'opening':
+                case 'welcome':
                     return this.universalContent.introduction || 'Welcome to today\'s lesson!';
-                case 'question_1':
+                case 'beginning':
                     return this.universalContent.questions?.[0] || 'What have you learned today?';
-                case 'question_2':
+                case 'middle':
                     return this.universalContent.questions?.[1] || 'How can you apply this knowledge?';
-                case 'question_3':
+                case 'end':
                     return this.universalContent.questions?.[2] || 'What questions do you have?';
-                case 'closing':
+                case 'wisdom':
                     return this.universalContent.conclusion || 'Great job! You\'ve learned something new today.';
                 default:
                     return 'Phase content not available';
@@ -638,7 +717,7 @@ class UniversalLessonPlayer {
      * Format phase content appropriately
      */
     formatPhaseContent(content, phase) {
-        if (phase.includes('question')) {
+        if (['beginning','middle','end'].includes(phase)) {
             return this.formatQuestionContent(content);
         } else {
             return this.formatTextContent(content, phase);
@@ -695,7 +774,8 @@ class UniversalLessonPlayer {
             const avatar = this.currentVariant.avatar;
             
             if (this.elevenLabs) {
-                const audioUrl = await this.elevenLabs.generateAudio(content, avatar);
+                const text = typeof content === 'string' ? content : (content?.question || '');
+                const audioUrl = await this.elevenLabs.generateAudio(text, avatar);
                 
                 if (audioUrl) {
                     this.audioElement.src = audioUrl;
@@ -883,8 +963,29 @@ class UniversalLessonPlayer {
      * Get feedback for question answer
      */
     getQuestionFeedback(questionIndex, selectedOption) {
-        // This would be generated from DNA data
+        try {
+            const qKey = ['question_1','question_2','question_3'][questionIndex] || 'question_1';
+            const age = this.currentVariant.age || 'age_25';
+            const dnaAge = this.mapAgeVariantToNumeric(age);
+            const blk = this.currentDNA?.core_lesson_structure?.[qKey]?.ages?.[dnaAge];
+            if (blk && blk.teaching_moments) {
+                const correct = this.isSelectedCorrect(questionIndex, selectedOption);
+                return (correct ? blk.teaching_moments.option_b_response : blk.teaching_moments.option_a_response) || "Great thinking!";
+            }
+        } catch {}
         return "You're thinking about this in a wonderful way! This understanding will help you in many areas of life.";
+    }
+
+    isSelectedCorrect(questionIndex, selectedOption) {
+        try {
+            const qKey = ['question_1','question_2','question_3'][questionIndex] || 'question_1';
+            const age = this.currentVariant.age || 'age_25';
+            const dnaAge = this.mapAgeVariantToNumeric(age);
+            const blk = this.currentDNA?.core_lesson_structure?.[qKey]?.ages?.[dnaAge];
+            const correct = (blk && blk.correct_option) ? blk.correct_option.toLowerCase() : 'b';
+            const sel = (String(selectedOption).toLowerCase() === 'a' || selectedOption === 0) ? 'a' : 'b';
+            return sel === correct;
+        } catch { return false; }
     }
 
     /**
@@ -1035,10 +1136,8 @@ class UniversalLessonPlayer {
     async loadCurrentLesson() {
         console.log(`📚 Loading current lesson for day ${this.currentDay}...`);
         await this.loadLessonByDay(this.currentDay);
-        
-        // Auto-start lesson immediately (no start button needed)
-        console.log('🚀 Auto-starting lesson...');
-        this.startUniversalLesson();
+        // Do not auto-start; wait for user Start button
+        console.log('⏳ Lesson loaded and ready. Waiting for Start.');
     }
 
     /**

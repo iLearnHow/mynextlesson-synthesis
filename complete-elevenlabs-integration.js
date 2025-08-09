@@ -44,8 +44,8 @@ class ElevenLabsIntegration {
                 return storedKey;
             }
             
-            // Fallback to environment variable (if available)
-            return process?.env?.ELEVENLABS_API_KEY || 'your-elevenlabs-api-key';
+            // Fallback to environment variable (if available) – guard for browsers without process
+            try { return (typeof process !== 'undefined' && process.env && process.env.ELEVENLABS_API_KEY) ? process.env.ELEVENLABS_API_KEY : 'your-elevenlabs-api-key'; } catch { return 'your-elevenlabs-api-key'; }
         } else {
             // Node.js environment
             return process.env.ELEVENLABS_API_KEY || 'your-elevenlabs-api-key';
