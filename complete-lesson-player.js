@@ -23,7 +23,7 @@ class UniversalLessonPlayer {
         this.duration = 0;
         this.playbackSpeed = 1;
         this.volume = 0.5;
-        this.autoplay = false;
+        this.autoplay = true;
         
         // Audio system
         this.audioElement = null;
@@ -88,6 +88,16 @@ class UniversalLessonPlayer {
             words: [],
             index: 0
         };
+
+        // Autorun override via URL param (?autorun=1|0|true|false)
+        try {
+            const url = new URL(window.location.href);
+            const p = url.searchParams.get('autorun');
+            if (p !== null) {
+                this.autoplay = (p === '1' || p === 'true');
+                console.log(`⚙️ Autorun param detected → autoplay=${this.autoplay}`);
+            }
+        } catch {}
     }
 
     /**
@@ -294,6 +304,9 @@ class UniversalLessonPlayer {
         
         // Reset to first phase
         this.currentPhase = 0;
+        // Ensure lesson is considered playing so content renders even if audio autoplay is blocked
+        this.isPlaying = true;
+        this.updatePlayButton();
         
         // Generate personalized content for current variant
         await this.generateUniversalContent();
@@ -1231,8 +1244,12 @@ class UniversalLessonPlayer {
     async loadCurrentLesson() {
         console.log(`📚 Loading current lesson for day ${this.currentDay}...`);
         await this.loadLessonByDay(this.currentDay);
-        // Do not auto-start; wait for user Start button
-        console.log('⏳ Lesson loaded and ready. Waiting for Start.');
+        if (this.autoplay) {
+            console.log('▶️ Autorun enabled. Starting lesson automatically.');
+            this.startUniversalLesson();
+        } else {
+            console.log('⏳ Lesson loaded and ready. Waiting for Start.');
+        }
     }
 
     /**
