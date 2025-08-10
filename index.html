@@ -339,7 +339,7 @@
     <div class="modal-overlay" id="controls-modal">
         <div class="modal-card">
             <div class="modal-header"><div class="modal-title">Controls</div><button class="modal-close" data-close="controls-modal">Close</button></div>
-            <div class="row"><button class="pill" id="prev-btn">Prev</button><button class="pill" id="next-btn">Next</button><button class="pill" id="restart-btn">Restart</button></div>
+            <div class="row"><button class="pill" id="prev-btn">Prev</button><button class="pill" id="next-btn">Next</button><button class="pill" id="restart-btn">Restart</button><button class="pill" id="run-evals">Run Evals</button></div>
         </div>
     </div>
 
@@ -364,6 +364,7 @@
             <div class="choice-feedback hidden"></div>
         </div>
     </div>
+    <div id="variant-badges" class="ios-panel" style="position:absolute; top:12px; right:90px; padding:8px 10px; display:block; z-index:15; font-size:12px;"></div>
     <div id="calendar-overlay" style="position:absolute; top:10%; right:90px; width:340px; max-height:70vh; overflow:auto; display:none; z-index:15;" class="ios-panel">
         <div id="calendar-grid" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; padding:10px;"></div>
     </div>
@@ -511,6 +512,39 @@
         document.getElementById('prev-btn')?.addEventListener('click', ()=> window.lessonPlayer?.previousPhase());
         document.getElementById('next-btn')?.addEventListener('click', ()=> window.lessonPlayer?.nextPhase());
         document.getElementById('restart-btn')?.addEventListener('click', ()=> window.lessonPlayer?.restartLesson());
+        document.getElementById('run-evals')?.addEventListener('click', async ()=>{
+            const plans = [
+                {day:1, topic:'Sun'},
+                {day:10, topic:'Moon'},
+                {day:24, topic:'Oceans'},
+                {day:0, topic:'Puppies', qp:'puppies'}
+            ];
+            const langs = ['english','spanish','french'];
+            const tones = ['neutral','fun','grandmother'];
+            const ages = ['age_8','age_16','age_25'];
+            const results = [];
+            for (const p of plans){
+                for (const lang of langs){
+                    for (const tone of tones){
+                        for (const age of ages){
+                            try{
+                                window.lessonPlayer.currentVariant.language = lang;
+                                window.lessonPlayer.currentVariant.tone = tone;
+                                window.lessonPlayer.currentVariant.age = age;
+                                if (p.qp) {
+                                    const url = new URL(window.location.href);
+                                    url.searchParams.set('topic', p.qp);
+                                    history.replaceState({}, '', url);
+                                }
+                                await window.lessonPlayer.loadLessonByDay(p.day || window.lessonPlayer.currentDay);
+                                results.push(`${p.topic}-${lang}-${tone}-${age}: ok`);
+                            }catch(e){ results.push(`${p.topic}-${lang}-${tone}-${age}: fail`); }
+                        }
+                    }
+                }
+            }
+            alert(`Eval complete:\n${results.slice(0,20).join('\n')}\n...(${results.length} cases)`);
+        });
 
         // Calendar quick buttons
         document.getElementById('go-yesterday')?.addEventListener('click', ()=>{
