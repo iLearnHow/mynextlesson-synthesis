@@ -734,8 +734,29 @@ class UniversalLessonPlayer {
             phaseLabel.textContent = phaseLabels[phase] || phase;
         }
         
+        // Sync left progress rail
+        this.updateProgressRail();
+
         // Show/hide appropriate content sections
         this.showPhaseSpecificContent(phase, phaseNumber);
+    }
+
+    /**
+     * Update left progress labels and line fill
+     */
+    updateProgressRail() {
+        try {
+            const groups = document.querySelectorAll('.progress-label-group');
+            groups.forEach((g, idx) => {
+                g.classList.toggle('active', idx === this.currentPhase);
+                g.classList.toggle('completed', idx < this.currentPhase);
+            });
+            const fill = document.getElementById('progress-line-fill');
+            if (fill) {
+                const pct = (this.currentPhase / Math.max(1, this.lessonPhases.length - 1)) * 100;
+                fill.style.height = `${pct}%`;
+            }
+        } catch {}
     }
 
     /**
@@ -943,8 +964,8 @@ class UniversalLessonPlayer {
         // Get phase-specific content
         const phaseContent = this.getPhaseContent(phase);
         
-        // Only show overlay if we have content AND lesson is actively playing
-        if (phaseContent && phaseContent !== 'Content not available' && this.isPlaying) {
+        // Show overlay when there is content
+        if (phaseContent && phaseContent !== 'Content not available') {
             // Show the overlay
             if (lessonContentOverlay) {
                 lessonContentOverlay.style.display = 'block';
