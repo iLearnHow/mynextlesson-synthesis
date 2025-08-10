@@ -350,6 +350,16 @@
     <script src="/complete-curriculum.js"></script>
     <script src="/corrected-variant-generator-v2.js"></script>
     <script src="/complete-lesson-player.js"></script>
+    <script>
+      // Safety guard: ensure draggable method exists even if an older cached bundle calls it
+      (function(){
+        try {
+          if (window.UniversalLessonPlayer && !window.UniversalLessonPlayer.prototype._makeInspectorsDraggable) {
+            window.UniversalLessonPlayer.prototype._makeInspectorsDraggable = function(){};
+          }
+        } catch(e) { /* no-op */ }
+      })();
+    </script>
 
     <!-- Required containers for the universal player (kept minimal within existing layout) -->
     <div id="avatar-container" style="position:absolute; inset:0; background-size:cover; background-position:center; z-index:1; display:none;"></div>
