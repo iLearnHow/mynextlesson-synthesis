@@ -89,6 +89,10 @@ class UniversalLessonPlayer {
             index: 0
         };
 
+        // Interactive pacing helpers
+        this.phaseTimers = { noChoice: null };
+        this.questionAnswered = false;
+
         // Autorun override via URL param (?autorun=1|0|true|false)
         try {
             const url = new URL(window.location.href);
@@ -471,6 +475,20 @@ class UniversalLessonPlayer {
         setTimeout(() => {
             this.nextPhase();
         }, phaseDuration * 1000);
+
+        // Question phases: arm gentle no-interaction hint
+        if (['beginning','middle','end'].includes(mappedPhase)) {
+            this.questionAnswered = false;
+            const t = this.getPhaseTimingFromPhaseDNA(mappedPhase);
+            const ms = Math.max(6000, (t?.maxWait || 12) * 1000);
+            clearTimeout(this.phaseTimers.noChoice);
+            this.phaseTimers.noChoice = setTimeout(() => {
+                if (!this.questionAnswered) this.handleNoChoiceTimeout(mappedPhase);
+            }, ms);
+        } else {
+            this.questionAnswered = true;
+            clearTimeout(this.phaseTimers.noChoice);
+        }
     }
 
     /**
@@ -825,25 +843,7 @@ class UniversalLessonPlayer {
             const content = this.getPhaseContent(phase);
             const avatar = this.currentVariant.avatar;
             const vo = this.getVoiceOverForPhase(phase, content);
-            this.startReadAlong(vo);
-            
-            if (this.elevenLabs) {
-                const audioUrl = await this.elevenLabs.generateAudio(vo, avatar);
-                
-                if (audioUrl) {
-                    this.audioElement.src = audioUrl;
-                    this.audioElement.play();
-                    this.isPlaying = true;
-                    this.updatePlayButton();
-                    console.log('✅ Audio generated and playing for phase:', phase);
-                } else {
-                    console.warn('⚠️ Audio generation failed, using fallback');
-                    this.useFallbackAudio(phase);
-                }
-            } else {
-                console.warn('⚠️ ElevenLabs not available, using fallback');
-                this.useFallbackAudio(phase);
-            }
+            await this.speak(vo, avatar);
         } catch (error) {
             console.error('❌ Audio generation error:', error);
             this.useFallbackAudio(phase);
@@ -855,6 +855,10 @@ class UniversalLessonPlayer {
             const tone = this.currentVariant.tone || 'neutral';
             const ageVariant = this.currentVariant.age || 'age_25';
             const age = this.mapAgeVariantToNumeric(ageVariant);
+            if (this.currentDNA?.metadata?.version === 'phase_v1') {
+                const p = this.currentDNA?.phases?.find(x=>x.id===phase);
+                if (p?.narration?.voiceOver) return p.narration.voiceOver;
+            }
             if (phase === 'welcome') {
                 const vo = this.currentDNA?.age_expressions?.[age]?.concept_name?.[tone]?.voice_over_script || '';
                 if (vo) return vo;
@@ -870,6 +874,10 @@ class UniversalLessonPlayer {
                 return `Question ${idx}. ${qText}. Option A: ${aText}. Option B: ${bText}. Choose when you are ready.`;
             }
             if (phase === 'wisdom') {
+                if (this.currentDNA?.metadata?.version === 'phase_v1') {
+                    const p = this.currentDNA?.phases?.find(x=>x.id==='wisdom');
+                    if (p?.narration?.voiceOver) return p.narration.voiceOver;
+                }
                 const fortune = this.currentDNA?.wisdom_phase_content?.fortune?.[tone]?.voice_over_script || this.universalContent?.conclusion || '';
                 return fortune || 'Well done today.';
             }
@@ -908,6 +916,49 @@ class UniversalLessonPlayer {
         }, duration * 1000);
         
         console.log('🔊 Using fallback audio simulation for phase:', phase);
+    }
+
+    getPhaseTimingFromPhaseDNA(phaseId) {
+        try { return this.currentDNA?.phases?.find(p => p.id === phaseId)?.timing || null; } catch { return null; }
+    }
+
+    handleNoChoiceTimeout(phaseId) {
+        try {
+            if (this.questionAnswered) return;
+            let vo = '';
+            if (this.currentDNA?.metadata?.version === 'phase_v1') {
+                const p = this.currentDNA.phases.find(x => x.id === phaseId);
+                vo = p?.narration?.onNoChoice || 'Let me show you how to think about this.';
+            } else {
+                vo = 'Let me walk you through it—notice the key detail that points to the answer.';
+            }
+            this.speak(vo, this.currentVariant.avatar);
+        } catch {}
+        const idx = { beginning: 0, middle: 1, end: 2 }[phaseId] ?? 0;
+        const sel = this.getCorrectChoiceForIndex(idx);
+        this.showQuestionFeedback(idx, sel);
+    }
+
+    getCorrectChoiceForIndex(questionIndex) {
+        try {
+            const qKey = ['question_1','question_2','question_3'][questionIndex] || 'question_1';
+            const age = this.currentVariant.age || 'age_25';
+            const dnaAge = this.mapAgeVariantToNumeric(age);
+            const blk = this.currentDNA?.core_lesson_structure?.[qKey]?.ages?.[dnaAge];
+            const correct = (blk && blk.correct_option) ? blk.correct_option.toLowerCase() : 'b';
+            return correct;
+        } catch { return 'b'; }
+    }
+
+    previousPhase() {
+        if (this.currentPhase <= 0) return;
+        this.currentPhase -= 1;
+        this.playCurrentPhase();
+    }
+
+    restartLesson() {
+        this.currentPhase = 0;
+        this.playCurrentPhase();
     }
 
     /**
@@ -1059,12 +1110,9 @@ class UniversalLessonPlayer {
         // Avatar + speak feedback
         const correct = this.isSelectedCorrect(questionIndex, selectedOption);
         this.updateAvatar(this.currentVariant.avatar, correct ? 'happy_celebrating' : 'concerned_thinking');
-        this.startReadAlong(feedback);
-        if (this.elevenLabs) {
-            this.elevenLabs.generateAudio(feedback, this.currentVariant.avatar).then(url=>{
-                if (typeof url === 'string' && url.startsWith('blob:')) { this.audioElement.src = url; this.audioElement.play().catch(()=>{}); }
-            }).catch(()=>{});
-        }
+        this.speak(feedback, this.currentVariant.avatar);
+        this.questionAnswered = true;
+        clearTimeout(this.phaseTimers.noChoice);
     }
 
     /**
