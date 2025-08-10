@@ -1359,14 +1359,14 @@ class UniversalLessonPlayer {
         switch (expression) {
             case 'teaching_explaining':
             case 'question_curious':
-                imagePath = `lesson-player-deploy/assets/avatars/${avatar}/lesson-sequence/${avatar}_${expression}.png`;
+                imagePath = `/production-deploy/assets/avatars/${avatar}/lesson-sequence/${avatar}_${expression}.png`;
                 break;
             case 'concerned_thinking':
             case 'happy_celebrating':
-                imagePath = `lesson-player-deploy/assets/avatars/${avatar}/emotional-expressions/${avatar}_${expression}.png`;
+                imagePath = `/production-deploy/assets/avatars/${avatar}/emotional-expressions/${avatar}_${expression}.png`;
                 break;
             default:
-                imagePath = `lesson-player-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+                imagePath = `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
         }
         
         avatarContainer.style.backgroundImage = `url('${imagePath}')`;
@@ -2143,7 +2143,7 @@ The system is ready for real curriculum integration!`,
      */
     preloadAvatarAssets(avatar) {
         try {
-            const base = `lesson-player-deploy/assets/avatars/${avatar}`;
+            const base = `/production-deploy/assets/avatars/${avatar}`;
             const paths = [
                 `${base}/${avatar}_neutral_default.png`,
                 `${base}/lesson-sequence/${avatar}_teaching_explaining.png`,
