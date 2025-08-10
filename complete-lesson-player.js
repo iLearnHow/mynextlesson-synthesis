@@ -52,6 +52,122 @@ class UniversalLessonPlayer {
         this.loadUniversalCurriculum();
     }
 
+    runPhaseFromDNA(phaseId) {
+        const dna = this.currentDNA;
+        const phase = dna?.phases?.find(p => p.id === phaseId);
+        if (!phase) { console.warn('No PhaseDNA for', phaseId); return; }
+
+        // Speak narration
+        const vo = phase?.narration?.voiceOver || '';
+        if (vo) this.speak(vo, this.currentVariant.avatar);
+
+        // Apply avatar cue at start
+        try {
+            const startCue = phase?.avatar?.cues?.find(c => c.at === 'start');
+            if (startCue?.expression) this.updateAvatar(this.currentVariant.avatar, startCue.expression);
+        } catch {}
+
+        // Render screen steps
+        const lessonContentOverlay = document.getElementById('lesson-content-overlay');
+        const lessonContent = document.getElementById('lesson-content');
+        const lessonText = document.getElementById('lesson-text');
+        if (lessonContentOverlay) lessonContentOverlay.style.display = 'block';
+        if (lessonContent) lessonContent.style.display = 'block';
+        if (lessonText) lessonText.innerHTML = '';
+
+        const appendNode = (html) => { if (lessonText) lessonText.innerHTML += html; };
+        const showUnits = (units=[]) => {
+            units.forEach(u => {
+                if (u.type === 'text') appendNode(`<div class="content-text">${u.text||''}</div>`);
+                if (u.type === 'fortune') appendNode(`<div class="content-text"><strong>${u.text||''}</strong></div>`);
+                if (u.type === 'hint') appendNode(`<div class="content-text" style="opacity:.9;">${u.text||''}</div>`);
+                if (u.type === 'choices') {
+                    const a = u.extra?.a || '';
+                    const b = u.extra?.b || '';
+                    const container = document.createElement('div');
+                    container.className = 'choices-container';
+                    container.innerHTML = `
+                        <button class="choice-btn choice-a" data-choice="a">${a}</button>
+                        <button class="choice-btn choice-b" data-choice="b">${b}</button>`;
+                    lessonText?.appendChild(container);
+                    container.querySelectorAll('.choice-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const choice = e.currentTarget.getAttribute('data-choice');
+                            this.onPhaseChoice(phaseId, phase, choice);
+                        });
+                    });
+                }
+            });
+        };
+
+        try {
+            const startStep = phase?.screen?.steps?.filter(s => s.at === 'start');
+            startStep?.forEach(s => showUnits(s.show || []));
+        } catch {}
+
+        // Question phases need no-choice handling
+        if (['beginning','middle','end'].includes(phaseId)) {
+            this.questionAnswered = false;
+            const t = phase?.timing; const ms = Math.max(6000, (t?.maxWait || 12) * 1000);
+            clearTimeout(this.phaseTimers.noChoice);
+            this.phaseTimers.noChoice = setTimeout(() => {
+                if (!this.questionAnswered) this.onPhaseNoChoice(phaseId, phase);
+            }, ms);
+        }
+
+        // Auto-advance after a generic duration for non-questions
+        if (!['beginning','middle','end'].includes(phaseId)) {
+            const dur = Math.max(6000, (phase?.timing?.minListen || 6) * 1000);
+            setTimeout(() => this.nextPhase(), dur);
+        }
+    }
+
+    onPhaseChoice(phaseId, phase, choiceId) {
+        this.questionAnswered = true; clearTimeout(this.phaseTimers.noChoice);
+        const correctId = phase?.question?.correct || 'b';
+        const correct = String(choiceId).toLowerCase() === String(correctId).toLowerCase();
+        const tm = phase?.question?.teachingMoments || {};
+        const msg = correct ? (tm[correctId] || '') : (tm[choiceId] || 'Great thinking!');
+        this.updateAvatar(this.currentVariant.avatar, correct ? 'happy_celebrating' : 'concerned_thinking');
+        this.speak(msg, this.currentVariant.avatar);
+
+        // Show appropriate hint units configured in screen steps
+        try {
+            const atKey = correct ? 'on_correct' : 'on_incorrect';
+            const steps = (phase?.screen?.steps || []).filter(s => s.at === atKey);
+            const lessonText = document.getElementById('lesson-text');
+            if (lessonText) {
+                steps.forEach(s => {
+                    (s.hide || []).forEach(id => {
+                        const el = lessonText.querySelector(`#${id}`);
+                        if (el) el.style.display = 'none';
+                    });
+                    (s.show || []).forEach(u => {
+                        if (u.type === 'hint') {
+                            const div = document.createElement('div');
+                            div.id = u.id || '';
+                            div.className = 'content-text';
+                            div.style.opacity = '0.9';
+                            div.textContent = u.text || '';
+                            lessonText.appendChild(div);
+                        }
+                    });
+                });
+            }
+        } catch {}
+
+        const after = Math.max(1500, (phase?.timing?.autoAdvanceAfterFeedback || 3) * 1000);
+        setTimeout(() => this.nextPhase(), after);
+    }
+
+    onPhaseNoChoice(phaseId, phase) {
+        if (this.questionAnswered) return;
+        const vo = phase?.narration?.onNoChoice || 'Let me point you to the key detail here.';
+        this.speak(vo, this.currentVariant.avatar);
+        const correctId = phase?.question?.correct || 'b';
+        this.onPhaseChoice(phaseId, phase, correctId);
+    }
+
     /**
      * Initialize universal lesson player
      */
@@ -464,17 +580,17 @@ class UniversalLessonPlayer {
         // Update avatar for current phase
         this.updateAvatarForPhase(phase);
 
-        // Display phase content
+        // If PhaseDNA v1, run direct PhaseRunner and return
+        if (this.currentDNA?.metadata?.version === 'phase_v1') {
+            this.runPhaseFromDNA(phase);
+            return;
+        }
+
+        // Legacy display/content path
         this.showPhaseContent(mappedPhase);
-
-        // Generate and play audio
         await this.generateAndPlayPhaseAudio(mappedPhase);
-
-        // Set up auto-advance
         const phaseDuration = this.getPhaseDuration(mappedPhase);
-        setTimeout(() => {
-            this.nextPhase();
-        }, phaseDuration * 1000);
+        setTimeout(() => { this.nextPhase(); }, phaseDuration * 1000);
 
         // Question phases: arm gentle no-interaction hint
         if (['beginning','middle','end'].includes(mappedPhase)) {
