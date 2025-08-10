@@ -456,7 +456,16 @@ class UniversalLessonPlayer {
             // Prefer app-provided DNA resolver (can return PhaseDNA v1)
             if (typeof window.getDNALessonData === 'function') {
                 const dna = await window.getDNALessonData(day);
-                if (dna) { this.currentDNA = dna; console.log(`✅ DNA (app resolver) loaded for day ${day}`); return; }
+                if (dna) {
+                    this.currentDNA = dna;
+                    console.log(`✅ DNA (app resolver) loaded for day ${day}`);
+                    // Validate PhaseDNA if applicable
+                    this.dnaWarnings = this.validatePhaseDNA(this.currentDNA);
+                    if (this.dnaWarnings?.length) {
+                        console.warn('⚠️ PhaseDNA warnings:', this.dnaWarnings);
+                    }
+                    return;
+                }
             }
             // Try to load specific DNA file
             const dnaResponse = await fetch(`dna_files/${day.toString().padStart(3, '0')}_lesson.json`);
@@ -470,10 +479,41 @@ class UniversalLessonPlayer {
             if (fallbackResponse.ok) {
                 this.currentDNA = await fallbackResponse.json();
                 console.log(`✅ Using fallback (moon) DNA for day ${day}`);
+                this.dnaWarnings = this.validatePhaseDNA(this.currentDNA);
             }
         } catch (error) {
             console.warn(`⚠️ No DNA data available for day ${day}, using fallback`);
         }
+    }
+
+    /**
+     * Validate PhaseDNA v1 structure and return warnings array
+     */
+    validatePhaseDNA(dna) {
+        const warnings = [];
+        try {
+            if (!dna || dna.metadata?.version !== 'phase_v1') return warnings;
+            const requiredPhases = ['welcome','beginning','middle','end','wisdom'];
+            const phaseById = Object.fromEntries((dna.phases||[]).map(p=>[p.id,p]));
+            requiredPhases.forEach(id=>{ if (!phaseById[id]) warnings.push(`Missing phase: ${id}`); });
+            ['beginning','middle','end'].forEach(id=>{
+                const p = phaseById[id]; if (!p) return;
+                if (!p.narration?.voiceOver) warnings.push(`${id}: missing narration.voiceOver`);
+                if (!p.question?.text) warnings.push(`${id}: missing question.text`);
+                const choices = p.question?.choices || [];
+                const hasA = choices.some(c=>c.id==='a'); const hasB = choices.some(c=>c.id==='b');
+                if (!hasA || !hasB) warnings.push(`${id}: choices must include ids 'a' and 'b'`);
+                if (!p.question?.correct) warnings.push(`${id}: missing question.correct`);
+                const tm = p.question?.teachingMoments || {};
+                if (!tm.a || !tm.b) warnings.push(`${id}: missing teachingMoments for both 'a' and 'b'`);
+                if (!p.timing) warnings.push(`${id}: missing timing`);
+            });
+            const w = phaseById['welcome'];
+            if (w && !w.narration?.voiceOver) warnings.push('welcome: missing narration.voiceOver');
+            const z = phaseById['wisdom'];
+            if (z && !z.narration?.voiceOver) warnings.push('wisdom: missing narration.voiceOver');
+        } catch(e) { warnings.push('Validator error'); }
+        return warnings;
     }
 
     /**
@@ -2133,7 +2173,8 @@ The system is ready for real curriculum integration!`,
                 const dnaView = this.currentDNA ? (
                     this.currentDNA.metadata?.version === 'phase_v1' ? this.currentDNA : { schema: 'legacy_or_normalized', sample: this.currentDNA?.lesson_metadata || this.currentDNA?.metadata || {} }
                 ) : { info: 'No DNA loaded yet' };
-                codeTarget.textContent = JSON.stringify(dnaView, null, 2);
+                const payload = { dna: dnaView, warnings: this.dnaWarnings || [] };
+                codeTarget.textContent = JSON.stringify(payload, null, 2);
             }
         } catch {}
     }
