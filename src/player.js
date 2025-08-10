@@ -1,4 +1,15 @@
 // src/player.js - A clean, data-driven lesson player module.
+// Safety redirect: if this legacy module is served at '/', redirect to hardened entry
+try {
+  if (typeof window !== 'undefined') {
+    const p = window.location && window.location.pathname ? window.location.pathname : '/';
+    const isRoot = (p === '/' || p === '/index.html');
+    if (isRoot) {
+      const cb = `cb=${Date.now()}`;
+      window.location.replace(`/production-deploy/index.html?${cb}`);
+    }
+  }
+} catch (e) {}
 
 class UniversalLessonPlayer {
     constructor(lessonData, options = {}) {
