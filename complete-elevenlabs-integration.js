@@ -37,7 +37,7 @@ class ElevenLabsIntegration {
      * Get API key from environment or localStorage
      */
     getApiKey() {
-        const HARDCODED_FALLBACK = 'sk_8c5f96e55f6f50b883d324f7d8419f879e7f9bb312f3079e';
+        const HARDCODED_FALLBACK = 'sk_3007093ec2355a8f248e9c523572aee8dabb42b33f0ac186';
         if (this.isBrowser) {
             try {
                 const storedKey = localStorage.getItem('elevenlabs_api_key');
