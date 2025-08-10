@@ -218,6 +218,9 @@ class UniversalLessonPlayer {
         try { if (this.inspectorTimer) clearInterval(this.inspectorTimer); } catch {}
         this.inspectorTimer = setInterval(() => this.updateInspectors(), 500);
 
+        // Enable draggable inspectors (no-op if headers not present)
+        this._makeInspectorsDraggable();
+
         // Autorun override via URL param (?autorun=1|0|true|false)
         try {
             const url = new URL(window.location.href);
@@ -226,6 +229,45 @@ class UniversalLessonPlayer {
                 this.autoplay = (p === '1' || p === 'true');
                 console.log(`⚙️ Autorun param detected → autoplay=${this.autoplay}`);
             }
+        } catch {}
+    }
+
+    /**
+     * Make inspector panels draggable by their headers
+     */
+    _makeInspectorsDraggable() {
+        try {
+            const panels = document.querySelectorAll('.inspector-panel');
+            panels.forEach(panel => {
+                const header = panel.querySelector('.inspector-header');
+                if (!header) return;
+                let isDragging = false;
+                let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+                const onMouseDown = (e) => {
+                    isDragging = true;
+                    startX = e.clientX; startY = e.clientY;
+                    const rect = panel.getBoundingClientRect();
+                    startLeft = rect.left; startTop = rect.top;
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                };
+                const onMouseMove = (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    panel.style.left = `${Math.max(0, startLeft + dx)}px`;
+                    panel.style.top = `${Math.max(0, startTop + dy)}px`;
+                    panel.style.right = 'auto';
+                    panel.style.bottom = 'auto';
+                    panel.style.position = 'absolute';
+                };
+                const onMouseUp = () => {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+                header.addEventListener('mousedown', onMouseDown);
+            });
         } catch {}
     }
 
