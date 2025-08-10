@@ -450,14 +450,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         window.lessonPlayer = new UniversalLessonPlayer();
 
-        // Prompt for ElevenLabs key if missing
-        try {
-            const hasKey = localStorage.getItem('elevenlabs_api_key');
-            if (!hasKey) {
-                const k = prompt('Enter ElevenLabs API key (or Cancel to use browser TTS):');
-                if (k) localStorage.setItem('elevenlabs_api_key', k);
-            }
-        } catch {}
+        // ElevenLabs key is auto-provisioned by integration if missing
 
         // Wire right-rail icons to player navigation
         const map = [
@@ -475,10 +468,7 @@
         if (play) play.addEventListener('click', () => window.lessonPlayer?.togglePlayback());
         const speedBtn = document.getElementById('icon-speed');
         if (speedBtn) speedBtn.addEventListener('click', () => {
-            const current = window.lessonPlayer?.playbackSpeed || 1.0;
-            const next = current >= 1.5 ? 1.0 : (current >= 1.25 ? 1.5 : 1.25);
-            window.lessonPlayer?.setSpeed(next);
-            alert(`Speed: ${next}x`);
+            document.getElementById('speed-modal')?.classList.add('visible');
         });
 
         // Wire additional rail icons to modals

@@ -192,6 +192,9 @@ class UniversalLessonPlayer {
             console.log('✅ Flask integration ready');
         }
         
+        // Load persisted variant preferences
+        this.loadPreferencesFromStorage();
+
         // IMMEDIATELY show avatar - this is the core product experience
         this.ensureAvatarVisible();
         
@@ -223,6 +226,22 @@ class UniversalLessonPlayer {
                 this.autoplay = (p === '1' || p === 'true');
                 console.log(`⚙️ Autorun param detected → autoplay=${this.autoplay}`);
             }
+        } catch {}
+    }
+
+    /**
+     * Load user variant preferences from localStorage
+     */
+    loadPreferencesFromStorage() {
+        try {
+            const avatar = localStorage.getItem('variant_avatar');
+            const tone = localStorage.getItem('variant_tone');
+            const language = localStorage.getItem('variant_language');
+            const age = localStorage.getItem('variant_age');
+            if (avatar) this.currentVariant.avatar = avatar;
+            if (tone) this.currentVariant.tone = tone;
+            if (language) this.currentVariant.language = language;
+            if (age) this.currentVariant.age = age;
         } catch {}
     }
 
@@ -1547,6 +1566,7 @@ class UniversalLessonPlayer {
     onAvatarChange(newAvatar) {
         console.log('🎭 Avatar changed to:', newAvatar);
         this.currentVariant.avatar = newAvatar;
+        try { localStorage.setItem('variant_avatar', newAvatar); } catch {}
         
         // Update avatar display immediately
         this.updateAvatar(newAvatar, this.getAvatarExpression(this.currentVariant.tone));
@@ -1567,6 +1587,7 @@ class UniversalLessonPlayer {
     onToneChange(newTone) {
         console.log('🎨 Tone changed to:', newTone);
         this.currentVariant.tone = newTone;
+        try { localStorage.setItem('variant_tone', newTone); } catch {}
         
         // Update avatar expression
         this.updateAvatar(this.currentVariant.avatar, this.getAvatarExpression(newTone));
@@ -1586,14 +1607,21 @@ class UniversalLessonPlayer {
     onLanguageChange(newLanguage) {
         console.log('🌍 Language changed to:', newLanguage);
         this.currentVariant.language = newLanguage;
+        try { localStorage.setItem('variant_language', newLanguage); } catch {}
         
-        // Regenerate content and update display if lesson is active
-        if (this.isPlaying) {
-            this.generateUniversalContent();
-            // Update current phase content immediately
-            const currentPhase = this.lessonPhases[this.currentPhase];
-            this.showPhaseContent(currentPhase);
-        }
+        // Reload DNA for current day so language-specific files are used
+        const day = this.selectedDay || this.currentDay;
+        this.loadDNALesson(day).then(()=>{
+            if (this.isPlaying) {
+                this.generateUniversalContent();
+                const currentPhase = this.lessonPhases[this.currentPhase];
+                if (this.currentDNA?.metadata?.version === 'phase_v1') {
+                    this.playCurrentPhase();
+                } else {
+                    this.showPhaseContent(currentPhase);
+                }
+            }
+        });
     }
 
     /**
@@ -1602,6 +1630,7 @@ class UniversalLessonPlayer {
     onAgeChange(newAge) {
         console.log('👶 Age changed to:', newAge);
         this.currentVariant.age = newAge;
+        try { localStorage.setItem('variant_age', newAge); } catch {}
         
         // Regenerate content and update display if lesson is active
         if (this.isPlaying) {
@@ -1726,6 +1755,9 @@ class UniversalLessonPlayer {
             this.audioElement.playbackRate = this.playbackSpeed;
         }
         console.log(`⚡ Speed set to ${this.playbackSpeed}x`);
+        if (this.isPlaying && this.readAlong) {
+            this.resumeReadAlong();
+        }
     }
 
     /**
@@ -1985,6 +2017,100 @@ The system is ready for real curriculum integration!`,
     showError(message) {
         console.error('❌ Error:', message);
         // Could implement toast notification here
+    }
+
+    /**
+     * Speak text via ElevenLabs if available; fallback otherwise. Also starts read‑along.
+     */
+    async speak(text, avatar = null) {
+        const narration = String(text || '').trim();
+        if (!narration) return;
+        try { this.startReadAlong(narration); } catch {}
+        const chosenAvatar = avatar || this.currentVariant.avatar || 'kelly';
+        try {
+            if (this.elevenLabs) {
+                const result = await this.elevenLabs.generateAudio(narration, chosenAvatar);
+                if (typeof result === 'string' && result.startsWith('blob:')) {
+                    this.audioElement.src = result;
+                    this.audioElement.playbackRate = this.playbackSpeed;
+                    await this.audioElement.play().catch(()=>{});
+                    this.isPlaying = true;
+                    this.updatePlayButton();
+                    return;
+                }
+                return;
+            }
+        } catch (err) {
+            console.warn('speak() ElevenLabs path failed; falling back', err);
+        }
+        try {
+            this.isPlaying = true; this.updatePlayButton();
+            const approxMs = Math.min(15000, Math.max(2000, narration.split(/\s+/).length * 300));
+            setTimeout(()=>{ this.isPlaying = false; this.updatePlayButton(); }, approxMs);
+        } catch {}
+    }
+
+    /**
+     * Update inspector panels with live state, content, and DNA
+     */
+    updateInspectors() {
+        try {
+            const stateTarget = document.getElementById('state-inspector-content');
+            const contentTarget = document.getElementById('content-inspector-content');
+            const codeTarget = document.getElementById('code-inspector-content');
+
+            if (stateTarget) {
+                const state = {
+                    day: this.selectedDay || this.currentDay,
+                    phaseIndex: this.currentPhase,
+                    phaseId: this.lessonPhases[this.currentPhase] || null,
+                    isPlaying: this.isPlaying,
+                    playbackSpeed: this.playbackSpeed,
+                    volume: this.volume,
+                    variant: { ...this.currentVariant },
+                    timers: { hasNoChoiceTimer: !!this.phaseTimers?.noChoice },
+                    answers: this.userAnswers || []
+                };
+                stateTarget.textContent = JSON.stringify(state, null, 2);
+            }
+
+            if (contentTarget) {
+                const preview = {
+                    introduction: this.universalContent?.introduction || null,
+                    questions: (this.universalContent?.questions || []).map(q => ({
+                        question: typeof q === 'string' ? q : q?.question,
+                        choices: typeof q === 'string' ? [] : q?.choices
+                    })),
+                    conclusion: this.universalContent?.conclusion || null,
+                    fortune: this.universalContent?.fortune || null
+                };
+                contentTarget.textContent = JSON.stringify(preview, null, 2);
+            }
+
+            if (codeTarget) {
+                const dnaView = this.currentDNA ? (
+                    this.currentDNA.metadata?.version === 'phase_v1' ? this.currentDNA : { schema: 'legacy_or_normalized', sample: this.currentDNA?.lesson_metadata || this.currentDNA?.metadata || {} }
+                ) : { info: 'No DNA loaded yet' };
+                codeTarget.textContent = JSON.stringify(dnaView, null, 2);
+            }
+        } catch {}
+    }
+
+    /**
+     * Preload avatar assets to reduce flicker
+     */
+    preloadAvatarAssets(avatar) {
+        try {
+            const base = `lesson-player-deploy/assets/avatars/${avatar}`;
+            const paths = [
+                `${base}/${avatar}_neutral_default.png`,
+                `${base}/lesson-sequence/${avatar}_teaching_explaining.png`,
+                `${base}/lesson-sequence/${avatar}_question_curious.png`,
+                `${base}/emotional-expressions/${avatar}_concerned_thinking.png`,
+                `${base}/emotional-expressions/${avatar}_happy_celebrating.png`
+            ];
+            paths.forEach(p => { const img = new Image(); img.src = p; });
+        } catch {}
     }
 
     /**
