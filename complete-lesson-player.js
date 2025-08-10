@@ -211,6 +211,10 @@ class UniversalLessonPlayer {
         this.phaseTimers = { noChoice: null };
         this.questionAnswered = false;
 
+        // Inspectors auto-refresh
+        try { if (this.inspectorTimer) clearInterval(this.inspectorTimer); } catch {}
+        this.inspectorTimer = setInterval(() => this.updateInspectors(), 500);
+
         // Autorun override via URL param (?autorun=1|0|true|false)
         try {
             const url = new URL(window.location.href);
@@ -242,6 +246,7 @@ class UniversalLessonPlayer {
         
         // Set default avatar (Kelly) immediately
         this.updateAvatar('kelly', 'neutral_default');
+        this.preloadAvatarAssets('kelly');
         
         console.log('✅ Avatar visibility ensured');
     }
@@ -1545,6 +1550,7 @@ class UniversalLessonPlayer {
         
         // Update avatar display immediately
         this.updateAvatar(newAvatar, this.getAvatarExpression(this.currentVariant.tone));
+        this.preloadAvatarAssets(newAvatar);
         
         // Regenerate content and update display if lesson is active
         if (this.isPlaying) {

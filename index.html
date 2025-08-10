@@ -551,6 +551,27 @@
             const day = (window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1) - 1;
             if (day>=1) window.lessonPlayer?.loadLessonByDay(day);
         });
+
+        // Settings pills wiring
+        document.querySelectorAll('[data-avatar]')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = e.currentTarget.getAttribute('data-avatar'); if (v) window.lessonPlayer?.onAvatarChange(v);
+        }));
+        document.querySelectorAll('[data-tone]')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = e.currentTarget.getAttribute('data-tone'); if (v) window.lessonPlayer?.onToneChange(v);
+        }));
+        // Speed modal wiring
+        document.querySelectorAll('#speed-options .pill')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = parseFloat(e.currentTarget.getAttribute('data-speed')||'1'); window.lessonPlayer?.setSpeed(v);
+        }));
+
+        // Variant badges updater
+        function updateBadges(){
+            const el = document.getElementById('variant-badges');
+            if (!el || !window.lessonPlayer) return;
+            const v = window.lessonPlayer.currentVariant;
+            el.innerHTML = `<span class="pill">Avatar: ${v.avatar}</span> <span class="pill">Tone: ${v.tone}</span> <span class="pill">Lang: ${v.language}</span> <span class="pill">Age: ${v.age}</span>`;
+        }
+        setInterval(updateBadges, 1000); updateBadges();
         document.getElementById('go-today')?.addEventListener('click', ()=>{
             const day = window.lessonPlayer?.currentDay || 1; window.lessonPlayer?.loadLessonByDay(day);
         });
