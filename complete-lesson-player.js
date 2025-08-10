@@ -202,7 +202,9 @@ class UniversalLessonPlayer {
             el: document.getElementById('read-along-player'),
             timer: null,
             words: [],
-            index: 0
+            index: 0,
+            paused: false,
+            spans: []
         };
 
         // Interactive pacing helpers
@@ -1003,11 +1005,11 @@ class UniversalLessonPlayer {
 
     startReadAlong(text){
         const ra = this.readAlong; if (!ra || !ra.el) return;
-        clearInterval(ra.timer); ra.timer = null; ra.index = 0;
+        clearInterval(ra.timer); ra.timer = null; ra.index = 0; ra.paused = false;
         const words = String(text||'').split(/\s+/).filter(Boolean);
         ra.words = words;
         ra.el.innerHTML = words.map((w,i)=>`<span data-w="${i}">${w}</span>`).join(' ');
-        const spans = ra.el.querySelectorAll('span');
+        const spans = ra.el.querySelectorAll('span'); ra.spans = spans;
         const wps = 180/60 * (this.playbackSpeed || 1.0);
         const intervalMs = Math.max(80, Math.floor(1000 / wps));
         ra.timer = setInterval(()=>{
@@ -1018,6 +1020,22 @@ class UniversalLessonPlayer {
                 ra.index++;
             } else { clearInterval(ra.timer); ra.timer=null; }
         }, intervalMs);
+    }
+
+    resumeReadAlong(){
+        const ra = this.readAlong; if (!ra || !ra.el || ra.paused === false) return;
+        const spans = ra.spans && ra.spans.length ? ra.spans : ra.el.querySelectorAll('span');
+        const wps = 180/60 * (this.playbackSpeed || 1.0);
+        const intervalMs = Math.max(80, Math.floor(1000 / wps));
+        clearInterval(ra.timer); ra.timer = setInterval(()=>{
+            if (ra.index>0 && spans[ra.index-1]) spans[ra.index-1].style.background='transparent';
+            if (ra.index<spans.length) {
+                spans[ra.index].style.background='rgba(0,122,255,0.18)';
+                spans[ra.index].style.borderRadius='6px';
+                ra.index++;
+            } else { clearInterval(ra.timer); ra.timer=null; }
+        }, intervalMs);
+        ra.paused = false;
     }
 
     /**
@@ -1616,6 +1634,14 @@ class UniversalLessonPlayer {
 
         this.audioElement.addEventListener('ended', () => {
             this.nextPhase();
+        });
+
+        this.audioElement.addEventListener('pause', () => {
+            const ra = this.readAlong; if (!ra) return;
+            ra.paused = true; if (ra.timer) { clearInterval(ra.timer); ra.timer = null; }
+        });
+        this.audioElement.addEventListener('play', () => {
+            const ra = this.readAlong; if (!ra) return; ra.paused = false; this.resumeReadAlong();
         });
 
         this.audioElement.addEventListener('error', (e) => {
