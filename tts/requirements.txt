@@ -1,0 +1,11 @@
+TTS==0.22.0
+fastapi==0.115.3
+uvicorn[standard]==0.32.0
+soundfile==0.12.1
+numpy==1.22.0
+pydantic==2.8.2
+requests==2.32.3
+scipy==1.11.4
+faster-whisper==1.0.3
+jiwer==3.0.4
+
