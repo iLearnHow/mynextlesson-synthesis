@@ -360,6 +360,29 @@
         } catch(e) { /* no-op */ }
       })();
     </script>
+    <script>
+      // Modal Manager: single-open, ESC/backdrop close, focus trap
+      (function(){
+        const openModals = new Set();
+        let lastActive = null;
+        function trapFocus(modal){
+          const card = modal.querySelector('.modal-card'); if (!card) return;
+          const focusables = card.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+          if (!focusables.length) return;
+          const first = focusables[0], last = focusables[focusables.length-1];
+          card.addEventListener('keydown', (e)=>{
+            if (e.key !== 'Tab') return;
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+          });
+        }
+        window.__ml_closeAllModals = function(){ document.querySelectorAll('.modal-overlay.visible').forEach(m=>m.classList.remove('visible')); openModals.clear(); if (lastActive) { try{ lastActive.focus(); }catch{} } };
+        window.__ml_openModal = function(id){ window.__ml_closeAllModals(); const m=document.getElementById(id); if(!m) return; lastActive=document.activeElement; m.classList.add('visible'); openModals.add(id); trapFocus(m); const card=m.querySelector('.modal-card'); if(card){ const el=card.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'); if(el) el.focus(); }};
+        window.__ml_closeById = function(id){ const m=document.getElementById(id); if(m) m.classList.remove('visible'); openModals.delete(id); };
+        document.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ window.__ml_closeAllModals(); }});
+        document.querySelectorAll('.modal-overlay').forEach(ov=>{ ov.addEventListener('click', (e)=>{ if(e.target===ov) { ov.classList.remove('visible'); }}); });
+      })();
+    </script>
 
     <!-- Required containers for the universal player (kept minimal within existing layout) -->
     <div id="avatar-container" style="position:absolute; inset:0; background-size:cover; background-position:center; z-index:1; display:none;"></div>
@@ -375,6 +398,7 @@
         </div>
     </div>
     <div id="variant-badges" class="ios-panel" style="position:absolute; top:12px; right:90px; padding:8px 10px; display:block; z-index:15; font-size:12px;"></div>
+    <div id="build-stamp" class="ios-panel" style="position:fixed; bottom:10px; left:10px; padding:6px 10px; font-size:11px; z-index:20;"></div>
     <div id="calendar-overlay" style="position:absolute; top:10%; right:90px; width:340px; max-height:70vh; overflow:auto; display:none; z-index:15;" class="ios-panel">
         <div id="calendar-grid" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; padding:10px;"></div>
     </div>
@@ -474,8 +498,7 @@
             const el = document.getElementById(id);
             if (el) el.addEventListener('click', () => window.lessonPlayer?.handleNavigation(section));
         });
-        const play = document.getElementById('icon-live');
-        if (play) play.addEventListener('click', () => window.lessonPlayer?.togglePlayback());
+        // Live icon opens the Live modal; playback starts via "Start Now" inside the modal
         const speedBtn = document.getElementById('icon-speed');
         if (speedBtn) speedBtn.addEventListener('click', () => {
             document.getElementById('speed-modal')?.classList.add('visible');
@@ -572,6 +595,9 @@
             el.innerHTML = `<span class="pill">Avatar: ${v.avatar}</span> <span class="pill">Tone: ${v.tone}</span> <span class="pill">Lang: ${v.language}</span> <span class="pill">Age: ${v.age}</span>`;
         }
         setInterval(updateBadges, 1000); updateBadges();
+        // Build stamp and debug overlay
+        const bs = document.getElementById('build-stamp'); if (bs){ const now=new Date(); const iso=now.toISOString().replace(/\.\d{3}Z$/,'Z'); bs.textContent = `Build v${iso}`; }
+        try { const dbg = new URL(window.location.href).searchParams.get('debug'); if (dbg==='1' || dbg==='true') { document.getElementById('state-inspector')?.classList.add('visible'); document.getElementById('content-inspector')?.classList.add('visible'); document.getElementById('code-inspector')?.classList.add('visible'); } } catch {}
         document.getElementById('go-today')?.addEventListener('click', ()=>{
             const day = window.lessonPlayer?.currentDay || 1; window.lessonPlayer?.loadLessonByDay(day);
         });
