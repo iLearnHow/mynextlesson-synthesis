@@ -520,13 +520,7 @@ class UniversalLessonPlayer {
                     return;
                 }
             }
-            // Try to load specific DNA file
-            const dnaResponse = await fetch(`dna_files/${day.toString().padStart(3, '0')}_lesson.json`);
-            if (dnaResponse.ok) {
-                this.currentDNA = await dnaResponse.json();
-                console.log(`✅ DNA data loaded for day ${day}`);
-                return;
-            }
+            // Skip legacy dna_files fetch to avoid 404 noise; rely on app resolver and fallbacks only
             // Fallback
             const fallbackResponse = await fetch('data/the-moon.json');
             if (fallbackResponse.ok) {
@@ -738,7 +732,7 @@ class UniversalLessonPlayer {
         const phaseNumber = this.currentPhase + 1;
         console.log(`🎵 Playing phase ${phaseNumber}/5: ${phase}`);
         
-        // Update phase display
+        // Update phase display (label/progress). Content rendering is suppressed for PhaseDNA path to avoid duplication.
         this.updatePhaseDisplay(phase, phaseNumber);
 
         // Update Flask progress for phase start
@@ -761,8 +755,16 @@ class UniversalLessonPlayer {
         // Update avatar for current phase
         this.updateAvatarForPhase(phase);
 
-        // If PhaseDNA v1, run direct PhaseRunner and return
+        // If PhaseDNA v1, run direct PhaseRunner and return. Do NOT invoke legacy renderer.
         if (this.currentDNA?.metadata?.version === 'phase_v1') {
+            try {
+                const lessonText = document.getElementById('lesson-text');
+                if (lessonText) lessonText.innerHTML = '';
+                const overlay = document.getElementById('lesson-content-overlay');
+                const content = document.getElementById('lesson-content');
+                if (overlay) overlay.style.display = 'block';
+                if (content) content.style.display = 'block';
+            } catch {}
             this.runPhaseFromDNA(phase);
             return;
         }
