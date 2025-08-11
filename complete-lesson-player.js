@@ -28,6 +28,7 @@ class UniversalLessonPlayer {
         // Audio system
         this.audioElement = null;
         this.elevenLabs = null;
+        this.audioCache = new Map();
         
         // Variant system
         this.currentVariant = {
@@ -50,6 +51,23 @@ class UniversalLessonPlayer {
         this.initializeUniversalPlayer();
         this.setupEventListeners();
         this.loadUniversalCurriculum();
+    }
+
+    /** Map phase id to legacy content labels for renderer compatibility */
+    mapPhaseForContent(phase) {
+        try {
+            const direct = ['welcome','beginning','middle','end','wisdom'];
+            if (direct.includes(phase)) return phase;
+            const alias = {
+                opening: 'welcome',
+                question_1: 'beginning',
+                question_2: 'middle',
+                question_3: 'end',
+                closing: 'wisdom',
+                fortune: 'wisdom'
+            };
+            return alias[phase] || phase;
+        } catch { return phase; }
     }
 
     runPhaseFromDNA(phaseId) {
@@ -438,6 +456,8 @@ class UniversalLessonPlayer {
             
             // Update display
             this.updateLessonInfo(lessonData);
+            // Prewarm welcome audio for fast first paint
+            this.preloadWelcomeAudio().catch(()=>{});
             this.updateCalendarSelection(day);
             
             console.log(`✅ Lesson loaded for day ${day}: ${lessonData.title}`);
@@ -467,13 +487,7 @@ class UniversalLessonPlayer {
                     return;
                 }
             }
-            // Try to load specific DNA file
-            const dnaResponse = await fetch(`dna_files/${day.toString().padStart(3, '0')}_lesson.json`);
-            if (dnaResponse.ok) {
-                this.currentDNA = await dnaResponse.json();
-                console.log(`✅ DNA data loaded for day ${day}`);
-                return;
-            }
+            // Skip legacy dna_files fetch to avoid 404 noise; rely on app resolver and fallbacks only
             // Fallback
             const fallbackResponse = await fetch('data/the-moon.json');
             if (fallbackResponse.ok) {
@@ -524,6 +538,28 @@ class UniversalLessonPlayer {
             this.showError('No lesson loaded');
             return;
         }
+
+  /**
+   * Map phase id to the content phase used by the legacy content path.
+   * Ensures compatibility across both PhaseDNA runner and legacy content renderer.
+   */
+  mapPhaseForContent(phase) {
+    try {
+      const direct = ['welcome', 'beginning', 'middle', 'end', 'wisdom'];
+      if (direct.includes(phase)) return phase;
+      const alias = {
+        opening: 'welcome',
+        question_1: 'beginning',
+        question_2: 'middle',
+        question_3: 'end',
+        closing: 'wisdom',
+        fortune: 'wisdom'
+      };
+      return alias[phase] || phase;
+    } catch {
+      return phase;
+    }
+  }
 
         console.log('🚀 Starting universal lesson with 5 phases...');
         // Hide start overlay if present
@@ -665,7 +701,7 @@ class UniversalLessonPlayer {
         const phaseNumber = this.currentPhase + 1;
         console.log(`🎵 Playing phase ${phaseNumber}/5: ${phase}`);
         
-        // Update phase display
+        // Update phase display (label/progress). Content rendering is suppressed for PhaseDNA path to avoid duplication.
         this.updatePhaseDisplay(phase, phaseNumber);
 
         // Update Flask progress for phase start
@@ -688,8 +724,17 @@ class UniversalLessonPlayer {
         // Update avatar for current phase
         this.updateAvatarForPhase(phase);
 
-        // If PhaseDNA v1, run direct PhaseRunner and return
+        // If PhaseDNA v1, run direct PhaseRunner and return. Do NOT invoke legacy renderer.
         if (this.currentDNA?.metadata?.version === 'phase_v1') {
+            // Ensure legacy containers are cleared to prevent overlap
+            try {
+                const lessonText = document.getElementById('lesson-text');
+                if (lessonText) lessonText.innerHTML = '';
+                const overlay = document.getElementById('lesson-content-overlay');
+                const content = document.getElementById('lesson-content');
+                if (overlay) overlay.style.display = 'block';
+                if (content) content.style.display = 'block';
+            } catch {}
             this.runPhaseFromDNA(phase);
             return;
         }
@@ -2130,11 +2175,22 @@ The system is ready for real curriculum integration!`,
         if (!narration) return;
         try { this.startReadAlong(narration); } catch {}
         const chosenAvatar = avatar || this.currentVariant.avatar || 'kelly';
+        const cacheKey = `${chosenAvatar}::${narration}`;
+        try {
+            if (this.audioCache.has(cacheKey)) {
+                const src = this.audioCache.get(cacheKey);
+                this.audioElement.src = src; this.audioElement.playbackRate = this.playbackSpeed;
+                await this.audioElement.play().catch(()=>{});
+                this.isPlaying = true; this.updatePlayButton();
+                return;
+            }
+        } catch {}
         try {
             if (this.elevenLabs) {
                 const result = await this.elevenLabs.generateAudio(narration, chosenAvatar);
                 if (typeof result === 'string' && result.startsWith('blob:')) {
                     this.audioElement.src = result;
+                    try { this.audioCache.set(cacheKey, result); } catch {}
                     this.audioElement.playbackRate = this.playbackSpeed;
                     await this.audioElement.play().catch(()=>{});
                     this.isPlaying = true;
@@ -2231,5 +2287,22 @@ The system is ready for real curriculum integration!`,
         console.log('✅ Loading complete');
     }
 }
+
+    /** Pre-generate Welcome phase audio to reduce first paint latency */
+    async preloadWelcomeAudio() {
+        try {
+            if (!this.currentDNA || this.currentDNA?.metadata?.version !== 'phase_v1') return;
+            const welcome = this.currentDNA.phases?.find(p=>p.id==='welcome');
+            const narration = welcome?.narration?.voiceOver || '';
+            const avatar = this.currentVariant.avatar || 'kelly';
+            if (!narration || !this.elevenLabs) return;
+            const cacheKey = `${avatar}::${narration}`;
+            if (this.audioCache.has(cacheKey)) return;
+            const result = await this.elevenLabs.generateAudio(narration, avatar);
+            if (typeof result === 'string' && result.startsWith('blob:')) {
+                this.audioCache.set(cacheKey, result);
+            }
+        } catch {}
+    }
 
 // Lesson player will be initialized by index.html to avoid double initialization 
