@@ -28,6 +28,8 @@ class UniversalLessonPlayer {
         // Audio system
         this.audioElement = null;
         this.elevenLabs = null;
+        // Pre-synthesized audio cache (text -> blob URL)
+        this.preSynthCache = new Map();
         
         // Variant system
         this.currentVariant = {
@@ -50,6 +52,170 @@ class UniversalLessonPlayer {
         this.initializeUniversalPlayer();
         this.setupEventListeners();
         this.loadUniversalCurriculum();
+    }
+
+    /**
+     * Return phase object from current PhaseDNA v1 by id
+     */
+    getPhaseDataFromDNA(phaseId) {
+        try {
+            if (!this.currentDNA || this.currentDNA?.metadata?.version !== 'phase_v1') return null;
+            return (this.currentDNA.phases || []).find(p => p.id === phaseId) || null;
+        } catch { return null; }
+    }
+
+    /**
+     * Evaluate current DNA for structure completeness and question A/B presence.
+     * Returns an object suitable for logging or UI summary.
+     */
+    evaluateCurrentDNA() {
+        const summary = { lessonId: this.currentDNA?.lesson_metadata?.lesson_id || this.currentDNA?.metadata?.lessonId || 'unknown', warnings: [], phases: {} };
+        try {
+            summary.warnings = this.validatePhaseDNA(this.currentDNA) || [];
+            const ids = ['welcome','beginning','middle','end','wisdom'];
+            ids.forEach(id => {
+                const p = this.getPhaseDataFromDNA(id) || {};
+                const q = p.question || {};
+                const choices = Array.isArray(q.choices) ? q.choices : [];
+                const a = choices.find(c=>c.id==='a');
+                const b = choices.find(c=>c.id==='b');
+                summary.phases[id] = {
+                    hasVO: !!(p.narration && p.narration.voiceOver),
+                    hasOnNoChoice: !!(p.narration && p.narration.onNoChoice),
+                    hasQuestion: !!q.text,
+                    hasA: !!a && !!a.text,
+                    hasB: !!b && !!b.text,
+                    hasTM: !!(q.teachingMoments && (q.teachingMoments.a || q.teachingMoments.b)),
+                    correct: q.correct || null
+                };
+            });
+        } catch (e) { summary.warnings.push('evaluator_error'); }
+        return summary;
+    }
+
+    /** Map phase id to legacy content labels for renderer compatibility */
+    mapPhaseForContent(phase) {
+        try {
+            const direct = ['welcome','beginning','middle','end','wisdom'];
+            if (direct.includes(phase)) return phase;
+            const alias = {
+                opening: 'welcome',
+                question_1: 'beginning',
+                question_2: 'middle',
+                question_3: 'end',
+                closing: 'wisdom',
+                fortune: 'wisdom'
+            };
+            return alias[phase] || phase;
+        } catch { return phase; }
+    }
+
+    runPhaseFromDNA(phaseId) {
+        const dna = this.currentDNA;
+        const phase = dna?.phases?.find(p => p.id === phaseId);
+        if (!phase) { console.warn('No PhaseDNA for', phaseId); return; }
+
+        // Speak narration
+        const vo = phase?.narration?.voiceOver || '';
+        if (vo) this.speak(vo, this.currentVariant.avatar);
+
+        // Apply avatar cue at start
+        try {
+            const startCue = phase?.avatar?.cues?.find(c => c.at === 'start');
+            if (startCue?.expression) this.updateAvatar(this.currentVariant.avatar, startCue.expression);
+        } catch {}
+
+        // Structured render into universal overlay containers
+        const lessonContentOverlay = document.getElementById('lesson-content-overlay');
+        const lessonContent = document.getElementById('lesson-content');
+        const lessonText = document.getElementById('lesson-text');
+        const phaseLabelEl = document.querySelector('#lesson-content .current-phase-label');
+        const qSection = document.querySelector('#lesson-content .question-content');
+        const qChoices = document.querySelector('#lesson-content .choices-container');
+        const qLabel = document.querySelector('#lesson-content .question-label');
+        const feedback = document.querySelector('#lesson-content .choice-feedback');
+        if (lessonContentOverlay) lessonContentOverlay.style.display = 'block';
+        if (lessonContent) lessonContent.style.display = 'block';
+        if (lessonText) lessonText.innerHTML = '';
+        if (feedback) { feedback.classList.add('hidden'); feedback.innerHTML = ''; }
+        if (phaseLabelEl) {
+            const labels = { welcome:'Welcome', beginning:'Beginning', middle:'Middle', end:'End', wisdom:'Wisdom' };
+            phaseLabelEl.textContent = labels[phaseId] || phaseId;
+        }
+
+        const appendNode = (html) => { if (lessonText) lessonText.innerHTML += html; };
+        const showUnits = (units=[]) => {
+            units.forEach(u => {
+                if (u.type === 'text') appendNode(`<div class=\"content-text\">${u.text||''}</div>`);
+                if (u.type === 'fortune') appendNode(`<div class=\"content-text\"><strong>${u.text||''}</strong></div>`);
+                if (u.type === 'hint') appendNode(`<div class=\"content-text\" style=\"opacity:.9;\">${u.text||''}</div>`);
+            });
+        };
+
+        try {
+            const startStep = phase?.screen?.steps?.filter(s => s.at === 'start');
+            startStep?.forEach(s => showUnits(s.show || []));
+        } catch {}
+
+        // Question rendering
+        if (['beginning','middle','end'].includes(phaseId)) {
+            try {
+                if (qSection) qSection.classList.remove('hidden');
+                if (qLabel) qLabel.textContent = phase?.question?.text || '';
+                if (qChoices) {
+                    qChoices.innerHTML = '';
+                    const aText = phase?.question?.choices?.find(c=>c.id==='a')?.text || '';
+                    const bText = phase?.question?.choices?.find(c=>c.id==='b')?.text || '';
+                    const mk = (id, txt) => { const btn = document.createElement('button'); btn.className = `choice-btn choice-${id}`; btn.dataset.choice = id; btn.textContent = txt; btn.addEventListener('click', ()=> this.onPhaseChoice(phaseId, phase, id)); return btn; };
+                    qChoices.appendChild(mk('a', aText));
+                    qChoices.appendChild(mk('b', bText));
+                }
+            } catch {}
+            this.questionAnswered = false;
+            const t = phase?.timing; const ms = Math.max(6000, (t?.maxWait || 12) * 1000);
+            clearTimeout(this.phaseTimers.noChoice);
+            this.phaseTimers.noChoice = setTimeout(() => {
+                if (!this.questionAnswered) this.onPhaseNoChoice(phaseId, phase);
+            }, ms);
+        } else {
+            if (qSection) qSection.classList.add('hidden');
+        }
+
+        // Auto-advance after a generic duration for non-questions
+        if (!['beginning','middle','end'].includes(phaseId)) {
+            const dur = Math.max(6000, (phase?.timing?.minListen || 6) * 1000);
+            setTimeout(() => this.nextPhase(), dur);
+        }
+    }
+
+    onPhaseChoice(phaseId, phase, choiceId) {
+        this.questionAnswered = true; clearTimeout(this.phaseTimers.noChoice);
+        const correctId = phase?.question?.correct || 'b';
+        const correct = String(choiceId).toLowerCase() === String(correctId).toLowerCase();
+        const tm = phase?.question?.teachingMoments || {};
+        const msg = correct ? (tm[correctId] || '') : (tm[choiceId] || 'Great thinking!');
+        this.updateAvatar(this.currentVariant.avatar, correct ? 'happy_celebrating' : 'concerned_thinking');
+        this.speak(msg, this.currentVariant.avatar);
+
+        // Structured feedback in overlay
+        try {
+            const feedback = document.querySelector('#lesson-content .choice-feedback');
+            if (feedback) {
+                feedback.innerHTML = `<div class=\"feedback-message\">${msg}</div>`;
+                feedback.classList.remove('hidden');
+            }
+        } catch {}
+
+        const after = Math.max(1500, (phase?.timing?.autoAdvanceAfterFeedback || 3) * 1000);
+        setTimeout(() => this.nextPhase(), after);
+    }
+
+    onPhaseNoChoice(phaseId, phase) {
+        if (this.questionAnswered) return;
+        const vo = phase?.narration?.onNoChoice || 'Let me point you to the key detail here.';
+        this.speak(vo, this.currentVariant.avatar);
+        const correctId = phase?.question?.correct || 'b';
+        this.onPhaseChoice(phaseId, phase, correctId);
     }
 
     /**
@@ -76,10 +242,99 @@ class UniversalLessonPlayer {
             console.log('✅ Flask integration ready');
         }
         
-        // IMMEDIATELY show avatar - this is the core product experience
-        this.ensureAvatarVisible();
+        // Load persisted variant preferences
+        this.loadPreferencesFromStorage();
+
+        // IMMEDIATELY show avatar first (core product experience)
+        try { this.ensureAvatarVisible(); } catch {}
         
         console.log('✅ Universal Lesson Player initialized');
+
+        // Read-along setup
+        this.readAlong = {
+            el: document.getElementById('read-along-player'),
+            timer: null,
+            words: [],
+            index: 0,
+            paused: false,
+            spans: []
+        };
+
+        // Interactive pacing helpers
+        this.phaseTimers = { noChoice: null };
+        this.questionAnswered = false;
+
+        // Inspectors auto-refresh
+        try { if (this.inspectorTimer) clearInterval(this.inspectorTimer); } catch {}
+        this.inspectorTimer = setInterval(() => this.updateInspectors(), 500);
+
+        // Enable draggable inspectors (no-op if headers not present)
+        this._makeInspectorsDraggable();
+
+        // Autorun override via URL param (?autorun=1|0|true|false)
+        try {
+            const url = new URL(window.location.href);
+            const p = url.searchParams.get('autorun');
+            if (p !== null) {
+                this.autoplay = (p === '1' || p === 'true');
+                console.log(`⚙️ Autorun param detected → autoplay=${this.autoplay}`);
+            }
+        } catch {}
+    }
+
+    /**
+     * Make inspector panels draggable by their headers
+     */
+    _makeInspectorsDraggable() {
+        try {
+            const panels = document.querySelectorAll('.inspector-panel');
+            panels.forEach(panel => {
+                const header = panel.querySelector('.inspector-header');
+                if (!header) return;
+                let isDragging = false;
+                let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+                const onMouseDown = (e) => {
+                    isDragging = true;
+                    startX = e.clientX; startY = e.clientY;
+                    const rect = panel.getBoundingClientRect();
+                    startLeft = rect.left; startTop = rect.top;
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                };
+                const onMouseMove = (e) => {
+                    if (!isDragging) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    panel.style.left = `${Math.max(0, startLeft + dx)}px`;
+                    panel.style.top = `${Math.max(0, startTop + dy)}px`;
+                    panel.style.right = 'auto';
+                    panel.style.bottom = 'auto';
+                    panel.style.position = 'absolute';
+                };
+                const onMouseUp = () => {
+                    isDragging = false;
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                };
+                header.addEventListener('mousedown', onMouseDown);
+            });
+        } catch {}
+    }
+
+    /**
+     * Load user variant preferences from localStorage
+     */
+    loadPreferencesFromStorage() {
+        try {
+            const avatar = localStorage.getItem('variant_avatar');
+            const tone = localStorage.getItem('variant_tone');
+            const language = localStorage.getItem('variant_language');
+            const age = localStorage.getItem('variant_age');
+            if (avatar) this.currentVariant.avatar = avatar;
+            if (tone) this.currentVariant.tone = tone;
+            if (language) this.currentVariant.language = language;
+            if (age) this.currentVariant.age = age;
+        } catch {}
     }
 
     /**
@@ -102,6 +357,7 @@ class UniversalLessonPlayer {
         
         // Set default avatar (Kelly) immediately
         this.updateAvatar('kelly', 'neutral_default');
+        this.preloadAvatarAssets('kelly');
         
         console.log('✅ Avatar visibility ensured');
     }
@@ -235,6 +491,7 @@ class UniversalLessonPlayer {
             this.updateCalendarSelection(day);
             
             console.log(`✅ Lesson loaded for day ${day}: ${lessonData.title}`);
+            try { window.dispatchEvent(new CustomEvent('ml:lesson_loaded', { detail: { day } })); } catch {}
             
         } catch (error) {
             console.error(`❌ Failed to load lesson for day ${day}:`, error);
@@ -247,10 +504,21 @@ class UniversalLessonPlayer {
      */
     async loadDNALesson(day) {
         try {
-            // Prefer app-provided DNA resolver
+            // Prefer app-provided DNA resolver (can return PhaseDNA v1)
             if (typeof window.getDNALessonData === 'function') {
                 const dna = await window.getDNALessonData(day);
-                if (dna) { this.currentDNA = dna; console.log(`✅ DNA (app resolver) loaded for day ${day}`); return; }
+                if (dna) {
+                    this.currentDNA = dna;
+                    console.log(`✅ DNA (app resolver) loaded for day ${day}`);
+                    // Validate PhaseDNA if applicable
+                    this.dnaWarnings = this.validatePhaseDNA(this.currentDNA);
+                    if (this.dnaWarnings?.length) {
+                        console.warn('⚠️ PhaseDNA warnings:', this.dnaWarnings);
+                    }
+                    // Prewarm first narration for low-latency playback
+                    this.prewarmFirstVoice();
+                    return;
+                }
             }
             // Try to load specific DNA file
             const dnaResponse = await fetch(`dna_files/${day.toString().padStart(3, '0')}_lesson.json`);
@@ -264,10 +532,61 @@ class UniversalLessonPlayer {
             if (fallbackResponse.ok) {
                 this.currentDNA = await fallbackResponse.json();
                 console.log(`✅ Using fallback (moon) DNA for day ${day}`);
+                this.dnaWarnings = this.validatePhaseDNA(this.currentDNA);
+                this.prewarmFirstVoice();
             }
         } catch (error) {
             console.warn(`⚠️ No DNA data available for day ${day}, using fallback`);
         }
+    }
+
+    /**
+     * Validate PhaseDNA v1 structure and return warnings array
+     */
+    validatePhaseDNA(dna) {
+        const warnings = [];
+        try {
+            if (!dna || dna.metadata?.version !== 'phase_v1') return warnings;
+            const requiredPhases = ['welcome','beginning','middle','end','wisdom'];
+            const phaseById = Object.fromEntries((dna.phases||[]).map(p=>[p.id,p]));
+            requiredPhases.forEach(id=>{ if (!phaseById[id]) warnings.push(`Missing phase: ${id}`); });
+            ['beginning','middle','end'].forEach(id=>{
+                const p = phaseById[id]; if (!p) return;
+                if (!p.narration?.voiceOver) warnings.push(`${id}: missing narration.voiceOver`);
+                if (!p.question?.text) warnings.push(`${id}: missing question.text`);
+                const choices = p.question?.choices || [];
+                const hasA = choices.some(c=>c.id==='a'); const hasB = choices.some(c=>c.id==='b');
+                if (!hasA || !hasB) warnings.push(`${id}: choices must include ids 'a' and 'b'`);
+                if (!p.question?.correct) warnings.push(`${id}: missing question.correct`);
+                const tm = p.question?.teachingMoments || {};
+                if (!tm.a || !tm.b) warnings.push(`${id}: missing teachingMoments for both 'a' and 'b'`);
+                if (!p.timing) warnings.push(`${id}: missing timing`);
+            });
+            const w = phaseById['welcome'];
+            if (w && !w.narration?.voiceOver) warnings.push('welcome: missing narration.voiceOver');
+            const z = phaseById['wisdom'];
+            if (z && !z.narration?.voiceOver) warnings.push('wisdom: missing narration.voiceOver');
+        } catch(e) { warnings.push('Validator error'); }
+        return warnings;
+    }
+
+    /**
+     * Pre-generate audio for the first narration (typically Welcome) for snappy start
+     */
+    async prewarmFirstVoice() {
+        try {
+            if (!this.elevenLabs) return;
+            if (!this.currentDNA || this.currentDNA?.metadata?.version !== 'phase_v1') return;
+            const welcome = (this.currentDNA.phases || []).find(p => p.id === 'welcome');
+            const vo = welcome?.narration?.voiceOver;
+            if (!vo || this.preSynthCache.has(vo)) return;
+            const avatar = this.currentVariant.avatar || 'kelly';
+            const url = await this.elevenLabs.generateAudio(vo, avatar);
+            if (typeof url === 'string' && url.startsWith('blob:')) {
+                this.preSynthCache.set(vo, url);
+                console.log('⚡ Prewarmed first VO clip');
+            }
+        } catch (e) { console.warn('Prewarm failed', e); }
     }
 
     /**
@@ -286,6 +605,9 @@ class UniversalLessonPlayer {
         
         // Reset to first phase
         this.currentPhase = 0;
+        // Ensure lesson is considered playing so content renders even if audio autoplay is blocked
+        this.isPlaying = true;
+        this.updatePlayButton();
         
         // Generate personalized content for current variant
         await this.generateUniversalContent();
@@ -300,6 +622,12 @@ class UniversalLessonPlayer {
     async generateUniversalContent() {
         console.log('🎨 Generating universal content for variant:', this.currentVariant);
         try {
+            // PhaseDNA v1 direct path
+            if (this.currentDNA && this.currentDNA?.metadata?.version === 'phase_v1') {
+                this.universalContent = this.buildContentFromPhaseDNA(this.currentDNA);
+                console.log('✅ PhaseDNA v1 content resolved');
+                return;
+            }
             // Prefer DNA-driven variant generation
             if (!this.variantGen && typeof CorrectedVariantGeneratorV2 !== 'undefined') {
                 this.variantGen = new CorrectedVariantGeneratorV2();
@@ -334,6 +662,24 @@ class UniversalLessonPlayer {
         const dummyLesson = { title: this.currentLesson?.title || 'Learning', learning_objective: this.currentLesson?.learning_objective || '' };
         this.universalContent = this.generateFallbackUniversalContent(dummyLesson);
         console.log('✅ Fallback lesson content generated');
+    }
+
+    buildContentFromPhaseDNA(phaseDNA){
+        // Reduce 5 phases into current player’s content interface while we migrate UI fully
+        const getQ = (id) => {
+            const p = phaseDNA.phases.find(x=>x.id===id);
+            if (!p) return null;
+            const q = p.question?.text || '';
+            const a = p.question?.choices?.find(c=>c.id==='a')?.text || '';
+            const b = p.question?.choices?.find(c=>c.id==='b')?.text || '';
+            return { question: q, choices: [a,b].filter(Boolean) };
+        };
+        return {
+            introduction: phaseDNA.phases.find(x=>x.id==='welcome')?.narration?.voiceOver || '',
+            questions: [ getQ('beginning'), getQ('middle'), getQ('end') ].filter(Boolean),
+            conclusion: phaseDNA.phases.find(x=>x.id==='wisdom')?.narration?.voiceOver || '',
+            fortune: phaseDNA.phases.find(x=>x.id==='wisdom')?.screen?.steps?.find(s=>s.show?.some(u=>u.type==='fortune'))?.show?.find(u=>u.type==='fortune')?.text || ''
+        };
     }
 
     hasRichDNASchema(dna) {
@@ -415,17 +761,31 @@ class UniversalLessonPlayer {
         // Update avatar for current phase
         this.updateAvatarForPhase(phase);
 
-        // Display phase content
+        // If PhaseDNA v1, run direct PhaseRunner and return
+        if (this.currentDNA?.metadata?.version === 'phase_v1') {
+            this.runPhaseFromDNA(phase);
+            return;
+        }
+
+        // Legacy display/content path
         this.showPhaseContent(mappedPhase);
-
-        // Generate and play audio
         await this.generateAndPlayPhaseAudio(mappedPhase);
-
-        // Set up auto-advance
         const phaseDuration = this.getPhaseDuration(mappedPhase);
-        setTimeout(() => {
-            this.nextPhase();
-        }, phaseDuration * 1000);
+        setTimeout(() => { this.nextPhase(); }, phaseDuration * 1000);
+
+        // Question phases: arm gentle no-interaction hint
+        if (['beginning','middle','end'].includes(mappedPhase)) {
+            this.questionAnswered = false;
+            const t = this.getPhaseTimingFromPhaseDNA(mappedPhase);
+            const ms = Math.max(6000, (t?.maxWait || 12) * 1000);
+            clearTimeout(this.phaseTimers.noChoice);
+            this.phaseTimers.noChoice = setTimeout(() => {
+                if (!this.questionAnswered) this.handleNoChoiceTimeout(mappedPhase);
+            }, ms);
+        } else {
+            this.questionAnswered = true;
+            clearTimeout(this.phaseTimers.noChoice);
+        }
     }
 
     /**
@@ -447,15 +807,56 @@ class UniversalLessonPlayer {
             phaseLabel.textContent = phaseLabels[phase] || phase;
         }
         
+        // Sync left progress rail
+        this.updateProgressRail();
+
         // Show/hide appropriate content sections
         this.showPhaseSpecificContent(phase, phaseNumber);
+    }
+
+    /**
+     * Update left progress labels and line fill
+     */
+    updateProgressRail() {
+        try {
+            const groups = document.querySelectorAll('.progress-label-group');
+            groups.forEach((g, idx) => {
+                g.classList.toggle('active', idx === this.currentPhase);
+                g.classList.toggle('completed', idx < this.currentPhase);
+            });
+            const fill = document.getElementById('progress-line-fill');
+            if (fill) {
+                const pct = (this.currentPhase / Math.max(1, this.lessonPhases.length - 1)) * 100;
+                fill.style.height = `${pct}%`;
+            }
+        } catch {}
     }
 
     /**
      * Show content specific to each phase
      */
     showPhaseSpecificContent(phase, phaseNumber) {
-        // Clear all phase content
+        // If PhaseDNA v1 is active, PhaseRunner handles structured overlay content
+        if (this.currentDNA?.metadata?.version === 'phase_v1') {
+            try {
+                const lessonContentOverlay = document.getElementById('lesson-content-overlay');
+                const lessonContent = document.getElementById('lesson-content');
+                const lessonText = document.getElementById('lesson-text');
+                const qSection = document.querySelector('#lesson-content .question-content');
+                const qChoices = document.querySelector('#lesson-content .choices-container');
+                const qLabel = document.querySelector('#lesson-content .question-label');
+                const feedback = document.querySelector('#lesson-content .choice-feedback');
+                if (lessonContentOverlay) lessonContentOverlay.style.display = 'block';
+                if (lessonContent) lessonContent.style.display = 'block';
+                if (lessonText) lessonText.innerHTML = '';
+                if (qSection) qSection.classList.add('hidden');
+                if (qChoices) qChoices.innerHTML = '';
+                if (qLabel) qLabel.textContent = '';
+                if (feedback) { feedback.classList.add('hidden'); feedback.innerHTML = ''; }
+            } catch {}
+            return;
+        }
+        // Clear legacy phase content
         document.querySelectorAll('.phase-content').forEach(el => el.classList.add('hidden'));
         
         switch(phase) {
@@ -526,9 +927,16 @@ class UniversalLessonPlayer {
             // Show A/B choice buttons
             const choicesContainer = questionSection.querySelector('.choices-container');
             if (choicesContainer) {
+                // Pull content for this question
+                const qKey = ['question_1','question_2','question_3'][questionNumber-1] || 'question_1';
+                const age = this.currentVariant.age || 'age_25';
+                const dnaAge = this.mapAgeVariantToNumeric(age);
+                const blk = this.currentDNA?.core_lesson_structure?.[qKey]?.ages?.[dnaAge];
+                const aText = blk?.option_a?.display_text || this.universalContent?.questions?.[questionNumber-1]?.choices?.[0] || 'Option A';
+                const bText = blk?.option_b?.display_text || this.universalContent?.questions?.[questionNumber-1]?.choices?.[1] || 'Option B';
                 choicesContainer.innerHTML = `
-                    <button class="choice-btn choice-a" data-choice="a">A</button>
-                    <button class="choice-btn choice-b" data-choice="b">B</button>
+                    <button class="choice-btn choice-a" data-choice="a">${aText}</button>
+                    <button class="choice-btn choice-b" data-choice="b">${bText}</button>
                 `;
                 
                 // Add click handlers
@@ -616,16 +1024,16 @@ class UniversalLessonPlayer {
         } else {
             // Fallback logic
             switch (phase) {
-                case 'opening':
+                case 'welcome':
                     expression = tone === 'grandmother' ? 'welcoming_engaging' : 
                                tone === 'fun' ? 'excited_celebrating' : 'teaching_explaining';
                     break;
-                case 'question_1':
-                case 'question_2':
-                case 'question_3':
+                case 'beginning':
+                case 'middle':
+                case 'end':
                     expression = 'question_curious';
                     break;
-                case 'closing':
+                case 'wisdom':
                     expression = tone === 'grandmother' ? 'happy_celebrating' : 
                                tone === 'fun' ? 'excited_celebrating' : 'teaching_explaining';
                     break;
@@ -649,8 +1057,8 @@ class UniversalLessonPlayer {
         // Get phase-specific content
         const phaseContent = this.getPhaseContent(phase);
         
-        // Only show overlay if we have content AND lesson is actively playing
-        if (phaseContent && phaseContent !== 'Content not available' && this.isPlaying) {
+        // Show overlay when there is content
+        if (phaseContent && phaseContent !== 'Content not available') {
             // Show the overlay
             if (lessonContentOverlay) {
                 lessonContentOverlay.style.display = 'block';
@@ -695,15 +1103,15 @@ class UniversalLessonPlayer {
         if (this.universalContent) {
             switch (phase) {
                 case 'welcome':
-                    return this.universalContent.introduction || 'Welcome to today\'s lesson!';
+                    return this.universalContent.introduction || '';
                 case 'beginning':
-                    return this.universalContent.questions?.[0] || 'What have you learned today?';
+                    return this.universalContent.questions?.[0] || '';
                 case 'middle':
-                    return this.universalContent.questions?.[1] || 'How can you apply this knowledge?';
+                    return this.universalContent.questions?.[1] || '';
                 case 'end':
-                    return this.universalContent.questions?.[2] || 'What questions do you have?';
+                    return this.universalContent.questions?.[2] || '';
                 case 'wisdom':
-                    return this.universalContent.conclusion || 'Great job! You\'ve learned something new today.';
+                    return this.universalContent.conclusion || '';
                 default:
                     return 'Phase content not available';
             }
@@ -772,29 +1180,82 @@ class UniversalLessonPlayer {
         try {
             const content = this.getPhaseContent(phase);
             const avatar = this.currentVariant.avatar;
-            
-            if (this.elevenLabs) {
-                const text = typeof content === 'string' ? content : (content?.question || '');
-                const audioUrl = await this.elevenLabs.generateAudio(text, avatar);
-                
-                if (audioUrl) {
-                    this.audioElement.src = audioUrl;
-                    this.audioElement.play();
-                    this.isPlaying = true;
-                    this.updatePlayButton();
-                    console.log('✅ Audio generated and playing for phase:', phase);
-                } else {
-                    console.warn('⚠️ Audio generation failed, using fallback');
-                    this.useFallbackAudio(phase);
-                }
-            } else {
-                console.warn('⚠️ ElevenLabs not available, using fallback');
-                this.useFallbackAudio(phase);
-            }
+            const vo = this.getVoiceOverForPhase(phase, content);
+            await this.speak(vo, avatar);
         } catch (error) {
             console.error('❌ Audio generation error:', error);
             this.useFallbackAudio(phase);
         }
+    }
+
+    getVoiceOverForPhase(phase, content){
+        try {
+            const tone = this.currentVariant.tone || 'neutral';
+            const ageVariant = this.currentVariant.age || 'age_25';
+            const age = this.mapAgeVariantToNumeric(ageVariant);
+            if (this.currentDNA?.metadata?.version === 'phase_v1') {
+                const p = this.currentDNA?.phases?.find(x=>x.id===phase);
+                if (p?.narration?.voiceOver) return p.narration.voiceOver;
+            }
+            if (phase === 'welcome') {
+                const vo = this.currentDNA?.age_expressions?.[age]?.concept_name?.[tone]?.voice_over_script || '';
+                if (vo) return vo;
+                return (typeof content === 'string') ? content : (content?.question || 'Welcome');
+            }
+            if (['beginning','middle','end'].includes(phase)) {
+                const idx = {beginning:1, middle:2, end:3}[phase];
+                const qKey = ['question_1','question_2','question_3'][idx-1];
+                const blk = this.currentDNA?.core_lesson_structure?.[qKey]?.ages?.[age];
+                const qText = blk?.question?.[tone]?.display_text || blk?.question?.neutral?.display_text || content?.question || '';
+                const aText = blk?.option_a?.display_text || (content?.choices?.[0] || '');
+                const bText = blk?.option_b?.display_text || (content?.choices?.[1] || '');
+                return `Question ${idx}. ${qText}. Option A: ${aText}. Option B: ${bText}. Choose when you are ready.`;
+            }
+            if (phase === 'wisdom') {
+                if (this.currentDNA?.metadata?.version === 'phase_v1') {
+                    const p = this.currentDNA?.phases?.find(x=>x.id==='wisdom');
+                    if (p?.narration?.voiceOver) return p.narration.voiceOver;
+                }
+                const fortune = this.currentDNA?.wisdom_phase_content?.fortune?.[tone]?.voice_over_script || this.universalContent?.conclusion || '';
+                return fortune || 'Well done today.';
+            }
+        } catch {}
+        return (typeof content === 'string') ? content : (content?.question || '');
+    }
+
+    startReadAlong(text){
+        const ra = this.readAlong; if (!ra || !ra.el) return;
+        clearInterval(ra.timer); ra.timer = null; ra.index = 0; ra.paused = false;
+        const words = String(text||'').split(/\s+/).filter(Boolean);
+        ra.words = words;
+        ra.el.innerHTML = words.map((w,i)=>`<span data-w="${i}">${w}</span>`).join(' ');
+        const spans = ra.el.querySelectorAll('span'); ra.spans = spans;
+        const wps = 180/60 * (this.playbackSpeed || 1.0);
+        const intervalMs = Math.max(80, Math.floor(1000 / wps));
+        ra.timer = setInterval(()=>{
+            if (ra.index>0 && spans[ra.index-1]) spans[ra.index-1].style.background='transparent';
+            if (ra.index<spans.length) {
+                spans[ra.index].style.background='rgba(0,122,255,0.18)';
+                spans[ra.index].style.borderRadius='6px';
+                ra.index++;
+            } else { clearInterval(ra.timer); ra.timer=null; }
+        }, intervalMs);
+    }
+
+    resumeReadAlong(){
+        const ra = this.readAlong; if (!ra || !ra.el || ra.paused === false) return;
+        const spans = ra.spans && ra.spans.length ? ra.spans : ra.el.querySelectorAll('span');
+        const wps = 180/60 * (this.playbackSpeed || 1.0);
+        const intervalMs = Math.max(80, Math.floor(1000 / wps));
+        clearInterval(ra.timer); ra.timer = setInterval(()=>{
+            if (ra.index>0 && spans[ra.index-1]) spans[ra.index-1].style.background='transparent';
+            if (ra.index<spans.length) {
+                spans[ra.index].style.background='rgba(0,122,255,0.18)';
+                spans[ra.index].style.borderRadius='6px';
+                ra.index++;
+            } else { clearInterval(ra.timer); ra.timer=null; }
+        }, intervalMs);
+        ra.paused = false;
     }
 
     /**
@@ -809,6 +1270,61 @@ class UniversalLessonPlayer {
         }, duration * 1000);
         
         console.log('🔊 Using fallback audio simulation for phase:', phase);
+    }
+
+    getPhaseTimingFromPhaseDNA(phaseId) {
+        try { return this.currentDNA?.phases?.find(p => p.id === phaseId)?.timing || null; } catch { return null; }
+    }
+
+    handleNoChoiceTimeout(phaseId) {
+        try {
+            if (this.questionAnswered) return;
+            let vo = '';
+            if (this.currentDNA?.metadata?.version === 'phase_v1') {
+                const p = this.currentDNA.phases.find(x => x.id === phaseId);
+                vo = p?.narration?.onNoChoice || 'Let me show you how to think about this.';
+            } else {
+                vo = 'Let me walk you through it—notice the key detail that points to the answer.';
+            }
+            this.speak(vo, this.currentVariant.avatar);
+            // Visual hint prompt if present
+            try {
+                const lessonText = document.getElementById('lesson-text');
+                if (lessonText && this.currentDNA?.metadata?.version === 'phase_v1') {
+                    const atKey = 'on_incorrect';
+                    const p = this.currentDNA.phases.find(x => x.id === phaseId);
+                    const steps = (p?.screen?.steps || []).filter(s => s.at === atKey);
+                    steps.forEach(s => {
+                        (s.show || []).forEach(u => { if (u.type === 'hint') { const div = document.createElement('div'); div.id = u.id||''; div.className = 'content-text'; div.style.opacity='0.9'; div.textContent = u.text || ''; lessonText.appendChild(div); } });
+                    });
+                }
+            } catch {}
+        } catch {}
+        const idx = { beginning: 0, middle: 1, end: 2 }[phaseId] ?? 0;
+        const sel = this.getCorrectChoiceForIndex(idx);
+        this.showQuestionFeedback(idx, sel);
+    }
+
+    getCorrectChoiceForIndex(questionIndex) {
+        try {
+            const qKey = ['question_1','question_2','question_3'][questionIndex] || 'question_1';
+            const age = this.currentVariant.age || 'age_25';
+            const dnaAge = this.mapAgeVariantToNumeric(age);
+            const blk = this.currentDNA?.core_lesson_structure?.[qKey]?.ages?.[dnaAge];
+            const correct = (blk && blk.correct_option) ? blk.correct_option.toLowerCase() : 'b';
+            return correct;
+        } catch { return 'b'; }
+    }
+
+    previousPhase() {
+        if (this.currentPhase <= 0) return;
+        this.currentPhase -= 1;
+        this.playCurrentPhase();
+    }
+
+    restartLesson() {
+        this.currentPhase = 0;
+        this.playCurrentPhase();
     }
 
     /**
@@ -957,6 +1473,12 @@ class UniversalLessonPlayer {
                 <p>${feedback}</p>
             </div>
         `;
+        // Avatar + speak feedback
+        const correct = this.isSelectedCorrect(questionIndex, selectedOption);
+        this.updateAvatar(this.currentVariant.avatar, correct ? 'happy_celebrating' : 'concerned_thinking');
+        this.speak(feedback, this.currentVariant.avatar);
+        this.questionAnswered = true;
+        clearTimeout(this.phaseTimers.noChoice);
     }
 
     /**
@@ -1003,14 +1525,14 @@ class UniversalLessonPlayer {
         switch (expression) {
             case 'teaching_explaining':
             case 'question_curious':
-                imagePath = `lesson-player-deploy/assets/avatars/${avatar}/lesson-sequence/${avatar}_${expression}.png`;
+                imagePath = `/production-deploy/assets/avatars/${avatar}/lesson-sequence/${avatar}_${expression}.png`;
                 break;
             case 'concerned_thinking':
             case 'happy_celebrating':
-                imagePath = `lesson-player-deploy/assets/avatars/${avatar}/emotional-expressions/${avatar}_${expression}.png`;
+                imagePath = `/production-deploy/assets/avatars/${avatar}/emotional-expressions/${avatar}_${expression}.png`;
                 break;
             default:
-                imagePath = `lesson-player-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+                imagePath = `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
         }
         
         avatarContainer.style.backgroundImage = `url('${imagePath}')`;
@@ -1136,8 +1658,20 @@ class UniversalLessonPlayer {
     async loadCurrentLesson() {
         console.log(`📚 Loading current lesson for day ${this.currentDay}...`);
         await this.loadLessonByDay(this.currentDay);
-        // Do not auto-start; wait for user Start button
-        console.log('⏳ Lesson loaded and ready. Waiting for Start.');
+        // Prefer a real PhaseDNA demo if today's lesson lacks PhaseDNA
+        try {
+            const isPhaseDNA = this.currentDNA && this.currentDNA.metadata && this.currentDNA.metadata.version === 'phase_v1';
+            if (!isPhaseDNA) {
+                console.log('ℹ️ Today\'s topic lacks PhaseDNA. Loading Sun (day 1) demo.');
+                await this.loadLessonByDay(1);
+            }
+        } catch {}
+        if (this.autoplay) {
+            console.log('▶️ Autorun enabled. Starting lesson automatically.');
+            this.startUniversalLesson();
+        } else {
+            console.log('⏳ Lesson loaded and ready. Waiting for Start.');
+        }
     }
 
     /**
@@ -1248,9 +1782,11 @@ class UniversalLessonPlayer {
     onAvatarChange(newAvatar) {
         console.log('🎭 Avatar changed to:', newAvatar);
         this.currentVariant.avatar = newAvatar;
+        try { localStorage.setItem('variant_avatar', newAvatar); } catch {}
         
         // Update avatar display immediately
         this.updateAvatar(newAvatar, this.getAvatarExpression(this.currentVariant.tone));
+        this.preloadAvatarAssets(newAvatar);
         
         // Regenerate content and update display if lesson is active
         if (this.isPlaying) {
@@ -1267,6 +1803,7 @@ class UniversalLessonPlayer {
     onToneChange(newTone) {
         console.log('🎨 Tone changed to:', newTone);
         this.currentVariant.tone = newTone;
+        try { localStorage.setItem('variant_tone', newTone); } catch {}
         
         // Update avatar expression
         this.updateAvatar(this.currentVariant.avatar, this.getAvatarExpression(newTone));
@@ -1286,14 +1823,21 @@ class UniversalLessonPlayer {
     onLanguageChange(newLanguage) {
         console.log('🌍 Language changed to:', newLanguage);
         this.currentVariant.language = newLanguage;
+        try { localStorage.setItem('variant_language', newLanguage); } catch {}
         
-        // Regenerate content and update display if lesson is active
-        if (this.isPlaying) {
-            this.generateUniversalContent();
-            // Update current phase content immediately
-            const currentPhase = this.lessonPhases[this.currentPhase];
-            this.showPhaseContent(currentPhase);
-        }
+        // Reload DNA for current day so language-specific files are used
+        const day = this.selectedDay || this.currentDay;
+        this.loadDNALesson(day).then(()=>{
+            if (this.isPlaying) {
+                this.generateUniversalContent();
+                const currentPhase = this.lessonPhases[this.currentPhase];
+                if (this.currentDNA?.metadata?.version === 'phase_v1') {
+                    this.playCurrentPhase();
+                } else {
+                    this.showPhaseContent(currentPhase);
+                }
+            }
+        });
     }
 
     /**
@@ -1302,6 +1846,7 @@ class UniversalLessonPlayer {
     onAgeChange(newAge) {
         console.log('👶 Age changed to:', newAge);
         this.currentVariant.age = newAge;
+        try { localStorage.setItem('variant_age', newAge); } catch {}
         
         // Regenerate content and update display if lesson is active
         if (this.isPlaying) {
@@ -1340,6 +1885,14 @@ class UniversalLessonPlayer {
 
         this.audioElement.addEventListener('ended', () => {
             this.nextPhase();
+        });
+
+        this.audioElement.addEventListener('pause', () => {
+            const ra = this.readAlong; if (!ra) return;
+            ra.paused = true; if (ra.timer) { clearInterval(ra.timer); ra.timer = null; }
+        });
+        this.audioElement.addEventListener('play', () => {
+            const ra = this.readAlong; if (!ra) return; ra.paused = false; this.resumeReadAlong();
         });
 
         this.audioElement.addEventListener('error', (e) => {
@@ -1418,6 +1971,9 @@ class UniversalLessonPlayer {
             this.audioElement.playbackRate = this.playbackSpeed;
         }
         console.log(`⚡ Speed set to ${this.playbackSpeed}x`);
+        if (this.isPlaying && this.readAlong) {
+            this.resumeReadAlong();
+        }
     }
 
     /**
@@ -1677,6 +2233,122 @@ The system is ready for real curriculum integration!`,
     showError(message) {
         console.error('❌ Error:', message);
         // Could implement toast notification here
+    }
+
+    /**
+     * Speak text via ElevenLabs if available; fallback otherwise. Also starts read‑along.
+     */
+    async speak(text, avatar = null) {
+        const narration = String(text || '').trim();
+        if (!narration) return;
+        try { this.startReadAlong(narration); } catch {}
+        const chosenAvatar = avatar || this.currentVariant.avatar || 'kelly';
+        // Use pre-synthesized cache if available
+        try {
+            const cached = this.preSynthCache.get(narration);
+            if (cached) {
+                this.audioElement.src = cached;
+                this.audioElement.playbackRate = this.playbackSpeed;
+                try { await this.audioElement.play(); } catch {}
+                this.isPlaying = true; this.updatePlayButton();
+                return;
+            }
+        } catch {}
+        try {
+            if (this.elevenLabs) {
+                const result = await this.elevenLabs.generateAudio(narration, chosenAvatar);
+                if (typeof result === 'string' && result.startsWith('blob:')) {
+                    try { this.preSynthCache.set(narration, result); } catch {}
+                    this.audioElement.src = result;
+                    this.audioElement.playbackRate = this.playbackSpeed;
+                    try {
+                        await this.audioElement.play();
+                    } catch (err) {
+                        // Autoplay may be blocked; retry after first user gesture
+                        await new Promise(resolve => {
+                            const retry = () => { document.removeEventListener('click', retry); resolve(); };
+                            document.addEventListener('click', retry, { once: true });
+                        });
+                        try { await this.audioElement.play(); } catch(_) {}
+                    }
+                    this.isPlaying = true;
+                    this.updatePlayButton();
+                    return;
+                }
+                return;
+            }
+        } catch (err) {
+            console.warn('speak() ElevenLabs path failed; falling back', err);
+        }
+        try {
+            this.isPlaying = true; this.updatePlayButton();
+            const approxMs = Math.min(15000, Math.max(2000, narration.split(/\s+/).length * 300));
+            setTimeout(()=>{ this.isPlaying = false; this.updatePlayButton(); }, approxMs);
+        } catch {}
+    }
+
+    /**
+     * Update inspector panels with live state, content, and DNA
+     */
+    updateInspectors() {
+        try {
+            const stateTarget = document.getElementById('state-inspector-content');
+            const contentTarget = document.getElementById('content-inspector-content');
+            const codeTarget = document.getElementById('code-inspector-content');
+
+            if (stateTarget) {
+                const state = {
+                    day: this.selectedDay || this.currentDay,
+                    phaseIndex: this.currentPhase,
+                    phaseId: this.lessonPhases[this.currentPhase] || null,
+                    isPlaying: this.isPlaying,
+                    playbackSpeed: this.playbackSpeed,
+                    volume: this.volume,
+                    variant: { ...this.currentVariant },
+                    timers: { hasNoChoiceTimer: !!this.phaseTimers?.noChoice },
+                    answers: this.userAnswers || []
+                };
+                stateTarget.textContent = JSON.stringify(state, null, 2);
+            }
+
+            if (contentTarget) {
+                const preview = {
+                    introduction: this.universalContent?.introduction || null,
+                    questions: (this.universalContent?.questions || []).map(q => ({
+                        question: typeof q === 'string' ? q : q?.question,
+                        choices: typeof q === 'string' ? [] : q?.choices
+                    })),
+                    conclusion: this.universalContent?.conclusion || null,
+                    fortune: this.universalContent?.fortune || null
+                };
+                contentTarget.textContent = JSON.stringify(preview, null, 2);
+            }
+
+            if (codeTarget) {
+                const dnaView = this.currentDNA ? (
+                    this.currentDNA.metadata?.version === 'phase_v1' ? this.currentDNA : { schema: 'legacy_or_normalized', sample: this.currentDNA?.lesson_metadata || this.currentDNA?.metadata || {} }
+                ) : { info: 'No DNA loaded yet' };
+                const payload = { dna: dnaView, warnings: this.dnaWarnings || [] };
+                codeTarget.textContent = JSON.stringify(payload, null, 2);
+            }
+        } catch {}
+    }
+
+    /**
+     * Preload avatar assets to reduce flicker
+     */
+    preloadAvatarAssets(avatar) {
+        try {
+            const base = `/production-deploy/assets/avatars/${avatar}`;
+            const paths = [
+                `${base}/${avatar}_neutral_default.png`,
+                `${base}/lesson-sequence/${avatar}_teaching_explaining.png`,
+                `${base}/lesson-sequence/${avatar}_question_curious.png`,
+                `${base}/emotional-expressions/${avatar}_concerned_thinking.png`,
+                `${base}/emotional-expressions/${avatar}_happy_celebrating.png`
+            ];
+            paths.forEach(p => { const img = new Image(); img.src = p; });
+        } catch {}
     }
 
     /**

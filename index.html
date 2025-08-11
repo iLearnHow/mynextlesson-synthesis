@@ -1,10 +1,19 @@
-          <!DOCTYPE html>
-<html lang="en">                                                                                                           
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iLearn How - Immersive UI v40 (Production)</title>
     <script>
+    // Early global open shim (queues until real openModal is ready)
+    (function(){
+      if (!window.__mlOpen) {
+        window.__mlOpen = function(id){
+          window.__mlOpenQueue = window.__mlOpenQueue || [];
+          window.__mlOpenQueue.push(id);
+        };
+      }
+    })();
     // Global early shim to avoid cached bundle errors before any scripts load
     (function(){
       try {
@@ -12,12 +21,33 @@
         if (P && typeof P._makeInspectorsDraggable !== 'function') {
           P._makeInspectorsDraggable = function(){};
         }
+        // Ensure phase mapper exists for legacy bundles
+        if (P && typeof P.mapPhaseForContent !== 'function') {
+          P.mapPhaseForContent = function(phase){
+            try {
+              var direct = ['welcome','beginning','middle','end','wisdom'];
+              if (direct.indexOf(phase) !== -1) return phase;
+              var alias = { opening:'welcome', question_1:'beginning', question_2:'middle', question_3:'end', closing:'wisdom', fortune:'wisdom' };
+              return alias[phase] || phase;
+            } catch(_) { return phase; }
+          };
+        }
         // Also define an idempotent helper on window to re-apply after the class attaches
         if (!window.__ml_drag_shim_installed) {
           window._mlEnsureDragShim = function(){
             try {
               var P2 = (window.UniversalLessonPlayer && window.UniversalLessonPlayer.prototype) || null;
               if (P2 && typeof P2._makeInspectorsDraggable !== 'function') { P2._makeInspectorsDraggable = function(){}; }
+              if (P2 && typeof P2.mapPhaseForContent !== 'function') {
+                P2.mapPhaseForContent = function(phase){
+                  try {
+                    var direct = ['welcome','beginning','middle','end','wisdom'];
+                    if (direct.indexOf(phase) !== -1) return phase;
+                    var alias = { opening:'welcome', question_1:'beginning', question_2:'middle', question_3:'end', closing:'wisdom', fortune:'wisdom' };
+                    return alias[phase] || phase;
+                  } catch(_) { return phase; }
+                };
+              }
             } catch(e){}
           };
           window.__ml_drag_shim_installed = true;
@@ -79,21 +109,24 @@
         
         #read-along-player { 
             position: fixed;
-            bottom: 80px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: auto; 
-            max-width: 60%; 
-            text-align: center; 
-            font-size: 20px; 
+            bottom: 20px; 
+            left: 20px; 
+            transform: none; 
+            width: 28%; 
+            max-width: 420px; 
+            min-width: 240px;
+            text-align: left; 
+            font-size: 14px; 
+            line-height: 1.25;
             font-weight: 500; 
-            padding: 12px 25px;
+            padding: 10px 14px;
             background: rgba(0, 0, 0, 0.05);
             color: #333;
-            border-radius: 12px;
+            border-radius: 10px;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 20;
         }
         .progress-bar-container { 
             position: fixed; 
@@ -152,15 +185,16 @@
         .progress-step.active { transform: scale(1.3); }
                                                                               
         /* Right-side vertical icon rail */
-        .right-icon-rail { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); z-index: 600; display: flex; flex-direction: column; gap: 12px; }
+        .right-icon-rail { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 12px; pointer-events: auto; visibility: hidden; opacity: 0; transition: opacity .2s ease; }
+        .rail-btn { pointer-events: auto; }
         .rail-btn { width: var(--icon-size); height: var(--icon-size); border-radius: 14px; border: none; background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: var(--shadow); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease-in-out; color: #333; }
         .rail-btn:hover { background: rgba(255,255,255,0.9); transform: translateY(-1px); }
         .rail-btn.active { background: var(--accent-blue); color: white; }
 
         /* Panels / Modals */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 700; }
+        .modal-overlay { position: fixed; inset: 0; background: transparent; display: none; z-index: 1500; }
         .modal-overlay.visible { display: flex; }
-        .modal-card { width: min(680px, 92vw); max-height: 78vh; overflow: auto; border-radius: 20px; border: var(--glass-border); background: var(--glass-bg); box-shadow: var(--shadow); padding: 18px; }
+        .modal-card { width: min(360px, 92vw); max-height: 78vh; overflow: auto; border-radius: 16px; border: var(--glass-border); background: var(--glass-bg); box-shadow: var(--shadow); padding: 16px; position: fixed; }
         .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .modal-title { font-weight: 700; font-size: 18px; }
         .modal-close { border: none; background: rgba(0,0,0,0.08); border-radius: 10px; padding: 6px 10px; cursor: pointer; }
@@ -174,8 +208,12 @@
 </head>
 <body>
     <div class="immersive-container">
-        <div id="start-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-            <button id="start-lesson-btn" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 500; padding: 18px 35px; border-radius: 18px; border: none; background: #fff; color: #007AFF; cursor: pointer; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">Start Lesson</button>
+        <div id="start-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 2500; pointer-events: auto;">
+            <div class="ios-panel" style="padding:22px 26px; border-radius:20px; display:flex; flex-direction:column; gap:10px; align-items:center; pointer-events: auto;">
+                <div style="font-weight:700; font-size:18px;" id="start-lesson-title">Today’s Lesson</div>
+                <div style="opacity:0.8; font-size:14px;" id="start-lesson-sub">Loading…</div>
+                <button id="start-lesson-btn" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 600; padding: 14px 28px; border-radius: 14px; border: none; background: #007AFF; color: #fff; cursor: pointer; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">Start Lesson</button>
+            </div>
         </div>
         <div id="avatar-background" class="avatar-background kelly"></div>
         <div class="main-content-area">
@@ -219,6 +257,8 @@
             <div class="phase" id="teaching-moment-phase"><div class="ios-panel content-note position-centered-moment" id="teaching-moment-content"></div></div>
         </div>
         <div class="ui-overlays">
+            <!-- Toast container -->
+            <div id="toast" class="ios-panel" style="position:fixed; left:50%; transform:translateX(-50%); bottom:30px; padding:10px 14px; display:none; z-index:1001; font-size:13px;"></div>
             <div id="state-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Live State</span><button class="inspector-close-btn" data-inspector="state-inspector">&times;</button></div><div class="inspector-content"><pre id="state-inspector-content"></pre></div></div>
             <div id="content-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Content Inspector</span><button class="inspector-close-btn" data-inspector="content-inspector">&times;</button></div><div class="inspector-content"><pre id="content-inspector-content"></pre></div></div>
             <div id="code-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Lesson DNA</span><button class="inspector-close-btn" data-inspector="code-inspector">&times;</button></div><div class="inspector-content"><pre id="code-inspector-content"></pre></div></div>
@@ -239,9 +279,6 @@
             </div>
             <div id="read-along-player" class="ios-panel"></div>
             <div class="bottom-right-controls">
-                <button class="control-btn" id="inspector-state-toggle" data-inspector="state-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" /></svg></button>
-                <button class="control-btn" id="inspector-content-toggle" data-inspector="content-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg></button>
-                <button class="control-btn" id="inspector-code-toggle" data-inspector="code-inspector"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" /></svg></button>
                 <div class="master-flyout-container">
                     <button class="control-btn" id="master-trigger"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg></button>
                     <div class="master-flyout-menu ios-panel">
@@ -254,19 +291,9 @@
                     </div>
                 </div>
             </div>
-            <!-- Right-side rail -->
-            <div class="right-icon-rail" id="right-icon-rail">
-                <button class="rail-btn" id="icon-live" title="Live">🟢</button>
-                <button class="rail-btn" id="icon-find" title="Find">🔎</button>
-                <button class="rail-btn" id="icon-settings" title="Settings">⚙️</button>
-                <button class="rail-btn" id="icon-calendar" title="Calendar">📅</button>
-                <button class="rail-btn" id="icon-model" title="Model">🧑‍🏫</button>
-                <button class="rail-btn" id="icon-tone" title="Tone">🎚️</button>
-                <button class="rail-btn" id="icon-language" title="Language">🌍</button>
-                <button class="rail-btn" id="icon-age" title="Age">🎯</button>
-                <button class="rail-btn" id="icon-speed" title="Speed">⏩</button>
-                <button class="rail-btn" id="icon-controls" title="Controls">🎛️</button>
-            </div>
+            <!-- Right-side rail (shadow component) -->
+            <div id="legacy-rail" style="display:none"></div>
+            <ml-rail id="ml-rail" style="position:fixed; top:50%; right:20px; transform:translateY(-50%); z-index:2000; visibility:hidden; opacity:0;"></ml-rail>
         </div>
     </div>
 
@@ -335,11 +362,53 @@
         <div class="modal-card">
             <div class="modal-header"><div class="modal-title">Language</div><button class="modal-close" data-close="language-modal">Close</button></div>
             <div class="row" id="language-options">
-                <span class="pill" data-language="english">English</span>
-                <span class="pill" data-language="spanish">Spanish</span>
-                <span class="pill" data-language="french">French</span>
+                <span class="pill" data-language="english" title="English is available for all demo lessons">English</span>
+                <span class="pill" data-language="spanish" title="Spanish available where PhaseDNA is authored">Spanish</span>
+                <span class="pill" data-language="french" title="French available where PhaseDNA is authored">French</span>
             </div>
             <div style="opacity:0.75; font-size:13px; margin-top:8px;">Languages available depend on the selected lesson DNA.</div>
+        </div>
+    </div>
+
+    <!-- Tone Modal -->
+    <div class="modal-overlay" id="tone-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Tone</div><button class="modal-close" data-close="tone-modal">Close</button></div>
+            <div class="row" id="tone-options">
+                <span class="pill" data-tone="grandmother">Grandmother</span>
+                <span class="pill" data-tone="fun">Fun</span>
+                <span class="pill" data-tone="neutral">Neutral</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avatar Modal -->
+    <div class="modal-overlay" id="avatar-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Avatar</div><button class="modal-close" data-close="avatar-modal">Close</button></div>
+            <div class="row" id="avatar-options">
+                <span class="pill" data-avatar="kelly">Kelly</span>
+                <span class="pill" data-avatar="ken">Ken</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Age Modal -->
+    <div class="modal-overlay" id="age-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Age</div><button class="modal-close" data-close="age-modal">Close</button></div>
+            <div class="row" id="age-options">
+                <span class="pill" data-age="age_2">2</span>
+                <span class="pill" data-age="age_5">5</span>
+                <span class="pill" data-age="age_8">8</span>
+                <span class="pill" data-age="age_12">12</span>
+                <span class="pill" data-age="age_16">16</span>
+                <span class="pill" data-age="age_25">25</span>
+                <span class="pill" data-age="age_40">40</span>
+                <span class="pill" data-age="age_60">60</span>
+                <span class="pill" data-age="age_80">80</span>
+                <span class="pill" data-age="age_102">102</span>
+            </div>
         </div>
     </div>
 
@@ -367,10 +436,39 @@
     <!-- Hidden audio element for ElevenLabs playback -->
     <audio id="tts-audio" preload="auto" style="display:none;"></audio>
     <!-- Core systems: use existing architecture -->
-    <script src="/complete-elevenlabs-integration.js?v=20250810a"></script>
-    <script src="/complete-curriculum.js?v=20250810a"></script>
-    <script src="/corrected-variant-generator-v2.js?v=20250810a"></script>
-    <script src="/complete-lesson-player.js?v=20250810a" onload="window._mlEnsureDragShim && window._mlEnsureDragShim()"></script>
+    <script src="/complete-elevenlabs-integration.js?v=20250811a"></script>
+    <script src="/complete-curriculum.js?v=20250811a"></script>
+    <script src="/corrected-variant-generator-v2.js?v=20250811a"></script>
+    <script src="/complete-lesson-player.js?v=20250811a" onload="window._mlEnsureDragShim && window._mlEnsureDragShim()"></script>
+    <!-- Rail Web Component -->
+    <script>
+      (function(){
+        class MlRail extends HTMLElement{
+          constructor(){ super(); this._s = this.attachShadow({mode:'open'}); }
+          connectedCallback(){
+            const root = document.createElement('div');
+            root.style.cssText = 'display:flex; flex-direction:column; gap:12px;';
+            const makeBtn = (id, label) => { const b=document.createElement('button'); b.id=id; b.textContent=label; b.title=label; b.setAttribute('data-modal-anchor','1'); b.style.cssText='width:44px;height:44px;border-radius:14px;border:none;background:rgba(255,255,255,0.8);box-shadow:0 10px 40px rgba(0,0,0,0.2);cursor:pointer'; return b; };
+            const map = [
+              ['icon-live','🟢','live-modal'], ['icon-find','🔎','find-modal'], ['icon-settings','⚙️','settings-modal'], ['icon-calendar','📅','calendar-modal'],
+              ['icon-model','🧑‍🏫','avatar-modal'], ['icon-tone','🎚️','tone-modal'], ['icon-language','🌍','language-modal'], ['icon-age','🎯','age-modal'], ['icon-speed','⏩','speed-modal'], ['icon-controls','🎛️','controls-modal']
+            ];
+            map.forEach(([id,emoji,modal])=>{ const btn=makeBtn(id,emoji); btn.dataset.modal=modal; root.appendChild(btn); });
+            this._s.appendChild(root);
+            this._s.addEventListener('click',(e)=>{
+              const btn = e.target.closest('button'); if (!btn) return;
+              const m = btn.dataset.modal; if (!m) return;
+              let r=null; try { r=btn.getBoundingClientRect(); } catch {}
+              try { this.dispatchEvent(new CustomEvent('ml:open', { detail:{ modal:m, rect:{ x:r?.x, y:r?.y, width:r?.width, height:r?.height } }, bubbles:true, composed:true })); } catch {}
+              if (window.__mlOpen) window.__mlOpen(m, r);
+            });
+          }
+        }
+        customElements.define('ml-rail', MlRail);
+      })();
+    </script>
+    <!-- Diagnostics overlay (enable with ?debug=1) -->
+    <div id="ui-diagnostics" style="position:fixed; top:12px; left:12px; z-index:3000; background:rgba(0,0,0,0.6); color:#fff; padding:8px 10px; border-radius:8px; font:12px/1.3 -apple-system, BlinkMacSystemFont; display:none; max-width:40vw; pointer-events:none;"></div>
     <script>
       // Safety guard: ensure draggable method exists even if an older cached bundle calls it
       (function(){
@@ -480,34 +578,125 @@
     // Initialize the universal lesson player
     window.addEventListener('DOMContentLoaded', () => {
         window.lessonPlayer = new UniversalLessonPlayer();
+        // Populate start overlay with day + title and reveal rail after start
+        window.addEventListener('ml:lesson_loaded', ()=>{
+            try {
+                const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay;
+                const meta = window.COMPLETE_CURRICULUM?.[day];
+                const titleEl = document.getElementById('start-lesson-title');
+                const subEl = document.getElementById('start-lesson-sub');
+                if (titleEl && meta?.title) titleEl.textContent = meta.title;
+                if (subEl) subEl.textContent = `Day ${day}`;
+            } catch {}
+        });
+        const startOverlay = document.getElementById('start-overlay');
+        const railEl = document.getElementById('ml-rail');
+        document.getElementById('start-lesson-btn')?.addEventListener('click', ()=>{
+            // Strict sequence: 1) avatar visible (already), 2) start lesson, 3) reveal rail
+            window.lessonPlayer?.startUniversalLesson();
+            if (startOverlay) startOverlay.style.display = 'none';
+            // Delay rail reveal slightly to avoid any initial content flash
+            setTimeout(()=>{ if (railEl) { railEl.style.visibility='visible'; railEl.style.opacity='1'; } }, 150);
+        });
 
         // ElevenLabs key is auto-provisioned by integration if missing
 
-        // Wire right-rail icons to player navigation
-        const map = [
-            ['icon-calendar','calendar'],
-            ['icon-tone','tone'],
-            ['icon-model','avatar'],
-            ['icon-language','language'],
-            ['icon-age','age']
-        ];
-        map.forEach(([id, section]) => {
-            const el = document.getElementById(id);
-            if (el) el.addEventListener('click', () => window.lessonPlayer?.handleNavigation(section));
-        });
-        const play = document.getElementById('icon-live');
-        if (play) play.addEventListener('click', () => window.lessonPlayer?.togglePlayback());
-        const speedBtn = document.getElementById('icon-speed');
-        if (speedBtn) speedBtn.addEventListener('click', () => {
-            document.getElementById('speed-modal')?.classList.add('visible');
-        });
+        // Unified rail event delegation
+        const rail = document.getElementById('right-icon-rail');
+        if (rail) {
+            rail.addEventListener('click', (e)=>{
+                const btn = e.target.closest('.rail-btn');
+                if (!btn) return;
+                const modalId = btn.getAttribute('data-modal');
+                if (modalId) openModal(modalId);
+            });
+            rail.addEventListener('dblclick', (e)=>{
+                const btn = e.target.closest('#icon-live');
+                if (btn) window.lessonPlayer?.togglePlayback();
+            });
+        }
 
-        // Wire additional rail icons to modals
-        const openModal = id => document.getElementById(id)?.classList.add('visible');
-        const closeById = id => document.getElementById(id)?.classList.remove('visible');
-        document.getElementById('icon-find')?.addEventListener('click', () => openModal('find-modal'));
-        document.getElementById('icon-settings')?.addEventListener('click', () => openModal('settings-modal'));
-        document.getElementById('icon-controls')?.addEventListener('click', () => openModal('controls-modal'));
+        // Toast helper
+        window.__ml_toast = function(msg, timeoutMs){ try { const t=document.getElementById('toast'); if(!t) return; t.textContent=String(msg||''); t.style.display='block'; clearTimeout(window.__ml_toast_timer); window.__ml_toast_timer=setTimeout(()=>{ t.style.display='none'; }, Math.max(1500, timeoutMs||2500)); } catch(e){} };
+
+        // Diagnostics
+        const qp = new URLSearchParams(location.search);
+        const dbg = qp.get('debug') === '1';
+        const dbgDiv = document.getElementById('ui-diagnostics');
+        function dbgLog(obj){ if (!dbg || !dbgDiv) return; dbgDiv.style.display='block'; dbgDiv.textContent = `[${new Date().toLocaleTimeString()}]\n` + JSON.stringify(obj, null, 2); }
+
+        // Overlay Manager with one‑modal policy and focus trap
+        let __activeModal = null; let __lastFocus = null;
+        function trapFocus(e){
+            if (!__activeModal || e.key !== 'Tab') return;
+            const focusables = __activeModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (!focusables.length) return;
+            const first = focusables[0]; const last = focusables[focusables.length-1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+        const modalIconMap = {
+            'live-modal': 'icon-live',
+            'find-modal': 'icon-find',
+            'settings-modal': 'icon-settings',
+            'calendar-modal': 'icon-calendar',
+            'language-modal': 'icon-language',
+            'speed-modal': 'icon-speed',
+            'controls-modal': 'icon-controls'
+        };
+        function setActiveIconForModal(id){
+            document.querySelectorAll('.right-icon-rail .rail-btn').forEach(b=>b.classList.remove('active'));
+            const iconId = modalIconMap[id];
+            if (iconId) document.getElementById(iconId)?.classList.add('active');
+        }
+        function openModal(id, anchorRect){
+            document.querySelectorAll('.modal-overlay.visible').forEach(el=>el.classList.remove('visible'));
+            const el = document.getElementById(id); if (!el) return;
+            __activeModal = el; __lastFocus = document.activeElement;
+            el.classList.add('visible'); el.setAttribute('aria-modal','true'); el.setAttribute('role','dialog');
+            // Anchor next to rail icon if rect provided
+            try {
+                const card = el.querySelector('.modal-card');
+                if (card && anchorRect) {
+                    card.style.top = `${Math.max(12, anchorRect.y - 10)}px`;
+                    card.style.right = `76px`;
+                    card.style.left = 'auto';
+                }
+            } catch {}
+            const focusTarget = el.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            setTimeout(()=> focusTarget?.focus(), 0);
+            document.addEventListener('keydown', trapFocus);
+            setActiveIconForModal(id);
+            try { document.body.style.overflow='hidden'; } catch(e){}
+        }
+        // global open helper for static onclicks (flush queued open requests)
+        window.__mlOpen = openModal;
+        try {
+            if (Array.isArray(window.__mlOpenQueue)) {
+                const q = window.__mlOpenQueue.slice();
+                window.__mlOpenQueue.length = 0;
+                q.forEach(id=> openModal(id));
+            }
+        } catch {}
+        function clearActiveIcons(){ document.querySelectorAll('.right-icon-rail .rail-btn').forEach(b=>b.classList.remove('active')); }
+        function closeById(id){ const el = document.getElementById(id); if(!el) return; el.classList.remove('visible'); if (__activeModal===el){ document.removeEventListener('keydown', trapFocus); __activeModal=null; __lastFocus?.focus?.(); } clearActiveIcons(); try { document.body.style.overflow='auto'; } catch(e){} }
+        function closeAllModals(){ document.querySelectorAll('.modal-overlay.visible').forEach(el=>el.classList.remove('visible')); document.removeEventListener('keydown', trapFocus); __activeModal=null; clearActiveIcons(); try { document.body.style.overflow='auto'; } catch(e){} }
+        document.querySelectorAll('.modal-overlay').forEach(el=> el.addEventListener('click', (e)=>{ if (e.target===el) closeAllModals(); }));
+        document.addEventListener('keydown', (e)=>{ if (e.key==='Escape') closeAllModals(); });
+        // Shadow DOM safety net: global click catcher for any element with data-modal in composed path
+        document.addEventListener('click', (e)=>{
+            try {
+                const path = e.composedPath && e.composedPath();
+                if (!Array.isArray(path)) return;
+                const hostBtn = path.find(n => n && n.dataset && n.dataset.modal);
+                if (hostBtn && typeof hostBtn.dataset.modal === 'string') {
+                    const rect = hostBtn.getBoundingClientRect?.();
+                    dbgLog({event:'click', targetModal: hostBtn.dataset.modal, rect});
+                    openModal(hostBtn.dataset.modal, rect);
+                }
+            } catch {}
+        }, true);
+        // already wired above
 
         // Live countdown modal
         document.getElementById('icon-live')?.addEventListener('click', () => openModal('live-modal'));
@@ -534,6 +723,14 @@
         document.getElementById('next-btn')?.addEventListener('click', ()=> window.lessonPlayer?.nextPhase());
         document.getElementById('restart-btn')?.addEventListener('click', ()=> window.lessonPlayer?.restartLesson());
         document.getElementById('run-evals')?.addEventListener('click', async ()=>{
+            // Modal summary container
+            const modal = document.getElementById('controls-modal');
+            const summaryDiv = document.createElement('div');
+            summaryDiv.style.marginTop = '12px';
+            summaryDiv.style.fontSize = '13px';
+            summaryDiv.textContent = 'Running evals…';
+            modal?.querySelector('.modal-card')?.appendChild(summaryDiv);
+
             const plans = [
                 {day:1, topic:'Sun'},
                 {day:10, topic:'Moon'},
@@ -543,7 +740,7 @@
             const langs = ['english','spanish','french'];
             const tones = ['neutral','fun','grandmother'];
             const ages = ['age_8','age_16','age_25'];
-            const results = [];
+            const rows = [];
             for (const p of plans){
                 for (const lang of langs){
                     for (const tone of tones){
@@ -552,19 +749,35 @@
                                 window.lessonPlayer.currentVariant.language = lang;
                                 window.lessonPlayer.currentVariant.tone = tone;
                                 window.lessonPlayer.currentVariant.age = age;
-                                if (p.qp) {
-                                    const url = new URL(window.location.href);
-                                    url.searchParams.set('topic', p.qp);
-                                    history.replaceState({}, '', url);
-                                }
+                                if (p.qp) { const url = new URL(window.location.href); url.searchParams.set('topic', p.qp); history.replaceState({}, '', url); }
                                 await window.lessonPlayer.loadLessonByDay(p.day || window.lessonPlayer.currentDay);
-                                results.push(`${p.topic}-${lang}-${tone}-${age}: ok`);
-                            }catch(e){ results.push(`${p.topic}-${lang}-${tone}-${age}: fail`); }
+                                const report = window.lessonPlayer.evaluateCurrentDNA();
+                                const warn = (report.warnings||[]).length;
+                                const abOk = !!report.phases?.beginning?.hasA && !!report.phases?.beginning?.hasB
+                                           && !!report.phases?.middle?.hasA && !!report.phases?.middle?.hasB
+                                           && !!report.phases?.end?.hasA && !!report.phases?.end?.hasB;
+                                rows.push({topic:p.topic, lang, tone, age, warnings: warn, ab: abOk});
+                            }catch(e){ rows.push({topic:p.topic, lang, tone, age, error: true}); }
                         }
                     }
                 }
             }
-            alert(`Eval complete:\n${results.slice(0,20).join('\n')}\n...(${results.length} cases)`);
+            const passed = rows.filter(r=>!r.error && r.warnings===0 && r.ab).length;
+            const total = rows.length;
+            summaryDiv.textContent = `Eval complete: ${passed}/${total} variant checks passed (A/B present and 0 warnings).`;
+            // Download JSON button
+            const dl = document.createElement('button');
+            dl.className = 'pill';
+            dl.textContent = 'Download Eval JSON';
+            dl.onclick = ()=>{
+                const blob = new Blob([JSON.stringify(rows, null, 2)], {type:'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'eval_results.json'; a.click();
+                setTimeout(()=>URL.revokeObjectURL(url), 2000);
+            };
+            summaryDiv.appendChild(document.createElement('br'));
+            summaryDiv.appendChild(dl);
         });
 
         // Calendar quick buttons
@@ -572,18 +785,70 @@
             const day = (window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1) - 1;
             if (day>=1) window.lessonPlayer?.loadLessonByDay(day);
         });
+        // Calendar hover: show lesson title previews when possible
+        window.addEventListener('ml:lesson_loaded', ()=>{
+            try {
+                const grid = document.getElementById('calendar-grid'); if (!grid) return;
+                const buttons = grid.querySelectorAll('.calendar-day');
+                buttons.forEach(btn=>{
+                    const dayNum = Number(btn.textContent);
+                    const monthName = document.getElementById('current-month')?.textContent || 'January';
+                    // Best-effort: map month+day -> dayOfYear using player helper if available
+                    let monthIndex = ['January','February','March','April','May','June','July','August','September','October','November','December'].indexOf(monthName) + 1;
+                    if (monthIndex < 1) monthIndex = new Date().getMonth()+1;
+                    const d = window.lessonPlayer?.getDayOfYear?.(monthIndex, dayNum);
+                    const meta = window.COMPLETE_CURRICULUM?.[d];
+                    if (meta?.title) btn.title = meta.title;
+                });
+            } catch {}
+        });
 
-        // Settings pills wiring
-        document.querySelectorAll('[data-avatar]')?.forEach(el=>el.addEventListener('click', (e)=>{
-            const v = e.currentTarget.getAttribute('data-avatar'); if (v) window.lessonPlayer?.onAvatarChange(v);
+        // Variant modals wiring
+        document.querySelectorAll('#avatar-options [data-avatar]')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = e.currentTarget.getAttribute('data-avatar'); if (v) { window.lessonPlayer?.onAvatarChange(v); closeById('avatar-modal'); }
         }));
-        document.querySelectorAll('[data-tone]')?.forEach(el=>el.addEventListener('click', (e)=>{
-            const v = e.currentTarget.getAttribute('data-tone'); if (v) window.lessonPlayer?.onToneChange(v);
+        document.querySelectorAll('#tone-options [data-tone]')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = e.currentTarget.getAttribute('data-tone'); if (v) { window.lessonPlayer?.onToneChange(v); closeById('tone-modal'); }
+        }));
+        document.querySelectorAll('#age-options [data-age]')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = e.currentTarget.getAttribute('data-age'); if (v) { window.lessonPlayer?.onAgeChange(v); closeById('age-modal'); }
+        }));
+        document.querySelectorAll('#language-options [data-language]')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = e.currentTarget.getAttribute('data-language'); if (v) { window.lessonPlayer?.onLanguageChange(v); closeById('language-modal'); }
         }));
         // Speed modal wiring
         document.querySelectorAll('#speed-options .pill')?.forEach(el=>el.addEventListener('click', (e)=>{
             const v = parseFloat(e.currentTarget.getAttribute('data-speed')||'1'); window.lessonPlayer?.setSpeed(v);
         }));
+
+        // Language availability: disable unsupported options per current lesson DNA
+        function refreshLanguageAvailability(){
+            try {
+                const langPills = document.querySelectorAll('#language-options .pill');
+                const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay;
+                const available = new Set(['english']);
+                // Detect availability from current DNA filenames heuristic
+                const currentDNA = window.lessonPlayer?.currentDNA;
+                if (currentDNA?.metadata?.version === 'phase_v1') {
+                    // Assume current language is available; also infer likely siblings for demo lessons
+                    available.add(window.lessonPlayer?.currentVariant?.language || 'english');
+                    // If lessonId matches our authored demos, all three are supported
+                    const lid = currentDNA?.metadata?.lessonId || '';
+                    if (['the-sun','the-moon','earths-magnificent-oceans','puppies'].includes(lid)) {
+                        available.add('spanish'); available.add('french');
+                    }
+                }
+                langPills.forEach(p=>{
+                    const lang = p.getAttribute('data-language');
+                    const supported = available.has(lang);
+                    p.style.opacity = supported ? '1' : '0.45';
+                    p.style.pointerEvents = supported ? 'auto' : 'none';
+                    if (!supported) p.title = 'Not available for this lesson yet';
+                });
+            } catch {}
+        }
+        window.addEventListener('ml:lesson_loaded', refreshLanguageAvailability);
+        setTimeout(refreshLanguageAvailability, 1000);
 
         // Variant badges updater
         function updateBadges(){
