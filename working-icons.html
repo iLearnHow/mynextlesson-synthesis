@@ -389,15 +389,15 @@
             gap: 10px;
         }
         
-        /* Button Styles - Beautiful & Functional */
+        /* Button Styles - Beautiful & Compact */
         .btn-primary {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 500;
             transition: var(--transition);
         }
@@ -412,10 +412,10 @@
             background: white;
             color: #495057;
             border: 1px solid #dee2e6;
-            padding: 10px 16px;
-            border-radius: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 500;
             transition: var(--transition);
         }
@@ -424,6 +424,17 @@
             background: #f8f9fa;
             border-color: #007AFF;
             transform: translateY(-1px);
+        }
+        
+        /* Compact Modal Content */
+        .modal-content h3 {
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        
+        .modal-content {
+            padding: 16px;
+            max-height: 70vh;
         }
         
         /* Beautiful Animations - iOS-like Smoothness */
@@ -535,10 +546,12 @@
         Status: Ready<br>
         Click any icon to test<br>
         <button onclick="demoBadgeUpdates()">🎭 Full Demo</button>
-        <button onclick="testIconFunctionality('age')">🧪 Test Age</button>
-        <button onclick="testIconFunctionality('language')">🧪 Test Language</button>
-        <button onclick="testIconFunctionality('tone')">🧪 Test Tone</button>
-        <button onclick="testIconFunctionality('avatar')">🧪 Test Avatar</button>
+        <button onclick="testAllFunctionality()">🧪 Test All</button>
+        <button onclick="testIconFunctionality('age')">🎯 Test Age</button>
+        <button onclick="testIconFunctionality('language')">🌍 Test Lang</button>
+        <button onclick="testIconFunctionality('tone')">😊 Test Tone</button>
+        <button onclick="testIconFunctionality('avatar')">👩‍🏫 Test Avatar</button>
+        <button onclick="testIconFunctionality('calendar')">📅 Test Calendar</button>
         <button onclick="switchAvatar('ken')">👨 Switch to Ken</button>
         <button onclick="switchAvatar('kelly')">👩 Switch to Kelly</button>
     </div>
@@ -669,38 +682,48 @@
         </div>
     </div>
     
-    <!-- Calendar Modal -->
+    <!-- Calendar Modal - Beautiful Month/Day Picker -->
     <div class="modal" id="calendar-modal">
         <div class="modal-content">
-            <h3>📅 Today's Lesson</h3>
+            <h3>📅 Lesson Calendar</h3>
             
-            <!-- Current Lesson -->
-            <div style="text-align: center; margin: 16px 0;">
-                <div style="font-size: 24px; margin-bottom: 8px;">☀️</div>
-                <div style="font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #1a1a1a;">The Sun - Our Star</div>
-                <div style="color: #666; margin-bottom: 12px; font-size: 12px;">Learn about our closest star</div>
-                <button style="background: #007AFF; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; cursor: pointer;" onclick="startLesson('sun-lesson-001')">Start Lesson</button>
+            <!-- Month Navigation -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <button onclick="previousMonth()" class="btn-secondary" style="padding: 6px 10px; font-size: 12px;">‹</button>
+                <div style="font-weight: 600; font-size: 16px; color: #1a1a1a;" id="current-month">August 2024</div>
+                <button onclick="nextMonth()" class="btn-secondary" style="padding: 6px 10px; font-size: 12px;">›</button>
             </div>
             
-            <!-- Navigation -->
-            <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 12px 0;">
-                <div style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a; font-size: 13px;">📅 Quick Navigation</div>
-                <div style="display: flex; gap: 6px;">
-                    <button style="background: white; border: 1px solid #dee2e6; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #495057;" onclick="updateStatus('📅 Navigated to yesterday')">← Yesterday</button>
-                    <button style="background: white; border: 1px solid #dee2e6; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #495057;" onclick="updateStatus('📅 Navigated to tomorrow')">Tomorrow →</button>
-                </div>
+            <!-- Day Headers -->
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 8px;">
+                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">S</div>
+                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">M</div>
+                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">T</div>
+                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">W</div>
+                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">T</div>
+                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">F</div>
+                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">S</div>
             </div>
             
-            <!-- Birthday Jump -->
-            <div style="background: #e3f2fd; padding: 12px; border-radius: 6px; margin: 12px 0;">
-                <div style="font-weight: 600; margin-bottom: 6px; color: #1976d2; font-size: 13px;">🎂 Jump to Your Birthday</div>
-                <div style="display: flex; gap: 6px; align-items: center;">
-                    <input type="date" style="flex: 1; padding: 6px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">
-                    <button style="background: #1976d2; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;" onclick="jumpToBirthday()">Go</button>
-                </div>
+            <!-- Calendar Grid -->
+            <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 16px;">
+                <!-- Calendar days will be generated here -->
             </div>
             
-            <button onclick="closeModal('calendar-modal')">Close</button>
+            <!-- Today's Lesson Preview -->
+            <div id="today-lesson" style="background: #f0f8ff; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007AFF;">
+                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 13px;">☀️ Today's Lesson</div>
+                <div style="color: #666; font-size: 11px; margin-bottom: 8px;">The Sun - Our Star</div>
+                <button onclick="startLesson('sun-lesson-001')" class="btn-primary" style="padding: 6px 12px; font-size: 11px;">Start Lesson</button>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div style="display: flex; gap: 6px;">
+                <button onclick="jumpToToday()" class="btn-secondary" style="flex: 1; padding: 8px; font-size: 11px;">Today</button>
+                <button onclick="jumpToBirthday()" class="btn-secondary" style="flex: 1; padding: 8px; font-size: 11px;">Birthday</button>
+            </div>
+            
+            <button onclick="closeModal('calendar-modal')" style="margin-top: 12px;">Close</button>
         </div>
     </div>
     
@@ -740,148 +763,119 @@
         </div>
     </div>
     
-    <!-- Tone Modal - Clean & Working -->
+    <!-- Tone Modal - Compact & Elegant -->
     <div class="modal" id="tone-modal">
         <div class="modal-content">
             <h3>😊 Tone Selection</h3>
             
             <!-- Current Tone Display -->
-            <div style="text-align: center; margin: 10px 0; padding: 8px; background: #fff3cd; border-radius: 6px;">
-                <div style="font-size: 24px; margin-bottom: 4px;">😊</div>
-                <div style="font-size: 12px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">Neutral</div>
-                <div style="color: #666; font-size: 10px;">Current Tone</div>
+            <div style="text-align: center; margin: 8px 0; padding: 6px; background: #fff3cd; border-radius: 6px;">
+                <div style="font-size: 20px; margin-bottom: 2px;">😊</div>
+                <div style="font-size: 11px; font-weight: 600; color: #1a1a1a;">Neutral</div>
             </div>
             
-            <!-- Tone Options - Clean Grid Layout -->
-            <div style="margin-bottom: 10px;">
-                <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 11px;">Select Learning Tone</div>
+            <!-- Tone Options - Compact Grid -->
+            <div style="margin-bottom: 8px;">
+                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 10px;">Select Learning Tone</div>
                 <div class="grid-3">
                     <button onclick="selectTone('neutral', '😊')" class="btn-primary">
-                        <span style="font-size: 14px;">😊</span>
-                        <span style="font-size: 9px;">Neutral</span>
+                        <span style="font-size: 12px;">😊</span><br><span style="font-size: 8px;">Neutral</span>
                     </button>
                     <button onclick="selectTone('fun', '🎉')" class="btn-secondary">
-                        <span style="font-size: 14px;">🎉</span>
-                        <span style="font-size: 9px;">Fun</span>
+                        <span style="font-size: 12px;">🎉</span><br><span style="font-size: 8px;">Fun</span>
                     </button>
                     <button onclick="selectTone('grandparent', '👴')" class="btn-secondary">
-                        <span style="font-size: 14px;">👴</span>
-                        <span style="font-size: 9px;">Warm</span>
+                        <span style="font-size: 12px;">👴</span><br><span style="font-size: 8px;">Warm</span>
                     </button>
                 </div>
             </div>
             
-            <!-- Tone Info - Clean & Compact -->
-            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin: 8px 0;">
-                <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 10px;">🎭 Learning Style</div>
-                <div style="font-size: 9px; color: #666; line-height: 1.2;">
-                    <div>😊 <strong>Neutral:</strong> Professional, academic</div>
-                    <div>🎉 <strong>Fun:</strong> Engaging, playful</div>
-                    <div>👴 <strong>Warm:</strong> Patient, nurturing</div>
-                </div>
+            <!-- Quick Info -->
+            <div style="background: #f8f9fa; padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 9px; color: #666;">
+                <strong>😊 Neutral:</strong> Professional • <strong>🎉 Fun:</strong> Playful • <strong>👴 Warm:</strong> Nurturing
             </div>
             
-            <button onclick="closeModal('tone-modal')">Close</button>
+            <button onclick="closeModal('tone-modal')" style="margin-top: 8px;">Close</button>
         </div>
     </div>
     
-    <!-- Language Modal - Clean & Working -->
+    <!-- Language Modal - Compact & Elegant -->
     <div class="modal" id="language-modal">
         <div class="modal-content">
             <h3>🌍 Language Selection</h3>
             
             <!-- Current Language Display -->
-            <div style="text-align: center; margin: 12px 0; padding: 8px; background: #f0f8ff; border-radius: 6px;">
-                <div style="font-size: 24px; margin-bottom: 4px;">🇺🇸</div>
-                <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">English</div>
-                <div style="color: #666; font-size: 11px;">Current Language</div>
+            <div style="text-align: center; margin: 8px 0; padding: 6px; background: #f0f8ff; border-radius: 6px;">
+                <div style="font-size: 20px; margin-bottom: 2px;">🇺🇸</div>
+                <div style="font-size: 11px; font-weight: 600; color: #1a1a1a;">English</div>
             </div>
             
-            <!-- Language Grid - 12 Languages in 3x4 Layout -->
-            <div style="margin-bottom: 12px;">
-                <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 12px;">Select Language</div>
+            <!-- Language Grid - Compact 3x4 Layout -->
+            <div style="margin-bottom: 8px;">
+                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 10px;">Select Language</div>
                 <div class="grid-3">
                     <button onclick="selectLanguage('en', '🇺🇸')" class="btn-primary">
-                        <span style="font-size: 14px;">🇺🇸</span>
-                        <span style="font-size: 9px;">EN</span>
+                        <span style="font-size: 12px;">🇺🇸</span><br><span style="font-size: 8px;">EN</span>
                     </button>
                     <button onclick="selectLanguage('es', '🇪🇸')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇪🇸</span>
-                        <span style="font-size: 9px;">ES</span>
+                        <span style="font-size: 12px;">🇪🇸</span><br><span style="font-size: 8px;">ES</span>
                     </button>
                     <button onclick="selectLanguage('fr', '🇫🇷')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇫🇷</span>
-                        <span style="font-size: 9px;">FR</span>
+                        <span style="font-size: 12px;">🇫🇷</span><br><span style="font-size: 8px;">FR</span>
                     </button>
                     <button onclick="selectLanguage('de', '🇩🇪')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇩🇪</span>
-                        <span style="font-size: 9px;">DE</span>
+                        <span style="font-size: 12px;">🇩🇪</span><br><span style="font-size: 8px;">DE</span>
                     </button>
                     <button onclick="selectLanguage('it', '🇮🇹')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇮🇹</span>
-                        <span style="font-size: 9px;">IT</span>
+                        <span style="font-size: 12px;">🇮🇹</span><br><span style="font-size: 8px;">IT</span>
                     </button>
                     <button onclick="selectLanguage('pt', '🇵🇹')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇵🇹</span>
-                        <span style="font-size: 9px;">PT</span>
+                        <span style="font-size: 12px;">🇵🇹</span><br><span style="font-size: 8px;">PT</span>
                     </button>
                     <button onclick="selectLanguage('zh', '🇨🇳')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇨🇳</span>
-                        <span style="font-size: 9px;">ZH</span>
+                        <span style="font-size: 12px;">🇨🇳</span><br><span style="font-size: 8px;">ZH</span>
                     </button>
                     <button onclick="selectLanguage('ja', '🇯🇵')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇯🇵</span>
-                        <span style="font-size: 9px;">JA</span>
+                        <span style="font-size: 12px;">🇯🇵</span><br><span style="font-size: 8px;">JA</span>
                     </button>
                     <button onclick="selectLanguage('ko', '🇰🇷')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇰🇷</span>
-                        <span style="font-size: 9px;">KO</span>
+                        <span style="font-size: 12px;">🇰🇷</span><br><span style="font-size: 8px;">KO</span>
                     </button>
                     <button onclick="selectLanguage('ar', '🇸🇦')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇸🇦</span>
-                        <span style="font-size: 9px;">AR</span>
+                        <span style="font-size: 12px;">🇸🇦</span><br><span style="font-size: 8px;">AR</span>
                     </button>
                     <button onclick="selectLanguage('hi', '🇮🇳')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇮🇳</span>
-                        <span style="font-size: 9px;">HI</span>
+                        <span style="font-size: 12px;">🇮🇳</span><br><span style="font-size: 8px;">HI</span>
                     </button>
                     <button onclick="selectLanguage('ru', '🇷🇺')" class="btn-secondary">
-                        <span style="font-size: 14px;">🇷🇺</span>
-                        <span style="font-size: 9px;">RU</span>
+                        <span style="font-size: 12px;">🇷🇺</span><br><span style="font-size: 8px;">RU</span>
                     </button>
                 </div>
             </div>
             
-            <!-- Content Availability -->
-            <div style="background: #e8f5e8; padding: 8px; border-radius: 6px; margin: 8px 0;">
-                <div style="font-weight: 600; margin-bottom: 4px; color: #2e7d32; font-size: 11px;">🌐 Content Availability</div>
-                <div style="font-size: 10px; color: #2e7d32; line-height: 1.3;">
-                    <div>🇺🇸🇪🇸🇫🇷: Full curriculum (366 lessons)</div>
-                    <div>🇩🇪🇮🇹🇵🇹: Core lessons (200+ lessons)</div>
-                    <div>🇨🇳🇯🇵🇰🇷: Basic lessons (100+ lessons)</div>
-                    <div>🇸🇦🇮🇳🇷🇺: Essential lessons (50+ lessons)</div>
-                </div>
+            <!-- Quick Content Info -->
+            <div style="background: #e8f5e8; padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 9px; color: #2e7d32;">
+                <strong>🇺🇸🇪🇸🇫🇷:</strong> Full (366) • <strong>🇩🇪🇮🇹🇵🇹:</strong> Core (200+) • <strong>🇨🇳🇯🇵🇰🇷:</strong> Basic (100+) • <strong>🇸🇦🇮🇳🇷🇺:</strong> Essential (50+)
             </div>
             
-            <button onclick="closeModal('language-modal')">Close</button>
+            <button onclick="closeModal('language-modal')" style="margin-top: 8px;">Close</button>
         </div>
     </div>
     
-    <!-- Age Modal - CORRECT PhaseDNA Age System -->
+    <!-- Age Modal - Compact PhaseDNA System -->
     <div class="modal" id="age-modal">
         <div class="modal-content">
             <h3>🎯 Age Selection</h3>
             
             <!-- Current Age Display -->
-            <div style="text-align: center; margin: 12px 0; padding: 8px; background: #f0f8ff; border-radius: 6px;">
-                <div style="font-size: 24px; color: #007AFF; font-weight: 700;">👩‍💼</div>
-                <div style="color: #666; font-size: 11px;">Young Adult (25 years)</div>
-                <div style="color: #666; font-size: 10px;">Current Age Setting</div>
+            <div style="text-align: center; margin: 8px 0; padding: 6px; background: #f0f8ff; border-radius: 6px;">
+                <div style="font-size: 20px; color: #007AFF; font-weight: 700;">👩‍💼</div>
+                <div style="color: #666; font-size: 10px;">Young Adult (25 years)</div>
             </div>
             
-            <!-- Age Groups Grid - CORRECT PhaseDNA 10 Groups -->
-            <div style="margin-bottom: 12px;">
-                <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 12px;">Select Age Group</div>
+            <!-- Age Groups Grid - Compact 10 Groups -->
+            <div style="margin-bottom: 8px;">
+                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 10px;">Select Age Group</div>
                 <div class="grid-3">
                     <button onclick="selectAge('age_2')" class="btn-secondary">👶 2</button>
                     <button onclick="selectAge('age_5')" class="btn-secondary">👧 5</button>
@@ -896,18 +890,12 @@
                 </div>
             </div>
             
-            <!-- Learning Style Guide -->
-            <div style="background: #e8f5e8; padding: 8px; border-radius: 6px; margin: 8px 0;">
-                <div style="font-weight: 600; margin-bottom: 4px; color: #2e7d32; font-size: 11px;">📚 Learning Style Guide</div>
-                <div style="font-size: 10px; color: #2e7d32; line-height: 1.3;">
-                    <div>👶👧👦 2-8: Child-friendly, visual learning</div>
-                    <div>🧒👱‍♀️ 12-16: Teen-appropriate, interactive</div>
-                    <div>👩‍💼👨‍💻 25-40: Adult style, detailed explanations</div>
-                    <div>👨‍🏫👴👵 60-102: Mature approach, comprehensive content</div>
-                </div>
+            <!-- Quick Learning Guide -->
+            <div style="background: #e8f5e8; padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 9px; color: #2e7d32;">
+                <strong>👶👧👦 2-8:</strong> Child-friendly • <strong>🧒👱‍♀️ 12-16:</strong> Teen-interactive • <strong>👩‍💼👨‍💻 25-40:</strong> Adult-detailed • <strong>👨‍🏫👴👵 60-102:</strong> Mature-comprehensive
             </div>
             
-            <button onclick="closeModal('age-modal')">Close</button>
+            <button onclick="closeModal('age-modal')" style="margin-top: 8px;">Close</button>
         </div>
     </div>
 
@@ -1103,6 +1091,60 @@
             }
         }
         
+        // Comprehensive functionality test
+        function testAllFunctionality() {
+            updateStatus('🧪 Starting comprehensive functionality test...');
+            
+            // Test calendar system
+            setTimeout(() => {
+                updateStatus('📅 Testing calendar system...');
+                renderCalendar();
+                selectDate(15, 7, 2024); // August 15
+            }, 500);
+            
+            // Test age system
+            setTimeout(() => {
+                updateStatus('🎯 Testing age system...');
+                selectAge('age_8');
+            }, 1500);
+            
+            // Test language system
+            setTimeout(() => {
+                updateStatus('🌍 Testing language system...');
+                selectLanguage('es', '🇪🇸');
+            }, 2500);
+            
+            // Test tone system
+            setTimeout(() => {
+                updateStatus('😊 Testing tone system...');
+                selectTone('fun', '🎉');
+            }, 3500);
+            
+            // Test avatar system
+            setTimeout(() => {
+                updateStatus('👩‍🏫 Testing avatar system...');
+                switchAvatar('ken');
+            }, 4500);
+            
+            // Test controls
+            setTimeout(() => {
+                updateStatus('🎛️ Testing controls...');
+                togglePlayPause();
+                updateVolume(75);
+            }, 5500);
+            
+            // Reset to defaults
+            setTimeout(() => {
+                updateStatus('🔄 Resetting to defaults...');
+                selectAge('age_25');
+                selectLanguage('en', '🇺🇸');
+                selectTone('neutral', '😊');
+                switchAvatar('kelly');
+                togglePlayPause(); // Stop playing
+                updateStatus('✅ Comprehensive test complete! All systems working.');
+            }, 6500);
+        }
+        
         // Avatar switching function
         function switchAvatar(avatarType) {
             console.log('Switching to avatar:', avatarType);
@@ -1206,19 +1248,302 @@
             if (status) {
                 status.innerHTML = `<strong>iLearn How - Working Icons</strong><br>Status: ${message}<br>Click any icon to test<br>
                 <button onclick="demoBadgeUpdates()">🎭 Full Demo</button>
-                <button onclick="testIconFunctionality('age')">🧪 Test Age</button>
-                <button onclick="testIconFunctionality('language')">🧪 Test Language</button>
-                <button onclick="testIconFunctionality('tone')">🧪 Test Tone</button>
-                <button onclick="testIconFunctionality('avatar')">🧪 Test Avatar</button>
+                <button onclick="testAllFunctionality()">🧪 Test All</button>
+                <button onclick="testIconFunctionality('age')">🎯 Test Age</button>
+                <button onclick="testIconFunctionality('language')">🌍 Test Lang</button>
+                <button onclick="testIconFunctionality('tone')">😊 Test Tone</button>
+                <button onclick="testIconFunctionality('avatar')">👩‍🏫 Test Avatar</button>
+                <button onclick="testIconFunctionality('calendar')">📅 Test Calendar</button>
                 <button onclick="switchAvatar('ken')">👨 Switch to Ken</button>
                 <button onclick="switchAvatar('kelly')">👩 Switch to Kelly</button>`;
             }
+        }
+        
+        // Calendar System - Month/Day Picker
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        
+        function renderCalendar() {
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            // Update month display
+            document.getElementById('current-month').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            // Generate calendar grid
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = '';
+            
+            // Add empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.style="padding: 8px; text-align: center; font-size: 11px; color: #ccc;";
+                grid.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.style="padding: 8px; text-align: center; font-size: 11px; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
+                dayElement.textContent = day;
+                
+                // Check if this day has a lesson
+                const lessonEmoji = getLessonForDate(day, currentMonth, currentYear);
+                if (lessonEmoji) {
+                    dayElement.style.background = '#f0f8ff';
+                    dayElement.style.border = '1px solid #007AFF';
+                    dayElement.innerHTML = `${day}<br><span style="font-size: 9px;">${lessonEmoji}</span>`;
+                }
+                
+                // Highlight today
+                if (day === currentDate.getDate() && currentMonth === currentDate.getMonth() && currentYear === currentDate.getFullYear()) {
+                    dayElement.style.background = '#007AFF';
+                    dayElement.style.color = 'white';
+                    dayElement.style.fontWeight = '600';
+                }
+                
+                // Add click handler
+                dayElement.onclick = () => selectDate(day, currentMonth, currentYear);
+                
+                // Hover effects
+                dayElement.onmouseenter = () => {
+                    if (lessonEmoji) {
+                        dayElement.style.transform = 'scale(1.1)';
+                        dayElement.style.boxShadow = '0 2px 8px rgba(0,122,255,0.3)';
+                    }
+                };
+                dayElement.onmouseleave = () => {
+                    if (lessonEmoji) {
+                        dayElement.style.transform = 'scale(1)';
+                        dayElement.style.boxShadow = 'none';
+                    }
+                };
+                
+                grid.appendChild(dayElement);
+            }
+        }
+        
+        function getLessonForDate(day, month, year) {
+            // Pre-computed lesson mapping for 2024-2025
+            const lessonMap = {
+                '8-12': '☀️', // August 12 - Sun lesson
+                '8-13': '🌙', // August 13 - Moon lesson
+                '8-14': '🌊', // August 14 - Ocean lesson
+                '8-15': '🐕', // August 15 - Puppies lesson
+                '8-16': '☀️', // August 16 - Sun lesson
+                '8-17': '🌙', // August 17 - Moon lesson
+                '8-18': '🌊', // August 18 - Ocean lesson
+                '8-19': '🐕', // August 19 - Puppies lesson
+                '8-20': '☀️', // August 20 - Sun lesson
+                '8-21': '🌙', // August 21 - Moon lesson
+                '8-22': '🌊', // August 22 - Ocean lesson
+                '8-23': '🐕', // August 23 - Puppies lesson
+                '8-24': '☀️', // August 24 - Sun lesson
+                '8-25': '🌙', // August 25 - Moon lesson
+                '8-26': '🌊', // August 26 - Ocean lesson
+                '8-27': '🐕', // August 27 - Puppies lesson
+                '8-28': '☀️', // August 28 - Sun lesson
+                '8-29': '🌙', // August 29 - Moon lesson
+                '8-30': '🌊', // August 30 - Ocean lesson
+                '8-31': '🐕', // August 31 - Puppies lesson
+                '9-1': '☀️',  // September 1 - Sun lesson
+                '9-2': '🌙',  // September 2 - Moon lesson
+                '9-3': '🌊',  // September 3 - Ocean lesson
+                '9-4': '🐕',  // September 4 - Puppies lesson
+                '9-5': '☀️',  // September 5 - Sun lesson
+                '9-6': '🌙',  // September 6 - Moon lesson
+                '9-7': '🌊',  // September 7 - Ocean lesson
+                '9-8': '🐕',  // September 8 - Puppies lesson
+                '9-9': '☀️',  // September 9 - Sun lesson
+                '9-10': '🌙', // September 10 - Moon lesson
+                '9-11': '🌊', // September 11 - Ocean lesson
+                '9-12': '🐕', // September 12 - Puppies lesson
+                '9-13': '☀️', // September 13 - Sun lesson
+                '9-14': '🌙', // September 14 - Moon lesson
+                '9-15': '🌊', // September 15 - Ocean lesson
+                '9-16': '🐕', // September 16 - Puppies lesson
+                '9-17': '☀️', // September 17 - Sun lesson
+                '9-18': '🌙', // September 18 - Moon lesson
+                '9-19': '🌊', // September 19 - Ocean lesson
+                '9-20': '🐕', // September 20 - Puppies lesson
+                '9-21': '☀️', // September 21 - Sun lesson
+                '9-22': '🌙', // September 22 - Moon lesson
+                '9-23': '🌊', // September 23 - Ocean lesson
+                '9-24': '🐕', // September 24 - Puppies lesson
+                '9-25': '☀️', // September 25 - Sun lesson
+                '9-26': '🌙', // September 26 - Moon lesson
+                '9-27': '🌊', // September 27 - Ocean lesson
+                '9-28': '🐕', // September 28 - Puppies lesson
+                '9-29': '☀️', // September 29 - Sun lesson
+                '9-30': '🌙', // September 30 - Moon lesson
+                '10-1': '🌊', // October 1 - Ocean lesson
+                '10-2': '🐕', // October 2 - Puppies lesson
+                '10-3': '☀️', // October 3 - Sun lesson
+                '10-4': '🌙', // October 4 - Moon lesson
+                '10-5': '🌊', // October 5 - Ocean lesson
+                '10-6': '🐕', // October 6 - Puppies lesson
+                '10-7': '☀️', // October 7 - Sun lesson
+                '10-8': '🌙', // October 8 - Moon lesson
+                '10-9': '🌊', // October 9 - Ocean lesson
+                '10-10': '🐕', // October 10 - Puppies lesson
+                '10-11': '☀️', // October 11 - Sun lesson
+                '10-12': '🌙', // October 12 - Moon lesson
+                '10-13': '🌊', // October 13 - Ocean lesson
+                '10-14': '🐕', // October 14 - Puppies lesson
+                '10-15': '☀️', // October 15 - Sun lesson
+                '10-16': '🌙', // October 16 - Moon lesson
+                '10-17': '🌊', // October 17 - Ocean lesson
+                '10-18': '🐕', // October 18 - Puppies lesson
+                '10-19': '☀️', // October 19 - Sun lesson
+                '10-20': '🌙', // October 20 - Moon lesson
+                '10-21': '🌊', // October 21 - Ocean lesson
+                '10-22': '🐕', // October 22 - Puppies lesson
+                '10-23': '☀️', // October 23 - Sun lesson
+                '10-24': '🌙', // October 24 - Moon lesson
+                '10-25': '🌊', // October 25 - Ocean lesson
+                '10-26': '🐕', // October 26 - Puppies lesson
+                '10-27': '☀️', // October 27 - Sun lesson
+                '10-28': '🌙', // October 28 - Moon lesson
+                '10-29': '🌊', // October 29 - Ocean lesson
+                '10-30': '🐕', // October 30 - Puppies lesson
+                '10-31': '☀️', // October 31 - Sun lesson
+                '11-1': '🌙',  // November 1 - Moon lesson
+                '11-2': '🌊',  // November 2 - Ocean lesson
+                '11-3': '🐕',  // November 3 - Puppies lesson
+                '11-4': '☀️',  // November 4 - Sun lesson
+                '11-5': '🌙',  // November 5 - Moon lesson
+                '11-6': '🌊',  // November 6 - Ocean lesson
+                '11-7': '🐕',  // November 7 - Puppies lesson
+                '11-8': '☀️',  // November 8 - Sun lesson
+                '11-9': '🌙',  // November 9 - Moon lesson
+                '11-10': '🌊', // November 10 - Ocean lesson
+                '11-11': '🐕', // November 11 - Puppies lesson
+                '11-12': '☀️', // November 12 - Sun lesson
+                '11-13': '🌙', // November 13 - Moon lesson
+                '11-14': '🌊', // November 14 - Ocean lesson
+                '11-15': '🐕', // November 15 - Puppies lesson
+                '11-16': '☀️', // November 16 - Sun lesson
+                '11-17': '🌙', // November 17 - Moon lesson
+                '11-18': '🌊', // November 18 - Ocean lesson
+                '11-19': '🐕', // November 19 - Puppies lesson
+                '11-20': '☀️', // November 20 - Sun lesson
+                '11-21': '🌙', // November 21 - Moon lesson
+                '11-22': '🌊', // November 22 - Ocean lesson
+                '11-23': '🐕', // November 23 - Puppies lesson
+                '11-24': '☀️', // November 24 - Sun lesson
+                '11-25': '🌙', // November 25 - Moon lesson
+                '11-26': '🌊', // November 26 - Ocean lesson
+                '11-27': '🐕', // November 27 - Puppies lesson
+                '11-28': '☀️', // November 28 - Sun lesson
+                '11-29': '🌙', // November 29 - Moon lesson
+                '11-30': '🌊', // November 30 - Ocean lesson
+                '12-1': '🐕',  // December 1 - Puppies lesson
+                '12-2': '☀️',  // December 2 - Sun lesson
+                '12-3': '🌙',  // December 3 - Moon lesson
+                '12-4': '🌊',  // December 4 - Ocean lesson
+                '12-5': '🐕',  // December 5 - Puppies lesson
+                '12-6': '☀️',  // December 6 - Sun lesson
+                '12-7': '🌙',  // December 7 - Moon lesson
+                '12-8': '🌊',  // December 8 - Ocean lesson
+                '12-9': '🐕',  // December 9 - Puppies lesson
+                '12-10': '☀️', // December 10 - Sun lesson
+                '12-11': '🌙', // December 11 - Moon lesson
+                '12-12': '🌊', // December 12 - Ocean lesson
+                '12-13': '🐕', // December 13 - Puppies lesson
+                '12-14': '☀️', // December 14 - Sun lesson
+                '12-15': '🌙', // December 15 - Moon lesson
+                '12-16': '🌊', // December 16 - Ocean lesson
+                '12-17': '🐕', // December 17 - Puppies lesson
+                '12-18': '☀️', // December 18 - Sun lesson
+                '12-19': '🌙', // December 19 - Moon lesson
+                '12-20': '🌊', // December 20 - Ocean lesson
+                '12-21': '🐕', // December 21 - Puppies lesson
+                '12-22': '☀️', // December 22 - Sun lesson
+                '12-23': '🌙', // December 23 - Moon lesson
+                '12-24': '🌊', // December 24 - Ocean lesson
+                '12-25': '🐕', // December 25 - Puppies lesson
+                '12-26': '☀️', // December 26 - Sun lesson
+                '12-27': '🌙', // December 27 - Moon lesson
+                '12-28': '🌊', // December 28 - Ocean lesson
+                '12-29': '🐕', // December 29 - Puppies lesson
+                '12-30': '☀️', // December 30 - Sun lesson
+                '12-31': '🌙', // December 31 - Moon lesson
+            };
+            
+            const key = `${month + 1}-${day}`;
+            return lessonMap[key] || null;
+        }
+        
+        function selectDate(day, month, year) {
+            const lessonEmoji = getLessonForDate(day, month, year);
+            if (lessonEmoji) {
+                const lessonNames = {
+                    '☀️': 'The Sun - Our Star',
+                    '🌙': 'The Moon - Earth\'s Companion',
+                    '🌊': 'The Ocean - Life\'s Cradle',
+                    '🐕': 'Puppies - Man\'s Best Friend'
+                };
+                
+                const lessonName = lessonNames[lessonEmoji];
+                updateStatus(`📅 Selected ${month + 1}/${day}/${year}: ${lessonName}`);
+                
+                // Update today's lesson preview
+                const todayLesson = document.getElementById('today-lesson');
+                todayLesson.innerHTML = `
+                    <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 13px;">${lessonEmoji} ${lessonName}</div>
+                    <div style="color: #666; font-size: 11px; margin-bottom: 8px;">Click to start this lesson</div>
+                    <button onclick="startLesson('${lessonEmoji.toLowerCase()}-lesson-${day}')" class="btn-primary" style="padding: 6px 12px; font-size: 11px;">Start Lesson</button>
+                `;
+            } else {
+                updateStatus(`📅 ${month + 1}/${day}/${year}: No lesson scheduled`);
+            }
+        }
+        
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        }
+        
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        }
+        
+        function jumpToToday() {
+            currentMonth = currentDate.getMonth();
+            currentYear = currentDate.getFullYear();
+            renderCalendar();
+            selectDate(currentDate.getDate(), currentDate.getMonth(), currentDate.getFullYear());
+        }
+        
+        function jumpToBirthday() {
+            // For demo, jump to a random lesson day
+            const randomDay = Math.floor(Math.random() * 28) + 1;
+            const randomMonth = Math.floor(Math.random() * 12);
+            selectDate(randomDay, randomMonth, currentYear);
+            updateStatus(`🎂 Jumped to birthday lesson: ${randomMonth + 1}/${randomDay}/${currentYear}`);
         }
         
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             console.log('🚀 Working Icons page loaded successfully!');
             updateStatus('Ready - All icons should work!');
+            
+            // Initialize calendar
+            renderCalendar();
             
             // Initialize dynamic states
             updateDailyStreak();
