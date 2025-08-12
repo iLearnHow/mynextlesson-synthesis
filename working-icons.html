@@ -571,8 +571,8 @@
         <button onclick="testIconFunctionality('tone')">😊 Test Tone</button>
         <button onclick="testIconFunctionality('avatar')">👩‍🏫 Test Avatar</button>
         <button onclick="testIconFunctionality('calendar')">📅 Test Calendar</button>
-        <button onclick="switchAvatar('ken')">👨 Switch to Ken</button>
-        <button onclick="switchAvatar('kelly')">👩 Switch to Kelly</button>
+        <button onclick="switchAvatar('ken')">👨‍💼 Switch to Ken</button>
+        <button onclick="switchAvatar('kelly')">👩‍💼 Switch to Kelly</button>
     </div>
     
     <!-- Avatar Background - BOTTOM LAYER -->
@@ -601,12 +601,12 @@
         </button>
         
         <!-- Age - Personalization (CORRECT PhaseDNA age system) -->
-        <button class="rail-btn" id="icon-age" onclick="testClick('age-modal', 'Age')" data-state="active" data-icon="age" data-tooltip="25 - Current age setting">
+        <button class="rail-btn" id="icon-age" onclick="testClick('age-modal', 'Age')" data-state="active" data-icon="age" data-tooltip="🎯 Age - 25 years (PhaseDNA)">
             25
         </button>
         
         <!-- Language - Personalization -->
-        <button class="rail-btn" id="icon-language" onclick="testClick('language-modal', 'Language')" data-state="active" data-icon="language" data-tooltip="🇺🇸 Language - English (EN)">
+        <button class="rail-btn" id="icon-language" onclick="testClick('language-modal', 'Language')" data-state="active" data-icon="language" data-tooltip="🌍 Language - English (EN)">
             🇺🇸
         </button>
         
@@ -619,15 +619,15 @@
         <div class="controls-section">
             <!-- Volume Control - Left Column -->
             <div class="volume-control-column">
-                <button class="control-btn" id="mute" onclick="toggleMute()" data-tooltip="Mute/Unmute">
+                <button class="control-btn" id="mute" onclick="toggleMute()" data-tooltip="🔇 Mute / 🔊 Unmute">
                     🔊
                 </button>
                 
-                <input type="range" class="volume-slider" id="volume" min="0" max="100" value="50" oninput="updateVolume(this.value)" data-tooltip="Volume" orient="vertical">
+                <input type="range" class="volume-slider" id="volume" min="0" max="100" value="50" oninput="updateVolume(this.value)" data-tooltip="🔊 Volume Control" orient="vertical">
             </div>
             
             <!-- Play Button - Bottom Corner -->
-            <button class="control-btn" id="play-pause" onclick="togglePlayPause()" data-tooltip="Play/Pause">
+            <button class="control-btn" id="play-pause" onclick="togglePlayPause()" data-tooltip="▶️ Play / ⏸️ Pause">
                 ▶️
             </button>
         </div>
