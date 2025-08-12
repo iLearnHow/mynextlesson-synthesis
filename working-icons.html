@@ -132,36 +132,66 @@
         }
         
         .rail-btn {
-            width: 44px;
-            height: 44px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: var(--surface);
             border: 1px solid rgba(255,255,255,0.1);
             color: var(--text-primary);
-            font-size: 18px;
+            font-size: 22px;
             cursor: pointer;
             transition: var(--transition);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+        
+        .rail-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            opacity: 0;
+            transition: var(--transition);
         }
         
         .rail-btn:hover {
             background: var(--surface-hover);
-            transform: scale(1.05);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-2px) scale(1.05) rotate(1deg);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        .rail-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .rail-btn:active {
+            transform: translateY(0) scale(0.98);
+            transition: var(--transition-fast);
         }
         
         .rail-btn[data-state="active"] {
-            background: var(--primary);
-            border-color: var(--primary);
+            background: var(--surface-hover);
+            box-shadow: var(--shadow-lg);
         }
         
         .rail-btn[data-state="warning"] {
-            background: var(--warning);
-            border-color: var(--warning);
+            background: var(--surface-hover);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .rail-btn[data-state="error"] {
+            background: var(--surface-hover);
+            box-shadow: var(--shadow-lg);
         }
         
         .rail-btn img {
@@ -169,6 +199,50 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
+        }
+        
+        /* Special Icon Styling */
+        .rail-btn[data-icon="age"] {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+        
+        .rail-btn[data-icon="calendar"] {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.02em;
+        }
+        
+        /* Modern Tooltips */
+        .rail-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 72px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.9);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-lg);
+            z-index: 2147483648;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .rail-btn:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) translateX(-4px);
         }
         
         /* Controls Section - Integrated in rail */
@@ -180,67 +254,74 @@
         }
         
         .control-btn {
-            width: 44px;
-            height: 44px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: var(--surface);
             border: 1px solid rgba(255,255,255,0.1);
             color: var(--text-primary);
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
             transition: var(--transition);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: var(--shadow-md);
         }
         
         .control-btn:hover {
             background: var(--surface-hover);
-            transform: scale(1.05);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(255,255,255,0.2);
         }
         
-        /* Volume Slider - Clean & Working */
+        .control-btn.active {
+            background: var(--primary);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 1px var(--primary), var(--shadow-lg);
+        }
+        
+        /* Volume Slider - Elegant Design */
         .volume-slider {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--surface);
-            border: 1px solid rgba(255,255,255,0.1);
+            width: 56px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255,255,255,0.1);
+            outline: none;
             cursor: pointer;
-            transition: var(--transition);
-            backdrop-filter: blur(20px);
+            transform: rotate(-90deg);
+            transform-origin: 28px 28px;
             -webkit-appearance: none;
             appearance: none;
+            box-shadow: var(--shadow-md);
         }
         
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             background: var(--surface);
             border: 2px solid rgba(255,255,255,0.3);
             cursor: pointer;
+            box-shadow: var(--shadow-md);
         }
         
-        .volume-slider::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--surface);
-            border: 2px solid rgba(255,255,255,0.3);
-            cursor: pointer;
+        .volume-slider::-webkit-slider-track {
+            background: transparent;
         }
         
-        /* Modals - HIGH LAYER (z-index: 9999) */
+        /* Modals - ELEGANT & LIGHT OVERLAY */
         .modal {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.2);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             display: none;
             z-index: 9999;
         }
@@ -250,90 +331,106 @@
         }
         
         .modal-content {
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            padding: 14px;
+            padding: 20px;
             border-radius: var(--radius-lg);
-            max-width: 280px;
-            box-shadow: var(--shadow-lg);
+            max-width: 320px;
+            box-shadow: var(--shadow-xl);
             position: fixed;
             z-index: 9999;
-            max-height: 360px;
-            overflow: hidden;
+            max-height: 80vh;
+            overflow-y: auto;
             color: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.2);
         }
         
         .modal h3 {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             color: #1a1a1a;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         
         .modal button {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 14px 28px;
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
             transition: var(--transition);
-            margin-top: 16px;
+            margin-top: 20px;
             width: 100%;
         }
         
         .modal button:hover {
             background: var(--primary-dark);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
         }
         
-        /* Grid Layouts - Clean & Working */
+        /* Grid Layouts - Elegant & Spacious */
         .grid-3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
+            gap: 8px;
         }
         
         .grid-2 {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
+            gap: 10px;
         }
         
-        /* Button Styles - Clean & Consistent */
+        /* Button Styles - Beautiful & Functional */
         .btn-primary {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
         }
         
         .btn-secondary {
             background: white;
             color: #495057;
             border: 1px solid #dee2e6;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
+            transition: var(--transition);
         }
         
-        /* Animations - Clean & Smooth */
+        .btn-secondary:hover {
+            background: #f8f9fa;
+            border-color: #007AFF;
+            transform: translateY(-1px);
+        }
+        
+        /* Beautiful Animations - iOS-like Smoothness */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -341,8 +438,30 @@
             }
         }
         
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
         .rail-btn {
-            animation: fadeInUp 0.6s ease-out forwards;
+            animation: fadeInUp 0.8s ease-out forwards;
             opacity: 0;
         }
         
@@ -356,6 +475,57 @@
         .controls-section .control-btn { animation-delay: 0.8s; }
         .volume-slider { animation-delay: 0.9s; }
         .controls-section .control-btn:last-child { animation-delay: 1.0s; }
+        
+        .modal-content {
+            animation: scaleIn 0.3s ease-out;
+        }
+        
+        /* Status entrance */
+        .status {
+            animation: slideInRight 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+        
+        /* Avatar entrance */
+        .avatar-background {
+            animation: fadeInUp 1s ease-out 0.4s forwards;
+            opacity: 0.3;
+        }
+        
+        /* Modern focus states */
+        .rail-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3), var(--shadow-lg);
+        }
+        
+        .control-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3), var(--shadow-lg);
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Modern scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
@@ -364,9 +534,13 @@
         <strong>iLearn How - Working Icons</strong><br>
         Status: Ready<br>
         Click any icon to test<br>
-        <button onclick="demoBadgeUpdates()">Demo Icon States</button>
-        <button onclick="switchAvatar('ken')">Switch to Ken</button>
-        <button onclick="switchAvatar('kelly')">Switch to Kelly</button>
+        <button onclick="demoBadgeUpdates()">🎭 Full Demo</button>
+        <button onclick="testIconFunctionality('age')">🧪 Test Age</button>
+        <button onclick="testIconFunctionality('language')">🧪 Test Language</button>
+        <button onclick="testIconFunctionality('tone')">🧪 Test Tone</button>
+        <button onclick="testIconFunctionality('avatar')">🧪 Test Avatar</button>
+        <button onclick="switchAvatar('ken')">👨 Switch to Ken</button>
+        <button onclick="switchAvatar('kelly')">👩 Switch to Kelly</button>
     </div>
     
     <!-- Avatar Background - BOTTOM LAYER -->
@@ -774,7 +948,7 @@
             });
         }
         
-        // Modal positioning function - CORRECT positioning
+        // Modal positioning function - ELEGANT & PROPER SIZING
         function positionModalNextToIcon(modal, modalId) {
             const modalContent = modal.querySelector('.modal-content');
             if (!modalContent) return;
@@ -784,40 +958,34 @@
             if (!icon) return;
             
             const iconRect = icon.getBoundingClientRect();
-            const modalWidth = 280; // Modal width
-            const modalHeight = 360; // Modal height
+            const modalWidth = 320; // Increased modal width for better content fit
             const viewportHeight = window.innerHeight;
             const iconTop = iconRect.top;
             
-            // Calculate top position to keep modal within viewport
-            let topPosition = iconTop - (modalHeight / 2);
+            // Calculate optimal position to keep modal fully visible
+            let topPosition = iconTop - 200; // Center modal with icon
             if (topPosition < 20) {
                 topPosition = 20;
             }
-            if (topPosition + modalHeight > viewportHeight - 20) {
-                topPosition = viewportHeight - modalHeight - 20;
+            if (topPosition + 400 > viewportHeight - 20) {
+                topPosition = viewportHeight - 420;
             }
             
-            // Position modal to the left of the icon (right side of screen)
+            // Position modal to the left of the icon rail
             const iconRight = iconRect.right;
-            const modalLeft = Math.max(20, iconRight - modalWidth - 16);
+            const modalLeft = Math.max(20, iconRight - modalWidth - 20);
             
-            // Apply positioning
+            // Apply positioning with proper sizing
             modalContent.style.position = 'fixed';
             modalContent.style.top = `${topPosition}px`;
             modalContent.style.left = `${modalLeft}px`;
             modalContent.style.right = 'auto';
-            modalContent.style.maxHeight = `${modalHeight}px`;
+            modalContent.style.maxHeight = '80vh';
             modalContent.style.zIndex = '9999';
             
-            // Special handling for avatar modal - position to the left of avatar icon
-            if (modalId === 'avatar-modal') {
-                const iconRight = iconRect.right;
-                const modalLeft = Math.max(20, iconRight - modalWidth - 16);
-                modalContent.style.left = `${modalLeft}px`;
-                modalContent.style.right = 'auto';
-                modalContent.style.zIndex = '9999'; // Higher z-index for avatar modal
-            }
+            // Ensure modal fits content properly
+            modalContent.style.overflowY = 'auto';
+            modalContent.style.overflowX = 'hidden';
         }
 
         // CORRECT PhaseDNA Age System Functions
@@ -958,32 +1126,92 @@
             updateStatus(`👤 Switched to ${avatarType === 'kelly' ? 'Kelly' : 'Ken'} avatar`);
         }
         
-        // Demo and utility functions
+        // Comprehensive Testing & Demo Functions
         function demoBadgeUpdates() {
-            updateStatus('🎭 Demo: Testing all icon functionality...');
+            updateStatus('🎭 Demo: Testing ALL icon functionality comprehensively...');
             
-            // Test each icon individually
-            setTimeout(() => testClick('age-modal', 'Age'), 500);
-            setTimeout(() => testClick('language-modal', 'Language'), 1000);
-            setTimeout(() => testClick('tone-modal', 'Tone'), 1500);
-            setTimeout(() => testClick('settings-modal', 'Settings'), 2000);
-            setTimeout(() => testClick('find-modal', 'Find'), 2500);
-            setTimeout(() => testClick('calendar-modal', 'Calendar'), 3000);
-            setTimeout(() => testClick('avatar-modal', 'Avatar'), 3500);
+            // Test each icon individually with proper timing
+            const testSequence = [
+                { modal: 'age-modal', name: 'Age', delay: 500 },
+                { modal: 'language-modal', name: 'Language', delay: 1000 },
+                { modal: 'tone-modal', name: 'Tone', delay: 1500 },
+                { modal: 'settings-modal', name: 'Settings', delay: 2000 },
+                { modal: 'find-modal', name: 'Find', delay: 2500 },
+                { modal: 'calendar-modal', name: 'Calendar', delay: 3000 },
+                { modal: 'avatar-modal', name: 'Avatar', delay: 3500 }
+            ];
+            
+            testSequence.forEach(({ modal, name, delay }) => {
+                setTimeout(() => {
+                    testClick(modal, name);
+                    updateStatus(`✅ Testing ${name} icon...`);
+                }, delay);
+            });
+            
+            // Test controls
+            setTimeout(() => {
+                updateStatus('🎛️ Testing controls...');
+                togglePlayPause();
+                setTimeout(() => togglePlayPause(), 500);
+            }, 4000);
             
             setTimeout(() => {
+                updateStatus('🔊 Testing volume...');
+                updateVolume(75);
+            }, 4500);
+            
+            setTimeout(() => {
+                updateStatus('🔇 Testing mute...');
+                toggleMute();
+                setTimeout(() => toggleMute(), 500);
+            }, 5000);
+            
+            // Close all and show completion
+            setTimeout(() => {
                 closeAllModals();
-                updateStatus('✅ Demo complete! All icons tested successfully.');
-            }, 4000);
+                updateStatus('✅ Comprehensive demo complete! All icons, modals, and controls tested successfully.');
+            }, 6000);
+        }
+        
+        // Test individual icon functionality
+        function testIconFunctionality(iconName) {
+            updateStatus(`🧪 Testing ${iconName} icon functionality...`);
+            
+            switch(iconName) {
+                case 'age':
+                    // Test age selection
+                    setTimeout(() => selectAge('age_8'), 500);
+                    setTimeout(() => selectAge('age_25'), 1000);
+                    break;
+                case 'language':
+                    // Test language selection
+                    setTimeout(() => selectLanguage('es', '🇪🇸'), 500);
+                    setTimeout(() => selectLanguage('en', '🇺🇸'), 1000);
+                    break;
+                case 'tone':
+                    // Test tone selection
+                    setTimeout(() => selectTone('fun', '🎉'), 500);
+                    setTimeout(() => selectTone('neutral', '😊'), 1000);
+                    break;
+                case 'avatar':
+                    // Test avatar switching
+                    setTimeout(() => switchAvatar('ken'), 500);
+                    setTimeout(() => switchAvatar('kelly'), 1000);
+                    break;
+            }
         }
         
         function updateStatus(message) {
             const status = document.getElementById('status');
             if (status) {
                 status.innerHTML = `<strong>iLearn How - Working Icons</strong><br>Status: ${message}<br>Click any icon to test<br>
-                <button onclick="demoBadgeUpdates()">Demo Icon States</button>
-                <button onclick="switchAvatar('ken')">Switch to Ken</button>
-                <button onclick="switchAvatar('kelly')">Switch to Kelly</button>`;
+                <button onclick="demoBadgeUpdates()">🎭 Full Demo</button>
+                <button onclick="testIconFunctionality('age')">🧪 Test Age</button>
+                <button onclick="testIconFunctionality('language')">🧪 Test Language</button>
+                <button onclick="testIconFunctionality('tone')">🧪 Test Tone</button>
+                <button onclick="testIconFunctionality('avatar')">🧪 Test Avatar</button>
+                <button onclick="switchAvatar('ken')">👨 Switch to Ken</button>
+                <button onclick="switchAvatar('kelly')">👩 Switch to Kelly</button>`;
             }
         }
         
