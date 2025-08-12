@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn How - Working Icons</title>
+    <style>
+        /* 2024 Modern Design System */
+        :root {
+            --primary: #0A84FF;
+            --primary-dark: #0056CC;
+            --secondary: #5856D6;
+            --success: #30D158;
+            --warning: #FF9F0A;
+            --error: #FF453A;
+            --neutral: #8E8E93;
+            --background: #000000;
+            --surface: rgba(255,255,255,0.08);
+            --surface-hover: rgba(255,255,255,0.12);
+            --surface-active: rgba(255,255,255,0.16);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255,255,255,0.8);
+            --text-tertiary: rgba(255,255,255,0.6);
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+            --shadow-xl: 0 20px 60px rgba(0,0,0,0.6);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Modern Status Display */
+        .status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--surface);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            max-width: 280px;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+        }
+        
+        .status:hover {
+            background: var(--surface-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .status strong {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+        
+        .status button {
+            background: var(--primary);
+            color: var(--text-primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+        
+        .status button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Modern Avatar Backgrounds */
+        .avatar-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -1;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+        
+        .avatar-background.kelly {
+            background-image: url('./production-deploy/assets/avatars/kelly_wallpaper.png');
+            background-color: white;
+        }
+        
+        .avatar-background.ken {
+            background-image: url('./production-deploy/assets/avatars/ken.jpg');
+            background-color: white;
+        }
+        
+
+        
+        /* Unified Controls Layout */
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+        
+        .control-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-lg);
+            border: none;
+            background: var(--surface);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            color: var(--primary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .control-btn:hover {
+            background: var(--surface-hover);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        .control-btn.active {
+            background: var(--primary);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 1px var(--primary), var(--shadow-lg);
+        }
+        
+        .volume-slider {
+            width: 56px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            outline: none;
+            cursor: pointer;
+            transform: rotate(-90deg);
+            transform-origin: 28px 28px;
+        }
+        
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--surface);
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .volume-slider::-webkit-slider-track {
+            background: transparent;
+        }
+        
+        /* Minimal Modals - Stay within 16:9 bounds */
+        .modal { 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.2); 
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            display: none; 
+            z-index: 1000; 
+        }
+        .modal.visible { 
+            display: block; 
+        }
+        .modal-content { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 14px; 
+            border-radius: var(--radius-lg); 
+            max-width: 280px; 
+            box-shadow: var(--shadow-lg);
+            position: fixed;
+            z-index: 1001;
+            /* No scrolling - content must fit */
+            max-height: 360px;
+            overflow: hidden;
+            color: #1a1a1a;
+        }
+        .modal h3 { 
+            margin-bottom: 16px; 
+            color: #1a1a1a; 
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal p { 
+            margin-bottom: 16px; 
+            color: #333333; 
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        .modal button { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: var(--radius-md); 
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+            margin-top: 16px;
+        }
+        .modal button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        /* Modern Micro-Interactions & Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.8;
+            }
+        }
+        
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+        
+        /* Icon entrance animations */
+        .rail-btn {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .rail-btn:nth-child(1) { animation-delay: 0.1s; }
+        .rail-btn:nth-child(2) { animation-delay: 0.2s; }
+        .rail-btn:nth-child(3) { animation-delay: 0.3s; }
+        .rail-btn:nth-child(4) { animation-delay: 0.4s; }
+        .rail-btn:nth-child(5) { animation-delay: 0.5s; }
+        .rail-btn:nth-child(6) { animation-delay: 0.6s; }
+        .rail-btn:nth-child(7) { animation-delay: 0.7s; }
+        .rail-btn:nth-child(8) { animation-delay: 0.8s; }
+        .rail-btn:nth-child(9) { animation-delay: 0.9s; }
+        .rail-btn:nth-child(10) { animation-delay: 1.0s; }
+        
+        /* Hover effects with depth */
+        .rail-btn:hover {
+            background: var(--surface-hover);
+            transform: translateY(-2px) scale(1.05) rotate(1deg); 
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        /* Active state with ripple effect */
+        .rail-btn:active::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            to {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+            }
+        }
+        
+        /* Status entrance */
+        .status {
+            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+        
+        /* Avatar entrance */
+        .avatar-background {
+            animation: fadeInUp 1s ease-out 0.4s forwards;
+            opacity: 0.3;
+        }
+        
+        /* Modern focus states */
+        .rail-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3), var(--shadow-lg);
+        }
+        
+        .control-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3), var(--shadow-lg);
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Modern scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Modern Icon Rail - 2025 Design */
+        .rail { 
+            position: fixed; 
+            top: 50%; 
+            right: 24px; 
+            transform: translateY(-50%); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            z-index: 2147483647; 
+        }
+        
+        .rail-btn { 
+            width: 56px; 
+            height: 56px; 
+            border-radius: 50%; 
+            border: none; 
+            background: var(--surface);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            box-shadow: var(--shadow-md);
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 22px;
+            transition: var(--transition);
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+        
+        .rail-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .rail-btn:hover { 
+            background: var(--surface-hover);
+            transform: translateY(-2px) scale(1.05) rotate(1deg); 
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(255,255,255,0.2);
+        }
+        
+        .rail-btn:hover::before {
+            opacity: 1;
+        }
+        
+        .rail-btn:active {
+            transform: translateY(0) scale(0.98);
+            transition: var(--transition-fast);
+        }
+        
+        /* Modern Tooltips */
+        .rail-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 72px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.9);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-lg);
+            z-index: 2147483648;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .rail-btn:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) translateX(-4px);
+        }
+        
+        /* Modern State Indicators - Clean Apple Style */
+        .rail-btn[data-state="active"] {
+            background: var(--surface-hover);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .rail-btn[data-state="warning"] {
+            background: var(--surface-hover);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .rail-btn[data-state="error"] {
+            background: var(--surface-hover);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        /* Special Icon Styling */
+        .rail-btn[data-icon="age"] {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+        
+        .rail-btn[data-icon="calendar"] {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 0.02em;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Status Display -->
+    <div class="status" id="status">
+        <strong>iLearn How - Working Icons</strong><br>
+        Status: Ready<br>
+        Click any icon to test<br>
+        <button onclick="demoBadgeUpdates()" style="background: #007AFF; color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-top: 8px; font-size: 12px; cursor: pointer;">Demo Icon States</button>
+        <button onclick="switchAvatar('ken')" style="background: #FF6B9D; color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-top: 8px; font-size: 12px; cursor: pointer; margin-left: 8px;">Switch to Ken</button>
+        <button onclick="switchAvatar('kelly')" style="background: #4ECDC4; color: white; border: none; padding: 5px 10px; border-radius: 5px; margin-top: 8px; font-size: 12px; cursor: pointer; margin-left: 8px;">Switch to Kelly</button>
+    </div>
+    
+    <!-- Avatar Backgrounds -->
+    <div class="avatar-background kelly" id="avatar-bg"></div>
+    
+
+    
+    <!-- Professional Icon Rail - Unified Stack -->
+    <div class="rail">
+        <!-- Avatar - Top Priority -->
+        <button class="rail-btn" id="icon-model" onclick="testClick('avatar-modal', 'Avatar')" data-state="active" data-icon="model" data-tooltip="👩‍🏫 Avatar - Kelly, Ken, or You (facescan)">
+            <img src="./production-deploy/assets/avatars/kelly/kelly_neutral_default.png" alt="Kelly" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+        </button>
+        
+        <!-- Calendar - Navigation -->
+        <button class="rail-btn" id="icon-calendar" onclick="testClick('calendar-modal', 'Calendar')" data-state="active" data-icon="calendar" data-tooltip="📅 Calendar - Today's date">
+            📅
+        </button>
+        
+        <!-- Find - Content Discovery -->
+        <button class="rail-btn" id="icon-find" onclick="testClick('find-modal', 'Find')" data-state="active" data-icon="find" data-tooltip="🔍 Find - Search 366 lessons or create custom">
+            🔍
+        </button>
+        
+        <!-- Settings - User Management -->
+        <button class="rail-btn" id="icon-settings" onclick="testClick('settings-modal', 'Settings')" data-state="warning" data-icon="settings" data-tooltip="⚙️ Settings - Daily streaks, history, profile, account, payment, support">
+            ⚙️
+        </button>
+        
+        <!-- Age - Personalization -->
+        <button class="rail-btn" id="icon-age" onclick="testClick('age-modal', 'Avatar')" data-state="active" data-icon="age" data-tooltip="25 - Current age setting">
+            25
+        </button>
+        
+        <!-- Language - Personalization -->
+        <button class="rail-btn" id="icon-language" onclick="testClick('language-modal', 'Language')" data-state="active" data-icon="language" data-tooltip="🇺🇸 Language - English (EN)">
+            🇺🇸
+        </button>
+        
+        <!-- Tone - Personalization -->
+        <button class="rail-btn" id="icon-tone" onclick="testClick('tone-modal', 'Tone')" data-state="active" data-icon="tone" data-tooltip="😊 Tone - Neutral, Fun, or Grandparent">
+            😊
+        </button>
+        
+        <!-- Controls - Unified in stack -->
+        <div class="controls-section">
+            <button class="control-btn" id="play-pause" onclick="togglePlayPause()" data-tooltip="Play/Pause">
+                ▶️
+            </button>
+            
+            <input type="range" class="volume-slider" id="volume" min="0" max="100" value="50" oninput="updateVolume(this.value)" data-tooltip="Volume">
+            
+            <button class="control-btn" id="mute" onclick="toggleMute()" data-tooltip="Mute/Unmute">
+                🔊
+            </button>
+        </div>
+    </div>
+
+
+    
+    <div class="modal" id="find-modal">
+        <div class="modal-content">
+            <h3>🔍 Find Lessons</h3>
+            
+            <!-- Search Bar -->
+            <div style="margin-bottom: 16px;">
+                <input type="text" placeholder="Search topics..." style="width: 100%; padding: 10px; border: 2px solid #007AFF; border-radius: 6px; font-size: 13px; box-sizing: border-box;" onkeyup="if(event.key==='Enter') searchLessons(this.value)">
+                <div style="margin-top: 6px; font-size: 11px; color: #666;">Search our 366 pre-computed lessons</div>
+            </div>
+            
+            <!-- Recent Lessons -->
+            <div style="margin-bottom: 16px;">
+                <div style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a; font-size: 13px;">📚 Recent Lessons</div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; font-size: 12px;" onclick="startLesson('sun-lesson-001')">
+                        <div style="font-weight: 500; color: #1a1a1a;">The Sun - Our Star</div>
+                        <div style="color: #666; font-size: 11px;">Day 1 • 5 minutes</div>
+                    </div>
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; font-size: 12px;" onclick="startLesson('ocean-lesson-045')">
+                        <div style="font-weight: 500; color: #1a1a1a;">Ocean Waves & Tides</div>
+                        <div style="color: #666; font-size: 11px;">Day 45 • 6 minutes</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Custom Lesson Creation -->
+            <div style="background: #e3f2fd; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                <div style="font-weight: 600; margin-bottom: 6px; color: #1976d2; font-size: 13px;">💡 Create Custom Lesson</div>
+                <div style="color: #1976d2; font-size: 11px; margin-bottom: 8px;">AI-powered content tailored to your interests</div>
+                <button style="background: #1976d2; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;" onclick="createCustomLesson()">Start Creating</button>
+                <div style="margin-top: 6px; font-size: 10px; color: #1976d2;">Premium feature - $9.99 per lesson</div>
+            </div>
+            
+            <button onclick="closeModal('find-modal')">Close</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <h3>⚙️ Settings</h3>
+            
+            <!-- Learning Progress -->
+            <div style="margin-bottom: 16px;">
+                <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">📊 Learning Progress</div>
+                <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                    <div style="font-size: 20px;">🏆</div>
+                    <div>
+                        <div style="font-weight: 600; color: #1a1a1a; font-size: 13px;">Daily Streak</div>
+                        <div style="color: #666; font-size: 11px;">7 days • 23 lessons completed</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div style="margin-bottom: 16px;">
+                <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">Quick Actions</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; text-align: center; font-size: 12px; color: #1a1a1a;" onclick="updateStatus('👤 Profile management opened')">👤 Profile</div>
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; text-align: center; font-size: 12px; color: #1a1a1a;" onclick="updateStatus('💳 Account settings opened')">💳 Account</div>
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; text-align: center; font-size: 12px; color: #1a1a1a;" onclick="updateStatus('📚 Learning history opened')">📚 History</div>
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; text-align: center; font-size: 12px; color: #1a1a1a;" onclick="updateStatus('🆘 Help & support opened')">🆘 Help</div>
+                </div>
+            </div>
+            
+            <button onclick="closeModal('settings-modal')">Close</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="calendar-modal">
+        <div class="modal-content">
+            <h3>📅 Today's Lesson</h3>
+            
+            <!-- Current Lesson -->
+            <div style="text-align: center; margin: 16px 0;">
+                <div style="font-size: 24px; margin-bottom: 8px;">☀️</div>
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #1a1a1a;">The Sun - Our Star</div>
+                <div style="color: #666; margin-bottom: 12px; font-size: 12px;">Learn about our closest star</div>
+                <button style="background: #007AFF; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; cursor: pointer;" onclick="startLesson('sun-lesson-001')">Start Lesson</button>
+            </div>
+            
+            <!-- Navigation -->
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                <div style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a; font-size: 13px;">📅 Quick Navigation</div>
+                <div style="display: flex; gap: 6px;">
+                    <button style="background: white; border: 1px solid #dee2e6; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #495057;" onclick="updateStatus('📅 Navigated to yesterday')">← Yesterday</button>
+                    <button style="background: white; border: 1px solid #dee2e6; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #495057;" onclick="updateStatus('📅 Navigated to tomorrow')">Tomorrow →</button>
+                </div>
+            </div>
+            
+            <!-- Birthday Jump -->
+            <div style="background: #e3f2fd; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                <div style="font-weight: 600; margin-bottom: 6px; color: #1976d2; font-size: 13px;">🎂 Jump to Your Birthday</div>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <input type="date" style="flex: 1; padding: 6px; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px;">
+                    <button style="background: #1976d2; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;" onclick="jumpToBirthday()">Go</button>
+                </div>
+            </div>
+            
+            <button onclick="closeModal('calendar-modal')">Close</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="avatar-modal">
+        <div class="modal-content">
+            <h3>👩‍🏫 Choose Your Avatar</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin: 12px 0;">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; background: #f8f9fa; cursor: pointer;" onclick="switchAvatar('kelly')">
+                    <img src="./production-deploy/assets/avatars/kelly/kelly_neutral_default.png" alt="Kelly" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                        <div style="font-weight: 600; color: #1a1a1a; font-size: 14px;">Kelly</div>
+                        <div style="color: #666; font-size: 12px;">Friendly & Encouraging</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; background: #f8f9fa; cursor: pointer;" onclick="switchAvatar('ken')">
+                    <img src="./production-deploy/assets/avatars/ken/ken_neutral_default.png" alt="Ken" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div>
+                        <div style="font-weight: 600; color: #1a1a1a; font-size: 14px;">Ken</div>
+                        <div style="color: #666; font-size: 12px;">Wise & Patient</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; background: #f8f9fa; cursor: pointer;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #007AFF; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white;">📱</div>
+                    <div>
+                        <div style="font-weight: 600; color: #1a1a1a; font-size: 14px;">You</div>
+                        <div style="color: #666; font-size: 12px;">Facescan Training</div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; padding: 8px; background: #e3f2fd; border-radius: 6px; margin-top: 12px;">
+                <div style="font-size: 11px; color: #1976d2;">
+                    <strong>Facescan Training:</strong> Record yourself to become your own avatar
+                </div>
+            </div>
+            <button onclick="closeModal('avatar-modal')">Close</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="tone-modal">
+        <div class="modal-content">
+            <h3>😊 Tone Selection</h3>
+            
+            <!-- Current Tone Display -->
+            <div style="text-align: center; margin: 12px 0; padding: 8px; background: #fff3cd; border-radius: 6px;">
+                <div style="font-size: 32px; margin-bottom: 4px;">😊</div>
+                <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">Neutral</div>
+                <div style="color: #666; font-size: 11px;">Current Tone</div>
+            </div>
+            
+            <!-- Tone Options -->
+            <div style="margin-bottom: 16px;">
+                <div style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a; font-size: 13px;">Select Learning Tone</div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <button onclick="selectTone('neutral', '😊')" style="background: #007AFF; color: white; border: 1px solid #007AFF; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px; justify-content: center;">
+                        <span style="font-size: 20px;">😊</span>
+                        <span>Neutral</span>
+                    </button>
+                    <button onclick="selectTone('fun', '🎉')" style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; color: #495057; display: flex: flex; align-items: center; gap: 12px; justify-content: center; transition: all 0.2s ease;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+                        <span style="font-size: 20px;">🎉</span>
+                        <span>Fun</span>
+                    </button>
+                    <button onclick="selectTone('grandparent', '👴')" style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; color: #495057; display: flex; align-items: center; gap: 12px; justify-content: center; transition: all 0.2s ease;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
+                        <span style="font-size: 20px;">👴</span>
+                        <span>Grandparent</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tone Info -->
+            <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 12px 0;">
+                <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 13px;">🎭 Learning Style</div>
+                <div style="font-size: 11px; color: #666; line-height: 1.4;">
+                    <div>• <strong>Neutral:</strong> Professional, academic approach</div>
+                    <div>• <strong>Fun:</strong> Engaging, playful, interactive</div>
+                    <div>• <strong>Grandparent:</strong> Patient, nurturing, encouraging</div>
+                </div>
+            </div>
+            
+            <button onclick="closeModal('tone-modal')">Close</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="language-modal">
+        <div class="modal-content">
+            <h3>🌍 Language Selection</h3>
+            
+            <!-- Current Language Display -->
+            <div style="text-align: center; margin: 12px 0; padding: 8px; background: #f0f8ff; border-radius: 6px;">
+                <div style="font-size: 24px; margin-bottom: 4px;">🇺🇸</div>
+                <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">English</div>
+                <div style="color: #666; font-size: 11px;">Current Language</div>
+            </div>
+            
+            <!-- Language Grid - 12 Languages in 3x4 Layout -->
+            <div style="margin-bottom: 12px;">
+                <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 12px;">Select Language</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                    <button onclick="selectLanguage('en', '🇺🇸')" style="background: #007AFF; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇺🇸</span>
+                        <span style="font-size: 9px;">EN</span>
+                    </button>
+                    <button onclick="selectLanguage('es', '🇪🇸')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇪🇸</span>
+                        <span style="font-size: 9px;">ES</span>
+                    </button>
+                    <button onclick="selectLanguage('fr', '🇫🇷')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇫🇷</span>
+                        <span style="font-size: 9px;">FR</span>
+                    </button>
+                    <button onclick="selectLanguage('de', '🇩🇪')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇩🇪</span>
+                        <span style="font-size: 9px;">DE</span>
+                    </button>
+                    <button onclick="selectLanguage('it', '🇮🇹')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇮🇹</span>
+                        <span style="font-size: 9px;">IT</span>
+                    </button>
+                    <button onclick="selectLanguage('pt', '🇵🇹')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇵🇹</span>
+                        <span style="font-size: 9px;">PT</span>
+                    </button>
+                    <button onclick="selectLanguage('zh', '🇨🇳')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇨🇳</span>
+                        <span style="font-size: 9px;">ZH</span>
+                    </button>
+                    <button onclick="selectLanguage('ja', '🇯🇵')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇯🇵</span>
+                        <span style="font-size: 9px;">JA</span>
+                    </button>
+                    <button onclick="selectLanguage('ko', '🇰🇷')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇰🇷</span>
+                        <span style="font-size: 9px;">KO</span>
+                    </button>
+                    <button onclick="selectLanguage('ar', '🇸🇦')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇸🇦</span>
+                        <span style="font-size: 9px;">AR</span>
+                    </button>
+                    <button onclick="selectLanguage('hi', '🇮🇳')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇮🇳</span>
+                        <span style="font-size: 9px;">HI</span>
+                    </button>
+                    <button onclick="selectLanguage('ru', '🇷🇺')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🇷🇺</span>
+                        <span style="font-size: 9px;">RU</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Content Availability -->
+            <div style="background: #e8f5e8; padding: 8px; border-radius: 6px; margin: 8px 0;">
+                <div style="font-weight: 600; margin-bottom: 4px; color: #2e7d32; font-size: 11px;">🌐 Content Availability</div>
+                <div style="font-size: 10px; color: #2e7d32; line-height: 1.3;">
+                    <div>🇺🇸🇪🇸🇫🇷: Full curriculum (366 lessons)</div>
+                    <div>🇩🇪🇮🇹🇵🇹: Core lessons (200+ lessons)</div>
+                    <div>🇨🇳🇯🇵🇰🇷: Basic lessons (100+ lessons)</div>
+                    <div>🇸🇦🇮🇳🇷🇺: Essential lessons (50+ lessons)</div>
+                </div>
+            </div>
+            
+            <button onclick="closeModal('language-modal')" style="width: 100%; margin-top: 8px;">Close</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="age-modal">
+        <div class="modal-content">
+            <h3>🎯 Age Selection</h3>
+            
+            <!-- Current Age Display -->
+            <div style="text-align: center; margin: 12px 0; padding: 8px; background: #f0f8ff; border-radius: 6px;">
+                <div style="font-size: 24px; color: #007AFF; font-weight: 700;">👩‍💼</div>
+                <div style="color: #666; font-size: 11px;">Young Adult (18-25)</div>
+                <div style="color: #666; font-size: 10px;">Current Age Setting</div>
+            </div>
+            
+            <!-- Age Groups Grid - 10 Groups in 3x4 Layout -->
+            <div style="margin-bottom: 12px;">
+                <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 12px;">Select Age Group</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                    <button onclick="selectAge('infant')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👶 0-2</button>
+                    <button onclick="selectAge('toddler')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👧 3-5</button>
+                    <button onclick="selectAge('early_childhood')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👦 6-8</button>
+                    <button onclick="selectAge('middle_childhood')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">🧒 9-11</button>
+                    <button onclick="selectAge('pre_teen')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👱‍♀️ 12-14</button>
+                    <button onclick="selectAge('teen')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👨‍🎓 15-17</button>
+                    <button onclick="selectAge('young_adult')" style="background: #007AFF; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px;">👩‍💼 18-25</button>
+                    <button onclick="selectAge('adult')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👨‍💻 26-40</button>
+                    <button onclick="selectAge('middle_age')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👨‍🏫 41-60</button>
+                    <button onclick="selectAge('senior')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👴 61-80</button>
+                    <button onclick="selectAge('elder')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👵 81-102</button>
+                </div>
+            </div>
+            
+            <!-- Learning Style Guide -->
+            <div style="background: #e8f5e8; padding: 8px; border-radius: 6px; margin: 8px 0;">
+                <div style="font-weight: 600; margin-bottom: 4px; color: #2e7d32; font-size: 11px;">📚 Learning Style Guide</div>
+                <div style="font-size: 10px; color: #2e7d32; line-height: 1.3;">
+                    <div>👶👧👦 0-11: Child-friendly, visual learning</div>
+                    <div>👱‍♀️👨‍🎓 12-17: Teen-appropriate, interactive</div>
+                    <div>👩‍💼👨‍💻 18-40: Adult style, detailed explanations</div>
+                    <div>👨‍🏫👴👵 41-102: Mature approach, comprehensive content</div>
+                </div>
+            </div>
+            
+            <button onclick="closeModal('age-modal')" style="width: 100%; margin-top: 8px;">Close</button>
+        </div>
+    </div>
+    
+    <div class="modal" id="controls-modal">
+        <div class="modal-content">
+            <h3>🎛️ Controls</h3>
+            <p>This panel is always open on the right side!</p>
+            <p>Use the controls panel for Play/Pause/Volume</p>
+            <button onclick="closeModal('controls-modal')">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Simple working functions - copy from our test page
+        function testClick(modalId, iconName) {
+            console.log(`✅ ${iconName} icon clicked successfully!`);
+            updateStatus(`✅ ${iconName} icon working!`);
+            
+            // Close any other open modals first
+            closeAllModals();
+            
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                // Position modal next to the clicked icon
+                positionModalNextToIcon(modal, modalId);
+                
+                // Show the modal
+                modal.classList.add('visible');
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('visible');
+                modal.style.display = 'none';
+            }
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('visible');
+                modal.style.display = 'none';
+            });
+        }
+
+        function positionModalNextToIcon(modal, modalId) {
+            // Get the icon that was clicked
+            const iconId = modalId.replace('-modal', '');
+            const icon = document.getElementById(`icon-${iconId}`);
+            
+            if (icon) {
+                const iconRect = icon.getBoundingClientRect();
+                const modalContent = modal.querySelector('.modal-content');
+                
+                if (modalContent) {
+                    // Position modal to the left of the icon rail
+                    const modalWidth = 280; // Reduced modal width to prevent cut-off
+                    const railRight = 84; // Right edge of icon rail (20px + 44px + 20px)
+                    
+                    // Center vertically with the icon, ensure it stays within viewport bounds
+                    const modalHeight = 360; // Modal height
+                    const viewportHeight = window.innerHeight;
+                    const iconTop = iconRect.top;
+                    
+                    // Calculate optimal position to keep modal fully visible
+                    let topPosition = iconTop - (modalHeight / 2);
+                    
+                    // Ensure modal doesn't go above viewport
+                    if (topPosition < 20) {
+                        topPosition = 20;
+                    }
+                    
+                    // Ensure modal doesn't go below viewport
+                    if (topPosition + modalHeight > viewportHeight - 20) {
+                        topPosition = viewportHeight - modalHeight - 20;
+                    }
+                    
+                    modalContent.style.position = 'fixed';
+                    modalContent.style.right = `${railRight + 16}px`; // 16px gap from rail
+                    modalContent.style.top = `${topPosition}px`;
+                    modalContent.style.left = 'auto';
+                    modalContent.style.transform = 'none';
+                    modalContent.style.maxHeight = `${modalHeight}px`; // Ensure modal fits on screen
+                    
+                    // Special handling for avatar modal - position to the left of the icon
+                    if (modalId === 'avatar-modal') {
+                        const iconLeft = iconRect.left;
+                        const modalLeft = Math.max(20, iconLeft - modalWidth - 16);
+                        modalContent.style.left = `${modalLeft}px`;
+                        modalContent.style.right = 'auto';
+                    }
+                }
+            }
+        }
+
+        function updateStatus(message) {
+            const status = document.getElementById('status');
+            if (status) {
+                status.innerHTML = `<strong>iLearn How - Working Icons</strong><br>Status: ${message}<br>Click any icon to test`;
+            }
+        }
+
+        // Real functionality functions
+        function selectAge(ageGroup) {
+            console.log(`🎯 Age group selected: ${ageGroup}`);
+            
+            // Map age group to display text and emoji
+            const ageDisplay = {
+                'infant': '👶',
+                'toddler': '👧', 
+                'early_childhood': '👦',
+                'middle_childhood': '🧒',
+                'pre_teen': '👱‍♀️',
+                'teen': '👨‍🎓',
+                'young_adult': '👩‍💼',
+                'adult': '👨‍💻',
+                'middle_age': '👨‍🏫',
+                'senior': '👴',
+                'elder': '👵'
+            };
+            
+            const emoji = ageDisplay[ageGroup] || '👤';
+            document.getElementById('icon-age').textContent = emoji;
+            document.getElementById('icon-age').setAttribute('data-tooltip', `${emoji} ${ageGroup.replace('_', ' ')} - Current age setting`);
+            updateStatus(`✅ Age group set to ${ageGroup.replace('_', ' ')}`);
+            closeModal('age-modal');
+        }
+        
+        function selectLanguage(lang, flag) {
+            console.log(`🌍 Language selected: ${lang} (${flag})`);
+            document.getElementById('icon-language').textContent = flag;
+            document.getElementById('icon-language').setAttribute('data-tooltip', `${flag} Language - ${lang === 'en' ? 'English' : lang === 'es' ? 'Español' : 'Français'} (${lang.toUpperCase()})`);
+            updateStatus(`✅ Language set to ${lang}`);
+            closeModal('language-modal');
+        }
+        
+        function selectTone(tone, emoji) {
+            console.log(`😊 Tone selected: ${tone} (${emoji})`);
+            document.getElementById('icon-tone').textContent = emoji;
+            document.getElementById('icon-tone').setAttribute('data-tooltip', `${emoji} Tone - ${tone === 'neutral' ? 'Neutral' : tone === 'fun' ? 'Fun' : 'Grandparent'}`);
+            updateStatus(`✅ Tone set to ${tone}`);
+            closeModal('tone-modal');
+        }
+        
+        function togglePlayPause() {
+            const btn = document.getElementById('play-pause');
+            const isPlaying = btn.textContent === '⏸️';
+            btn.textContent = isPlaying ? '▶️' : '⏸️';
+            btn.setAttribute('data-tooltip', isPlaying ? 'Play' : 'Pause');
+            updateStatus(`✅ ${isPlaying ? 'Paused' : 'Playing'}`);
+        }
+        
+        function updateVolume(value) {
+            console.log(`🔊 Volume set to: ${value}%`);
+            updateStatus(`✅ Volume: ${value}%`);
+        }
+        
+        function toggleMute() {
+            const btn = document.getElementById('mute');
+            const isMuted = btn.textContent === '🔇';
+            btn.textContent = isMuted ? '🔊' : '🔇';
+            btn.setAttribute('data-tooltip', isMuted ? 'Unmute' : 'Mute');
+            updateStatus(`✅ ${isMuted ? 'Unmuted' : 'Muted'}`);
+        }
+        
+        function startLesson(lessonId) {
+            console.log(`🚀 Starting lesson: ${lessonId}`);
+            updateStatus(`✅ Starting lesson: ${lessonId}`);
+            // TODO: Integrate with lesson player
+        }
+        
+        function searchLessons(query) {
+            console.log(`🔍 Searching for: ${query}`);
+            updateStatus(`✅ Search results for: ${query}`);
+            // TODO: Integrate with search backend
+        }
+        
+        function createCustomLesson() {
+            console.log(`💡 Creating custom lesson`);
+            updateStatus(`✅ Opening custom lesson creator`);
+            // TODO: Integrate with lesson creation backend
+        }
+        
+        function updateDailyStreak() {
+            const streak = Math.floor(Math.random() * 30) + 1;
+            console.log(`🏆 Daily streak updated: ${streak} days`);
+            updateStatus(`✅ Daily streak: ${streak} days`);
+            // TODO: Integrate with user progress backend
+        }
+        
+        function jumpToBirthday() {
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput && dateInput.value) {
+                console.log(`🎂 Jumping to birthday: ${dateInput.value}`);
+                updateStatus(`✅ Jumped to birthday lesson: ${dateInput.value}`);
+                // TODO: Integrate with calendar backend to show birthday lesson
+            } else {
+                updateStatus('⚠️ Please select a date first');
+            }
+        }
+        
+        // Test on load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Working Icons page loaded successfully!');
+            updateStatus('Ready - All icons should work!');
+            
+            // Initialize dynamic states
+            updateDailyStreak();
+            
+            // Test that all icons exist
+            const icons = document.querySelectorAll('.rail-btn');
+            console.log(`✅ Found ${icons.length} rail icons`);
+            
+            // Test that all modals exist
+            const modals = document.querySelectorAll('.modal');
+            console.log(`✅ Found ${modals.length} modals`);
+            
+            // Initialize dynamic states
+            initializeDynamicStates();
+            
+            // Start state simulation
+            startStateSimulation();
+        });
+        
+        // Initialize dynamic emojis and states
+        function initializeDynamicStates() {
+            console.log('🚀 Initializing dynamic states...');
+            
+            // Debug avatar elements
+            const avatarBg = document.getElementById('avatar-bg');
+            const avatarSelector = document.querySelector('.avatar-selector');
+            console.log('Avatar background element:', avatarBg);
+            console.log('Avatar selector element:', avatarSelector);
+            
+            if (avatarBg) {
+                console.log('Avatar background classes:', avatarBg.className);
+                console.log('Avatar background computed styles:', window.getComputedStyle(avatarBg));
+                
+                // Test initial Kelly image loading
+                const testImg = new Image();
+                testImg.onload = () => console.log('✅ Initial Kelly image loaded successfully');
+                testImg.onerror = () => console.error('❌ Initial Kelly image failed to load');
+                testImg.src = './production-deploy/assets/avatars/kelly_wallpaper.png';
+            }
+            
+            // Set initial states
+            updateIconState('find', 'active');
+            updateIconState('settings', 'warning');
+            updateIconState('calendar', 'active');
+            updateIconState('model', 'active');
+            updateIconState('tone', 'active');
+            updateIconState('language', 'active');
+            updateIconState('age', 'active');
+            
+            // Update calendar with today's date
+            updateCalendarDate();
+            
+            console.log('✅ Dynamic states initialized');
+        }
+        
+        // Simulate dynamic state changes (for demo purposes)
+        function startStateSimulation() {
+            // Simulate live status changes
+            setInterval(() => {
+                const liveBadge = document.getElementById('badge-live');
+                if (liveBadge) {
+                    liveBadge.textContent = Math.random() > 0.5 ? 'ON' : 'LIVE';
+                    liveBadge.classList.toggle('pulse');
+                }
+            }, 3000);
+            
+            // Simulate calendar date changes
+            setInterval(() => {
+                const calendarBadge = document.getElementById('badge-calendar');
+                if (calendarBadge) {
+                    const newDate = new Date().getDate();
+                    calendarBadge.textContent = newDate;
+                    calendarBadge.style.background = 'linear-gradient(135deg, #FF9500, #FF9F0A)';
+                    setTimeout(() => {
+                        calendarBadge.style.background = 'linear-gradient(135deg, #007AFF, #5856D6)';
+                    }, 1000);
+                }
+            }, 5000);
+        }
+        
+        // Function to update any badge dynamically
+        function updateBadge(iconId, value, state = 'active') {
+            const badge = document.getElementById(`badge-${iconId}`);
+            if (badge) {
+                // Remove old state classes
+                badge.parentElement.classList.remove('active', 'warning', 'error');
+                
+                // Add new state class
+                badge.parentElement.classList.add(state);
+                
+                // Update value with animation
+                badge.style.transform = 'scale(1.2)';
+                badge.textContent = value;
+                
+                setTimeout(() => {
+                    badge.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }
+        
+        // Demo function to show badge updates
+        function demoBadgeUpdates() {
+            updateStatus('🎭 Demo: Updating badges...');
+            
+            // Cycle through different states
+            const demos = [
+                { icon: 'age', value: '8', state: 'active' },
+                { icon: 'age', value: '16', state: 'active' },
+                { icon: 'age', value: '25', state: 'active' },
+                { icon: 'tone', value: 'Fun', state: 'warning' },
+                { icon: 'tone', value: 'Neutral', state: 'active' },
+                { icon: 'language', value: 'ES', state: 'warning' },
+                { icon: 'language', value: 'FR', state: 'warning' },
+                { icon: 'language', value: 'EN', state: 'active' },
+                { icon: 'speed', value: '1.5x', state: 'active' },
+                { icon: 'speed', value: '0.8x', state: 'warning' },
+                { icon: 'speed', value: '1.0x', state: 'active' }
+            ];
+            
+            demos.forEach((demo, index) => {
+                setTimeout(() => {
+                    updateBadge(demo.icon, demo.value, demo.state);
+                    updateStatus(`🎭 Demo: ${demo.icon} → ${demo.value}`);
+                }, index * 800);
+            });
+            
+                    setTimeout(() => {
+            updateStatus('✅ Demo complete! Icons show current state with emojis.');
+        }, demos.length * 800 + 1000);
+    }
+    
+    // Function to update icon state and emoji
+    function updateIconState(iconId, state, emoji = null, tooltip = null) {
+        const icon = document.getElementById(`icon-${iconId}`);
+        if (icon) {
+            // Remove old state classes
+            icon.classList.remove('active', 'warning', 'error', 'live');
+            
+            // Add new state class
+            icon.classList.add(state);
+            
+            // Update emoji if provided
+            if (emoji) {
+                icon.textContent = emoji;
+            }
+            
+            // Update tooltip if provided
+            if (tooltip) {
+                icon.setAttribute('data-tooltip', tooltip);
+            }
+            
+            // Add subtle animation
+            icon.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                icon.style.transform = 'scale(1)';
+            }, 200);
+        }
+    }
+    
+    
+        
+        // Update calendar with today's date
+        function updateCalendarDate() {
+            const now = new Date();
+            const today = now.getDate();
+            const month = now.toLocaleString('default', { month: 'short' });
+            
+            const calendarIcon = document.getElementById('icon-calendar');
+            if (calendarIcon) {
+                calendarIcon.textContent = `${month} ${today}`;
+                calendarIcon.setAttribute('data-tooltip', `📅 Calendar - Today is ${month} ${today}`);
+                
+                // Add professional styling
+                calendarIcon.style.fontSize = '14px';
+                calendarIcon.style.fontWeight = '600';
+                calendarIcon.style.letterSpacing = '0.5px';
+            }
+        }
+    
+    // Tone selection
+    function selectTone(tone, emoji) {
+        const toneIcon = document.getElementById('icon-tone');
+        const currentToneSpan = document.getElementById('current-tone');
+        
+        if (toneIcon) {
+            toneIcon.textContent = emoji;
+            toneIcon.setAttribute('data-tooltip', `😊 Tone - ${tone.charAt(0).toUpperCase() + tone.slice(1)}`);
+        }
+        
+        if (currentToneSpan) {
+            currentToneSpan.textContent = `${emoji} ${tone.charAt(0).toUpperCase() + tone.slice(1)}`;
+        }
+        
+        updateStatus(`🎭 Tone changed to: ${tone}`);
+    }
+    
+    // Language selection
+    function selectLanguage(lang, flag) {
+        const langIcon = document.getElementById('icon-language');
+        const currentLangSpan = document.getElementById('current-language');
+        
+        if (langIcon) {
+            langIcon.textContent = flag;
+            langIcon.setAttribute('data-tooltip', `${flag} Language - ${lang.toUpperCase()}`);
+        }
+        
+        if (currentLangSpan) {
+            currentLangSpan.textContent = `${flag} ${lang === 'en' ? 'English' : lang === 'es' ? 'Spanish' : 'French'}`;
+        }
+        
+        updateStatus(`🌍 Language changed to: ${lang.toUpperCase()}`);
+    }
+    
+    // Age selection
+    function selectAge(ageGroup) {
+        console.log(`🎯 Age group selected: ${ageGroup}`);
+        
+        // Map age group to display text and emoji
+        const ageDisplay = {
+            'infant': '👶',
+            'toddler': '👧', 
+            'early_childhood': '👦',
+            'middle_childhood': '🧒',
+            'pre_teen': '👱‍♀️',
+            'teen': '👨‍🎓',
+            'young_adult': '👩‍💼',
+            'adult': '👨‍💻',
+            'middle_age': '👨‍🏫',
+            'senior': '👴',
+            'elder': '👵'
+        };
+        
+        const emoji = ageDisplay[ageGroup] || '👤';
+        const ageIcon = document.getElementById('icon-age');
+        
+        if (ageIcon) {
+            ageIcon.textContent = emoji;
+            ageIcon.setAttribute('data-tooltip', `${emoji} ${ageGroup.replace('_', ' ')} - Current age setting`);
+        }
+        
+        updateStatus(`✅ Age group set to ${ageGroup.replace('_', ' ')}`);
+        closeModal('age-modal');
+    }
+    
+    // Avatar switching function
+    function switchAvatar(avatarType) {
+        console.log('Switching to avatar:', avatarType);
+        
+        const avatarBg = document.getElementById('avatar-bg');
+        const kellyOption = document.querySelector('.avatar-option[onclick*="kelly"]');
+        const kenOption = document.querySelector('.avatar-option[onclick*="ken"]');
+        const avatarIcon = document.querySelector('#icon-model img');
+        
+        console.log('Avatar background element:', avatarBg);
+        console.log('Kelly option:', kellyOption);
+        console.log('Ken option:', kenOption);
+        console.log('Avatar icon:', avatarIcon);
+        
+        if (avatarBg) {
+            avatarBg.className = `avatar-background ${avatarType}`;
+            console.log('Updated avatar background class to:', avatarBg.className);
+            
+            // Test image loading
+            const testImg = new Image();
+            const imagePath = avatarType === 'kelly' ? './production-deploy/assets/avatars/kelly_wallpaper.png' : './production-deploy/assets/avatars/ken.jpg';
+            testImg.onload = () => console.log(`✅ ${avatarType} image loaded successfully:`, imagePath);
+            testImg.onerror = () => console.error(`❌ ${avatarType} image failed to load:`, imagePath);
+            testImg.src = imagePath;
+        }
+        
+        // Update avatar icon
+        if (avatarIcon) {
+            const iconPath = avatarType === 'kelly' ? './production-deploy/assets/avatars/kelly/kelly_neutral_default.png' : './production-deploy/assets/avatars/ken/ken_neutral_default.png';
+            avatarIcon.src = iconPath;
+            avatarIcon.alt = avatarType === 'kelly' ? 'Kelly' : 'Ken';
+            console.log('Updated avatar icon to:', iconPath);
+        }
+        
+        // Update active state
+        if (kellyOption && kenOption) {
+            kellyOption.classList.toggle('active', avatarType === 'kelly');
+            kenOption.classList.toggle('active', avatarType === 'ken');
+            console.log('Updated active states');
+        }
+        
+        updateStatus(`👤 Switched to ${avatarType === 'kelly' ? 'Kelly' : 'Ken'} avatar`);
+    }
+    
+    // Controls functions
+    let isPlaying = false;
+    let isMuted = false;
+    
+    function togglePlayPause() {
+        const playBtn = document.getElementById('play-pause');
+        isPlaying = !isPlaying;
+        
+        if (playBtn) {
+            playBtn.textContent = isPlaying ? '⏸️' : '▶️';
+            playBtn.classList.toggle('active', isPlaying);
+        }
+        
+        updateStatus(isPlaying ? '▶️ Playing' : '⏸️ Paused');
+    }
+    
+    function updateVolume(value) {
+        updateStatus(`🔊 Volume: ${value}%`);
+    }
+    
+    function toggleMute() {
+        const muteBtn = document.getElementById('mute');
+        isMuted = !isMuted;
+        
+        if (muteBtn) {
+            muteBtn.textContent = isMuted ? '🔇' : '🔊';
+            muteBtn.classList.toggle('active', isMuted);
+        }
+        
+        updateStatus(isMuted ? '🔇 Muted' : '🔊 Unmuted');
+    }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('visible');
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.visible').forEach(modal => {
+                    modal.classList.remove('visible');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
