@@ -245,13 +245,16 @@
             transform: translateY(-50%) translateX(-4px);
         }
         
-        /* Controls Section - Volume Left, Play Bottom */
-        .controls-section {
+        /* Audio Controls - SEPARATE from icon rail */
+        .audio-controls {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
             display: flex;
             flex-direction: row;
             align-items: flex-end;
             gap: 12px;
-            margin-top: 8px;
+            z-index: 10;
         }
         
         .volume-control-column {
@@ -502,9 +505,10 @@
         .rail-btn:nth-child(5) { animation-delay: 0.5s; }
         .rail-btn:nth-child(6) { animation-delay: 0.6s; }
         .rail-btn:nth-child(7) { animation-delay: 0.7s; }
-        .volume-control-column { animation-delay: 0.8s; }
-        .volume-slider { animation-delay: 0.85s; }
-        .control-btn#play-pause { animation-delay: 0.9s; }
+        .audio-controls { animation-delay: 0.8s; }
+        .volume-control-column { animation-delay: 0.85s; }
+        .volume-slider { animation-delay: 0.9s; }
+        .control-btn#play-pause { animation-delay: 0.95s; }
         
         .modal-content {
             animation: scaleIn 0.3s ease-out;
@@ -578,45 +582,46 @@
     <!-- Avatar Background - BOTTOM LAYER -->
     <div class="avatar-background kelly" id="avatar-bg"></div>
     
-    <!-- Professional Icon Rail - LOW LAYER -->
-    <div class="rail">
-        <!-- Avatar - Top Priority -->
-        <button class="rail-btn" id="icon-model" onclick="testClick('avatar-modal', 'Avatar')" data-state="active" data-icon="model" data-tooltip="👩‍🏫 Avatar - Kelly, Ken, or You (facescan)">
-            <img src="./production-deploy/assets/avatars/kelly/kelly_neutral_default.png" alt="Kelly" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
-        </button>
+            <!-- Professional Icon Rail - RIGHT SIDE -->
+        <div class="rail">
+            <!-- Avatar - Top Priority -->
+            <button class="rail-btn" id="icon-model" onclick="testClick('avatar-modal', 'Avatar')" data-state="active" data-icon="model" data-tooltip="👩‍🏫 Avatar - Kelly, Ken, or You (facescan)">
+                <img src="./production-deploy/assets/avatars/kelly/kelly_neutral_default.png" alt="Kelly" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            </button>
+            
+            <!-- Calendar - Navigation -->
+            <button class="rail-btn" id="icon-calendar" onclick="testClick('calendar-modal', 'Calendar')" data-state="active" data-icon="calendar" data-tooltip="📅 Calendar - Today's date">
+                📅
+            </button>
+            
+            <!-- Find - Content Discovery -->
+            <button class="rail-btn" id="icon-find" onclick="testClick('find-modal', 'Find')" data-state="active" data-icon="find" data-tooltip="🔍 Find - Search 366 lessons or create custom">
+                🔍
+            </button>
+            
+            <!-- Settings - User Management -->
+            <button class="rail-btn" id="icon-settings" onclick="testClick('settings-modal', 'Settings')" data-state="warning" data-icon="settings" data-tooltip="⚙️ Settings - Daily streaks, history, profile, account, payment, support">
+                ⚙️
+            </button>
+            
+            <!-- Age - Personalization (CORRECT PhaseDNA age system) -->
+            <button class="rail-btn" id="icon-age" onclick="testClick('age-modal', 'Age')" data-state="active" data-icon="age" data-tooltip="🎯 Age - 25 years (PhaseDNA)">
+                25
+            </button>
+            
+            <!-- Language - Personalization -->
+            <button class="rail-btn" id="icon-language" onclick="testClick('language-modal', 'Language')" data-state="active" data-icon="language" data-tooltip="🌍 Language - English (EN)">
+                🇺🇸
+            </button>
+            
+            <!-- Tone - Personalization -->
+            <button class="rail-btn" id="icon-tone" onclick="testClick('tone-modal', 'Tone')" data-state="active" data-icon="tone" data-tooltip="😊 Tone - Neutral, Fun, or Warm">
+                😊
+            </button>
+        </div>
         
-        <!-- Calendar - Navigation -->
-        <button class="rail-btn" id="icon-calendar" onclick="testClick('calendar-modal', 'Calendar')" data-state="active" data-icon="calendar" data-tooltip="📅 Calendar - Today's date">
-            📅
-        </button>
-        
-        <!-- Find - Content Discovery -->
-        <button class="rail-btn" id="icon-find" onclick="testClick('find-modal', 'Find')" data-state="active" data-icon="find" data-tooltip="🔍 Find - Search 366 lessons or create custom">
-            🔍
-        </button>
-        
-        <!-- Settings - User Management -->
-        <button class="rail-btn" id="icon-settings" onclick="testClick('settings-modal', 'Settings')" data-state="warning" data-icon="settings" data-tooltip="⚙️ Settings - Daily streaks, history, profile, account, payment, support">
-            ⚙️
-        </button>
-        
-        <!-- Age - Personalization (CORRECT PhaseDNA age system) -->
-        <button class="rail-btn" id="icon-age" onclick="testClick('age-modal', 'Age')" data-state="active" data-icon="age" data-tooltip="🎯 Age - 25 years (PhaseDNA)">
-            25
-        </button>
-        
-        <!-- Language - Personalization -->
-        <button class="rail-btn" id="icon-language" onclick="testClick('language-modal', 'Language')" data-state="active" data-icon="language" data-tooltip="🌍 Language - English (EN)">
-            🇺🇸
-        </button>
-        
-        <!-- Tone - Personalization -->
-        <button class="rail-btn" id="icon-tone" onclick="testClick('tone-modal', 'Tone')" data-state="active" data-icon="tone" data-tooltip="😊 Tone - Neutral, Fun, or Warm">
-            😊
-        </button>
-        
-        <!-- Controls - Volume Left, Play Bottom -->
-        <div class="controls-section">
+        <!-- Audio Controls - SEPARATE from icon rail -->
+        <div class="audio-controls">
             <!-- Volume Control - Left Column -->
             <div class="volume-control-column">
                 <button class="control-btn" id="mute" onclick="toggleMute()" data-tooltip="🔇 Mute / 🔊 Unmute">
@@ -631,7 +636,6 @@
                 ▶️
             </button>
         </div>
-    </div>
     
     <!-- All Modals - HIGH LAYER -->
     
@@ -959,7 +963,7 @@
             });
         }
         
-        // Modal positioning function - CORRECT positioning next to icon rail
+        // Modal positioning function - PROPER positioning next to RIGHT-SIDE icons
         function positionModalNextToIcon(modal, modalId) {
             const modalContent = modal.querySelector('.modal-content');
             if (!modalContent) return;
@@ -982,10 +986,9 @@
                 topPosition = viewportHeight - 420;
             }
             
-            // CRITICAL FIX: Position modal to the LEFT of the icon rail, not over it
-            // The icon rail is at right: 20px, so modals should be positioned to its left
-            const railRightEdge = 20; // Right edge of icon rail
-            const modalLeft = Math.max(20, railRightEdge - modalWidth - 16); // 16px gap from rail
+            // PROPER POSITIONING: Modals open to the LEFT of the right-side icon rail
+            // Icon rail is at right: 20px, so modals open at left: 20px (full width)
+            const modalLeft = 20; // Left edge of screen, giving full width for content
             
             // Apply positioning with proper sizing
             modalContent.style.position = 'fixed';
@@ -1058,26 +1061,105 @@
             closeModal('tone-modal');
         }
         
-        // Control functions
+        // Audio Control Functions - PROPERLY WIRED
+        let audioContext = null;
+        let audioSource = null;
+        let isPlaying = false;
+        let isMuted = false;
+        let currentVolume = 50;
+        
+        function initializeAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log('✅ Audio context initialized');
+            } catch (error) {
+                console.error('❌ Audio context failed:', error);
+            }
+        }
+        
         function togglePlayPause() {
             const btn = document.getElementById('play-pause');
-            const isPlaying = btn.textContent === '⏸️';
-            btn.textContent = isPlaying ? '▶️' : '⏸️';
-            btn.setAttribute('data-tooltip', isPlaying ? 'Play' : 'Pause');
-            updateStatus(`✅ ${isPlaying ? 'Paused' : 'Playing'}`);
+            
+            if (!audioContext) {
+                initializeAudio();
+            }
+            
+            if (isPlaying) {
+                // Stop audio
+                if (audioSource) {
+                    audioSource.stop();
+                    audioSource = null;
+                }
+                btn.textContent = '▶️';
+                btn.setAttribute('data-tooltip', '▶️ Play / ⏸️ Pause');
+                isPlaying = false;
+                updateStatus('⏸️ Audio stopped');
+            } else {
+                // Start audio (demo with oscillator)
+                try {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
+                    oscillator.type = 'sine';
+                    
+                    // Set volume
+                    gainNode.gain.setValueAtTime(isMuted ? 0 : currentVolume / 100, audioContext.currentTime);
+                    
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 2); // Play for 2 seconds
+                    
+                    audioSource = oscillator;
+                    btn.textContent = '⏸️';
+                    btn.setAttribute('data-tooltip', '▶️ Play / ⏸️ Pause');
+                    isPlaying = true;
+                    updateStatus('▶️ Playing demo audio (A4 note)');
+                } catch (error) {
+                    console.error('❌ Audio playback failed:', error);
+                    updateStatus('❌ Audio playback failed');
+                }
+            }
         }
         
         function updateVolume(value) {
-            console.log(`🔊 Volume set to: ${value}%`);
-            updateStatus(`✅ Volume: ${value}%`);
+            currentVolume = parseInt(value);
+            console.log(`🔊 Volume set to: ${currentVolume}%`);
+            
+            // Update volume slider visual
+            const volumeSlider = document.getElementById('volume');
+            if (volumeSlider) {
+                volumeSlider.value = currentVolume;
+            }
+            
+            // Update mute button if needed
+            if (currentVolume === 0) {
+                isMuted = true;
+                const muteBtn = document.getElementById('mute');
+                if (muteBtn) {
+                    muteBtn.textContent = '🔇';
+                    muteBtn.setAttribute('data-tooltip', '🔇 Mute / 🔊 Unmute');
+                }
+            }
+            
+            updateStatus(`✅ Volume: ${currentVolume}%`);
         }
         
         function toggleMute() {
             const btn = document.getElementById('mute');
-            const isMuted = btn.textContent === '🔇';
-            btn.textContent = isMuted ? '🔊' : '🔇';
-            btn.setAttribute('data-tooltip', isMuted ? 'Unmute' : 'Mute');
-            updateStatus(`✅ ${isMuted ? 'Unmuted' : 'Muted'}`);
+            isMuted = !isMuted;
+            
+            if (isMuted) {
+                btn.textContent = '🔇';
+                btn.setAttribute('data-tooltip', '🔇 Mute / 🔊 Unmute');
+                updateStatus('🔇 Audio muted');
+            } else {
+                btn.textContent = '🔊';
+                btn.setAttribute('data-tooltip', '🔇 Mute / 🔊 Unmute');
+                updateStatus('🔊 Audio unmuted');
+            }
         }
         
         // Lesson and utility functions
