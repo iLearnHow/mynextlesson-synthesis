@@ -968,8 +968,9 @@
                     
                     // Special handling for avatar modal - position to the left of the icon
                     if (modalId === 'avatar-modal') {
-                        const iconLeft = iconRect.left;
-                        const modalLeft = Math.max(20, iconLeft - modalWidth - 16);
+                        // Position modal to the left of the avatar icon (right side of screen)
+                        const iconRight = iconRect.right;
+                        const modalLeft = Math.max(20, iconRight - modalWidth - 16);
                         modalContent.style.left = `${modalLeft}px`;
                         modalContent.style.right = 'auto';
                         modalContent.style.zIndex = '1002'; // Higher z-index for avatar modal
