@@ -715,46 +715,46 @@
     </div>
     
     <div class="modal" id="tone-modal">
-        <div class="modal-content" style="max-width: 320px; max-height: 400px;">
+        <div class="modal-content" style="max-width: 340px; max-height: 420px;">
             <h3>😊 Tone Selection</h3>
             
             <!-- Current Tone Display -->
-            <div style="text-align: center; margin: 12px 0; padding: 8px; background: #fff3cd; border-radius: 6px;">
-                <div style="font-size: 32px; margin-bottom: 4px;">😊</div>
-                <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">Neutral</div>
-                <div style="color: #666; font-size: 11px;">Current Tone</div>
+            <div style="text-align: center; margin: 10px 0; padding: 8px; background: #fff3cd; border-radius: 6px;">
+                <div style="font-size: 24px; margin-bottom: 4px;">😊</div>
+                <div style="font-size: 12px; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">Neutral</div>
+                <div style="color: #666; font-size: 10px;">Current Tone</div>
             </div>
             
-            <!-- Tone Options - Horizontal Layout for Better Fit -->
-            <div style="margin-bottom: 12px;">
-                <div style="font-weight: 600; margin-bottom: 8px; color: #1a1a1a; font-size: 12px;">Select Learning Tone</div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-                    <button onclick="selectTone('neutral', '😊')" style="background: #007AFF; color: white; border: none; padding: 8px 6px; border-radius: 6px; cursor: pointer; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 3px;">
-                        <span style="font-size: 16px;">😊</span>
-                        <span style="font-size: 10px;">Neutral</span>
+            <!-- Tone Options - Compact Grid Layout -->
+            <div style="margin-bottom: 10px;">
+                <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 11px;">Select Learning Tone</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                    <button onclick="selectTone('neutral', '😊')" style="background: #007AFF; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">😊</span>
+                        <span style="font-size: 9px;">Neutral</span>
                     </button>
-                    <button onclick="selectTone('fun', '🎉')" style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; color: #495057; display: flex: flex; align-items: center; gap: 12px; justify-content: center; transition: all 0.2s ease;" onmouseover="this.style.background='#e9ecef'" onmouseout="this.style.background='#f8f9fa'">
-                        <span style="font-size: 20px;">🎉</span>
-                        <span>Fun</span>
+                    <button onclick="selectTone('fun', '🎉')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 10px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">🎉</span>
+                        <span style="font-size: 9px;">Fun</span>
                     </button>
-                    <button onclick="selectTone('grandparent', '👴')" style="background: white; border: 1px solid #dee2e6; padding: 8px 6px; border-radius: 6px; cursor: pointer; font-size: 12px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 3px;">
-                        <span style="font-size: 16px;">👴</span>
-                        <span style="font-size: 10px;">Warm</span>
+                    <button onclick="selectTone('grandparent', '👴')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 10px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                        <span style="font-size: 14px;">👴</span>
+                        <span style="font-size: 9px;">Warm</span>
                     </button>
                 </div>
             </div>
             
-            <!-- Tone Info - Compact -->
-            <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin: 10px 0;">
-                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 11px;">🎭 Learning Style</div>
-                <div style="font-size: 10px; color: #666; line-height: 1.3;">
+            <!-- Tone Info - Ultra Compact -->
+            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin: 8px 0;">
+                <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 10px;">🎭 Learning Style</div>
+                <div style="font-size: 9px; color: #666; line-height: 1.2;">
                     <div>😊 <strong>Neutral:</strong> Professional, academic</div>
                     <div>🎉 <strong>Fun:</strong> Engaging, playful</div>
                     <div>👴 <strong>Warm:</strong> Patient, nurturing</div>
                 </div>
             </div>
             
-            <button onclick="closeModal('tone-modal')" style="width: 100%; margin-top: 8px;">Close</button>
+            <button onclick="closeModal('tone-modal')" style="width: 100%; margin-top: 6px; padding: 8px; font-size: 12px;">Close</button>
         </div>
     </div>
     
