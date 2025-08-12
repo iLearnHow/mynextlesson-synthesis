@@ -237,7 +237,7 @@
             max-width: 280px;
             box-shadow: var(--shadow-lg);
             position: fixed;
-            z-index: 1002;
+            z-index: 9999;
             max-height: 360px;
             overflow: hidden;
             color: #1a1a1a;
@@ -771,7 +771,7 @@
             modalContent.style.left = `${modalLeft}px`;
             modalContent.style.right = 'auto';
             modalContent.style.maxHeight = `${modalHeight}px`;
-            modalContent.style.zIndex = '1002';
+            modalContent.style.zIndex = '9999';
             
             // Special handling for avatar modal - position to the left of avatar icon
             if (modalId === 'avatar-modal') {
@@ -779,7 +779,7 @@
                 const modalLeft = Math.max(20, iconRight - modalWidth - 16);
                 modalContent.style.left = `${modalLeft}px`;
                 modalContent.style.right = 'auto';
-                modalContent.style.zIndex = '1002'; // Higher z-index for avatar modal
+                modalContent.style.zIndex = '9999'; // Higher z-index for avatar modal
             }
         }
 
