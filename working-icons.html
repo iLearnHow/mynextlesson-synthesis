@@ -986,9 +986,10 @@
                 topPosition = viewportHeight - 420;
             }
             
-            // PROPER POSITIONING: Modals open to the LEFT of the right-side icon rail
-            // Icon rail is at right: 20px, so modals open at left: 20px (full width)
-            const modalLeft = 20; // Left edge of screen, giving full width for content
+            // PROPER POSITIONING: Modals open NEXT TO the right-side icon rail
+            // Icon rail is at right: 20px, so modals should open to its LEFT with proper spacing
+            const railRightEdge = window.innerWidth - 20; // Right edge of screen minus rail width
+            const modalLeft = Math.max(20, railRightEdge - modalWidth - 20); // 20px gap from rail
             
             // Apply positioning with proper sizing
             modalContent.style.position = 'fixed';
