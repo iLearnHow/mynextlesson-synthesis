@@ -306,9 +306,9 @@
             -webkit-appearance: none;
             appearance: none;
             box-shadow: var(--shadow-md);
-            writing-mode: bt-lr;
-            -webkit-writing-mode: bt-lr;
-            -ms-writing-mode: bt-lr;
+            /* Force vertical orientation */
+            transform: rotate(-90deg);
+            transform-origin: 62px 62px; /* Center of the 120px height + some offset */
         }
         
         .volume-slider::-webkit-slider-thumb {
