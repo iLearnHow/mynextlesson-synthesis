@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iLearn How - Working Icons</title>
     <style>
-        /* 2024 Modern Design System */
+        /* 2025 Modern Design System - Clean & Working */
         :root {
             --primary: #0A84FF;
             --primary-dark: #0056CC;
@@ -52,7 +52,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
         
-        /* Modern Status Display */
+        /* Status Display - Clean & Simple */
         .status {
             position: fixed;
             top: 20px;
@@ -69,119 +69,128 @@
             transition: var(--transition);
         }
         
-        .status:hover {
-            background: var(--surface-hover);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-xl);
-        }
-        
         .status strong {
             color: var(--primary);
             font-weight: 600;
             font-size: 16px;
             display: block;
             margin-bottom: 8px;
-            letter-spacing: -0.01em;
         }
         
-        .status button {
-            background: var(--primary);
-            color: var(--text-primary);
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            margin-top: 12px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            backdrop-filter: blur(10px);
-        }
-        
-        .status button:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        /* Modern Avatar Backgrounds */
+        /* Avatar Background - Clean Implementation */
         .avatar-background {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            inset: 0;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            filter: blur(8px);
+            opacity: 0.3;
             z-index: -1;
-            opacity: 0.8;
-            transition: var(--transition);
+            transition: var(--transition-slow);
         }
         
         .avatar-background.kelly {
-            background-image: url('./production-deploy/assets/avatars/kelly_wallpaper.png');
-            background-color: white;
+            background-image: url('./production-deploy/assets/avatars/kelly/kelly_neutral_default.png');
         }
         
         .avatar-background.ken {
-            background-image: url('./production-deploy/assets/avatars/ken.jpg');
-            background-color: white;
+            background-image: url('./production-deploy/assets/avatars/ken/ken_neutral_default.png');
         }
         
-
-        
-        /* Unified Controls Layout */
-        .controls-section {
+        /* Icon Rail - Clean & Working */
+        .rail {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            align-items: center;
+            gap: 12px;
+            z-index: 100;
         }
         
-        .control-btn {
-            width: 56px;
-            height: 56px;
-            border-radius: var(--radius-lg);
-            border: none;
+        .rail-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
             background: var(--surface);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            color: var(--primary);
-            font-size: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            font-size: 18px;
             cursor: pointer;
             transition: var(--transition);
+            backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+        
+        .rail-btn:hover {
+            background: var(--surface-hover);
+            transform: scale(1.05);
             box-shadow: var(--shadow-md);
+        }
+        
+        .rail-btn[data-state="active"] {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .rail-btn[data-state="warning"] {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+        
+        .rail-btn img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        /* Controls Section - Clean & Integrated */
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .control-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-primary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .control-btn:hover {
             background: var(--surface-hover);
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: var(--shadow-xl);
-            border-color: rgba(255,255,255,0.2);
+            transform: scale(1.05);
         }
         
-        .control-btn.active {
-            background: var(--primary);
-            color: var(--text-primary);
-            box-shadow: 0 0 0 1px var(--primary), var(--shadow-lg);
-        }
-        
+        /* Volume Slider - Clean & Working */
         .volume-slider {
-            width: 56px;
-            height: 4px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(20px);
             -webkit-appearance: none;
             appearance: none;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            outline: none;
-            cursor: pointer;
-            transform: rotate(-90deg);
-            transform-origin: 28px 28px;
         }
         
         .volume-slider::-webkit-slider-thumb {
@@ -191,76 +200,115 @@
             height: 16px;
             border-radius: 50%;
             background: var(--surface);
-            cursor: pointer;
-            box-shadow: var(--shadow-md);
             border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
         }
         
-        .volume-slider::-webkit-slider-track {
-            background: transparent;
+        .volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
         }
         
-        /* Minimal Modals - Stay within 16:9 bounds */
-        .modal { 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0,0,0,0.2); 
+        /* Modals - Clean & Working (No Size Constraints) */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.2);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
-            display: none; 
-            z-index: 1000; 
+            display: none;
+            z-index: 1000;
         }
-        .modal.visible { 
-            display: block; 
+        
+        .modal.visible {
+            display: block;
         }
-        .modal-content { 
-            background: rgba(255, 255, 255, 0.98); 
+        
+        .modal-content {
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            padding: 14px; 
-            border-radius: var(--radius-lg); 
-            max-width: 280px; 
+            padding: 14px;
+            border-radius: var(--radius-lg);
+            max-width: 280px;
             box-shadow: var(--shadow-lg);
             position: fixed;
             z-index: 1002;
-            /* No scrolling - content must fit */
             max-height: 360px;
             overflow: hidden;
             color: #1a1a1a;
         }
-        .modal h3 { 
-            margin-bottom: 16px; 
-            color: #1a1a1a; 
+        
+        .modal h3 {
+            margin-bottom: 16px;
+            color: #1a1a1a;
             font-size: 20px;
             font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .modal p { 
-            margin-bottom: 16px; 
-            color: #333333; 
-            line-height: 1.6;
-            font-size: 14px;
-        }
-        .modal button { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 12px 24px; 
-            border-radius: var(--radius-md); 
+        
+        .modal button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
             transition: var(--transition);
             margin-top: 16px;
+            width: 100%;
         }
+        
         .modal button:hover {
             background: var(--primary-dark);
             transform: translateY(-1px);
         }
         
-        /* Modern Micro-Interactions & Animations */
+        /* Grid Layouts - Clean & Working */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+        
+        /* Button Styles - Clean & Consistent */
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #495057;
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* Animations - Clean & Smooth */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -272,27 +320,6 @@
             }
         }
         
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.05);
-                opacity: 0.8;
-            }
-        }
-        
-        @keyframes shimmer {
-            0% {
-                background-position: -200px 0;
-            }
-            100% {
-                background-position: calc(200px + 100%) 0;
-            }
-        }
-        
-        /* Icon entrance animations */
         .rail-btn {
             animation: fadeInUp 0.6s ease-out forwards;
             opacity: 0;
@@ -305,207 +332,9 @@
         .rail-btn:nth-child(5) { animation-delay: 0.5s; }
         .rail-btn:nth-child(6) { animation-delay: 0.6s; }
         .rail-btn:nth-child(7) { animation-delay: 0.7s; }
-        .rail-btn:nth-child(8) { animation-delay: 0.8s; }
-        .rail-btn:nth-child(9) { animation-delay: 0.9s; }
-        .rail-btn:nth-child(10) { animation-delay: 1.0s; }
-        
-        /* Hover effects with depth */
-        .rail-btn:hover {
-            background: var(--surface-hover);
-            transform: translateY(-2px) scale(1.05) rotate(1deg); 
-            box-shadow: var(--shadow-xl);
-            border-color: rgba(255,255,255,0.2);
-        }
-        
-        /* Active state with ripple effect */
-        .rail-btn:active::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transform: translate(-50%, -50%);
-            animation: ripple 0.6s ease-out;
-        }
-        
-        @keyframes ripple {
-            to {
-                width: 100px;
-                height: 100px;
-                opacity: 0;
-            }
-        }
-        
-        /* Status entrance */
-        .status {
-            animation: fadeInUp 0.8s ease-out 0.2s forwards;
-            opacity: 0;
-        }
-        
-        /* Avatar entrance */
-        .avatar-background {
-            animation: fadeInUp 1s ease-out 0.4s forwards;
-            opacity: 0.3;
-        }
-        
-        /* Modern focus states */
-        .rail-btn:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3), var(--shadow-lg);
-        }
-        
-        .control-btn:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3), var(--shadow-lg);
-        }
-        
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* Modern scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--surface);
-            border-radius: var(--radius-sm);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: var(--radius-sm);
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-dark);
-        }
-
-        /* Modern Icon Rail - 2025 Design */
-        .rail { 
-            position: fixed; 
-            top: 50%; 
-            right: 24px; 
-            transform: translateY(-50%); 
-            display: flex; 
-            flex-direction: column; 
-            gap: 16px; 
-            z-index: 2147483647; 
-        }
-        
-        .rail-btn { 
-            width: 56px; 
-            height: 56px; 
-            border-radius: 50%; 
-            border: none; 
-            background: var(--surface);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            box-shadow: var(--shadow-md);
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 22px;
-            transition: var(--transition);
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.1);
-            overflow: hidden;
-        }
-        
-        .rail-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-            opacity: 0;
-            transition: var(--transition);
-        }
-        
-        .rail-btn:hover { 
-            background: var(--surface-hover);
-            transform: translateY(-2px) scale(1.05) rotate(1deg); 
-            box-shadow: var(--shadow-xl);
-            border-color: rgba(255,255,255,0.2);
-        }
-        
-        .rail-btn:hover::before {
-            opacity: 1;
-        }
-        
-        .rail-btn:active {
-            transform: translateY(0) scale(0.98);
-            transition: var(--transition-fast);
-        }
-        
-        /* Modern Tooltips */
-        .rail-btn::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            right: 72px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.9);
-            color: var(--text-primary);
-            padding: 10px 14px;
-            border-radius: var(--radius-md);
-            font-size: 13px;
-            font-weight: 500;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: var(--transition);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: var(--shadow-lg);
-            z-index: 2147483648;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .rail-btn:hover::after {
-            opacity: 1;
-            transform: translateY(-50%) translateX(-4px);
-        }
-        
-        /* Modern State Indicators - Clean Apple Style */
-        .rail-btn[data-state="active"] {
-            background: var(--surface-hover);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .rail-btn[data-state="warning"] {
-            background: var(--surface-hover);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .rail-btn[data-state="error"] {
-            background: var(--surface-hover);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        /* Special Icon Styling */
-        .rail-btn[data-icon="age"] {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary);
-            letter-spacing: -0.02em;
-        }
-        
-        .rail-btn[data-icon="calendar"] {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--primary);
-            letter-spacing: 0.02em;
-        }
-
+        .controls-section .control-btn { animation-delay: 0.8s; }
+        .volume-slider { animation-delay: 0.9s; }
+        .controls-section .control-btn:last-child { animation-delay: 1.0s; }
     </style>
 </head>
 <body>
@@ -522,9 +351,7 @@
     <!-- Avatar Backgrounds -->
     <div class="avatar-background kelly" id="avatar-bg"></div>
     
-
-    
-    <!-- Professional Icon Rail - Unified Stack -->
+    <!-- Professional Icon Rail - Clean & Working -->
     <div class="rail">
         <!-- Avatar - Top Priority -->
         <button class="rail-btn" id="icon-model" onclick="testClick('avatar-modal', 'Avatar')" data-state="active" data-icon="model" data-tooltip="👩‍🏫 Avatar - Kelly, Ken, or You (facescan)">
@@ -547,7 +374,7 @@
         </button>
         
         <!-- Age - Personalization -->
-        <button class="rail-btn" id="icon-age" onclick="testClick('age-modal', 'Avatar')" data-state="active" data-icon="age" data-tooltip="25 - Current age setting">
+        <button class="rail-btn" id="icon-age" onclick="testClick('age-modal', 'Age')" data-state="active" data-icon="age" data-tooltip="25 - Current age setting">
             25
         </button>
         
@@ -557,7 +384,7 @@
         </button>
         
         <!-- Tone - Personalization -->
-        <button class="rail-btn" id="icon-tone" onclick="testClick('tone-modal', 'Tone')" data-state="active" data-icon="tone" data-tooltip="😊 Tone - Neutral, Fun, or Grandparent">
+        <button class="rail-btn" id="icon-tone" onclick="testClick('tone-modal', 'Tone')" data-state="active" data-icon="tone" data-tooltip="😊 Tone - Neutral, Fun, or Warm">
             😊
         </button>
         
@@ -574,9 +401,10 @@
             </button>
         </div>
     </div>
-
-
     
+    <!-- All Modals - Clean & Working -->
+    
+    <!-- Find Modal -->
     <div class="modal" id="find-modal">
         <div class="modal-content">
             <h3>🔍 Find Lessons</h3>
@@ -614,6 +442,7 @@
         </div>
     </div>
     
+    <!-- Settings Modal - Working Perfectly -->
     <div class="modal" id="settings-modal">
         <div class="modal-content">
             <h3>⚙️ Settings</h3>
@@ -633,7 +462,7 @@
             <!-- Quick Actions -->
             <div style="margin-bottom: 16px;">
                 <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 8px; font-size: 13px;">Quick Actions</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <div class="grid-2">
                     <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; text-align: center; font-size: 12px; color: #1a1a1a;" onclick="updateStatus('👤 Profile management opened')">👤 Profile</div>
                     <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; text-align: center; font-size: 12px; color: #1a1a1a;" onclick="updateStatus('💳 Account settings opened')">💳 Account</div>
                     <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer; text-align: center; font-size: 12px; color: #1a1a1a;" onclick="updateStatus('📚 Learning history opened')">📚 History</div>
@@ -645,6 +474,7 @@
         </div>
     </div>
     
+    <!-- Calendar Modal -->
     <div class="modal" id="calendar-modal">
         <div class="modal-content">
             <h3>📅 Today's Lesson</h3>
@@ -679,6 +509,7 @@
         </div>
     </div>
     
+    <!-- Avatar Modal - Fixed Positioning -->
     <div class="modal" id="avatar-modal">
         <div class="modal-content">
             <h3>👩‍🏫 Choose Your Avatar</h3>
@@ -714,6 +545,7 @@
         </div>
     </div>
     
+    <!-- Tone Modal - Clean & Working -->
     <div class="modal" id="tone-modal">
         <div class="modal-content">
             <h3>😊 Tone Selection</h3>
@@ -725,26 +557,26 @@
                 <div style="color: #666; font-size: 10px;">Current Tone</div>
             </div>
             
-            <!-- Tone Options - Compact Grid Layout -->
+            <!-- Tone Options - Clean Grid Layout -->
             <div style="margin-bottom: 10px;">
                 <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 11px;">Select Learning Tone</div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
-                    <button onclick="selectTone('neutral', '😊')" style="background: #007AFF; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                <div class="grid-3">
+                    <button onclick="selectTone('neutral', '😊')" class="btn-primary">
                         <span style="font-size: 14px;">😊</span>
                         <span style="font-size: 9px;">Neutral</span>
                     </button>
-                    <button onclick="selectTone('fun', '🎉')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 10px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectTone('fun', '🎉')" class="btn-secondary">
                         <span style="font-size: 14px;">🎉</span>
                         <span style="font-size: 9px;">Fun</span>
                     </button>
-                    <button onclick="selectTone('grandparent', '👴')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 10px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectTone('grandparent', '👴')" class="btn-secondary">
                         <span style="font-size: 14px;">👴</span>
                         <span style="font-size: 9px;">Warm</span>
                     </button>
                 </div>
             </div>
             
-            <!-- Tone Info - Ultra Compact -->
+            <!-- Tone Info - Clean & Compact -->
             <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin: 8px 0;">
                 <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 10px;">🎭 Learning Style</div>
                 <div style="font-size: 9px; color: #666; line-height: 1.2;">
@@ -754,10 +586,11 @@
                 </div>
             </div>
             
-            <button onclick="closeModal('tone-modal')" style="width: 100%; margin-top: 6px; padding: 8px; font-size: 12px;">Close</button>
+            <button onclick="closeModal('tone-modal')">Close</button>
         </div>
     </div>
     
+    <!-- Language Modal - Clean & Working -->
     <div class="modal" id="language-modal">
         <div class="modal-content">
             <h3>🌍 Language Selection</h3>
@@ -772,52 +605,52 @@
             <!-- Language Grid - 12 Languages in 3x4 Layout -->
             <div style="margin-bottom: 12px;">
                 <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 12px;">Select Language</div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
-                    <button onclick="selectLanguage('en', '🇺🇸')" style="background: #007AFF; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                <div class="grid-3">
+                    <button onclick="selectLanguage('en', '🇺🇸')" class="btn-primary">
                         <span style="font-size: 14px;">🇺🇸</span>
                         <span style="font-size: 9px;">EN</span>
                     </button>
-                    <button onclick="selectLanguage('es', '🇪🇸')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('es', '🇪🇸')" class="btn-secondary">
                         <span style="font-size: 14px;">🇪🇸</span>
                         <span style="font-size: 9px;">ES</span>
                     </button>
-                    <button onclick="selectLanguage('fr', '🇫🇷')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('fr', '🇫🇷')" class="btn-secondary">
                         <span style="font-size: 14px;">🇫🇷</span>
                         <span style="font-size: 9px;">FR</span>
                     </button>
-                    <button onclick="selectLanguage('de', '🇩🇪')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('de', '🇩🇪')" class="btn-secondary">
                         <span style="font-size: 14px;">🇩🇪</span>
                         <span style="font-size: 9px;">DE</span>
                     </button>
-                    <button onclick="selectLanguage('it', '🇮🇹')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('it', '🇮🇹')" class="btn-secondary">
                         <span style="font-size: 14px;">🇮🇹</span>
                         <span style="font-size: 9px;">IT</span>
                     </button>
-                    <button onclick="selectLanguage('pt', '🇵🇹')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('pt', '🇵🇹')" class="btn-secondary">
                         <span style="font-size: 14px;">🇵🇹</span>
                         <span style="font-size: 9px;">PT</span>
                     </button>
-                    <button onclick="selectLanguage('zh', '🇨🇳')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('zh', '🇨🇳')" class="btn-secondary">
                         <span style="font-size: 14px;">🇨🇳</span>
                         <span style="font-size: 9px;">ZH</span>
                     </button>
-                    <button onclick="selectLanguage('ja', '🇯🇵')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('ja', '🇯🇵')" class="btn-secondary">
                         <span style="font-size: 14px;">🇯🇵</span>
                         <span style="font-size: 9px;">JA</span>
                     </button>
-                    <button onclick="selectLanguage('ko', '🇰🇷')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('ko', '🇰🇷')" class="btn-secondary">
                         <span style="font-size: 14px;">🇰🇷</span>
                         <span style="font-size: 9px;">KO</span>
                     </button>
-                    <button onclick="selectLanguage('ar', '🇸🇦')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('ar', '🇸🇦')" class="btn-secondary">
                         <span style="font-size: 14px;">🇸🇦</span>
                         <span style="font-size: 9px;">AR</span>
                     </button>
-                    <button onclick="selectLanguage('hi', '🇮🇳')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('hi', '🇮🇳')" class="btn-secondary">
                         <span style="font-size: 14px;">🇮🇳</span>
                         <span style="font-size: 9px;">HI</span>
                     </button>
-                    <button onclick="selectLanguage('ru', '🇷🇺')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                    <button onclick="selectLanguage('ru', '🇷🇺')" class="btn-secondary">
                         <span style="font-size: 14px;">🇷🇺</span>
                         <span style="font-size: 9px;">RU</span>
                     </button>
@@ -835,10 +668,11 @@
                 </div>
             </div>
             
-            <button onclick="closeModal('language-modal')" style="width: 100%; margin-top: 8px;">Close</button>
+            <button onclick="closeModal('language-modal')">Close</button>
         </div>
     </div>
     
+    <!-- Age Modal - Clean & Working -->
     <div class="modal" id="age-modal">
         <div class="modal-content">
             <h3>🎯 Age Selection</h3>
@@ -850,21 +684,21 @@
                 <div style="color: #666; font-size: 10px;">Current Age Setting</div>
             </div>
             
-            <!-- Age Groups Grid - 10 Groups in 3x4 Layout -->
+            <!-- Age Groups Grid - 11 Groups in 3x4 Layout -->
             <div style="margin-bottom: 12px;">
                 <div style="font-weight: 600; margin-bottom: 6px; color: #1a1a1a; font-size: 12px;">Select Age Group</div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
-                    <button onclick="selectAge('infant')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👶 0-2</button>
-                    <button onclick="selectAge('toddler')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👧 3-5</button>
-                    <button onclick="selectAge('early_childhood')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👦 6-8</button>
-                    <button onclick="selectAge('middle_childhood')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">🧒 9-11</button>
-                    <button onclick="selectAge('pre_teen')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👱‍♀️ 12-14</button>
-                    <button onclick="selectAge('teen')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👨‍🎓 15-17</button>
-                    <button onclick="selectAge('young_adult')" style="background: #007AFF; color: white; border: none; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px;">👩‍💼 18-25</button>
-                    <button onclick="selectAge('adult')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👨‍💻 26-40</button>
-                    <button onclick="selectAge('middle_age')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👨‍🏫 41-60</button>
-                    <button onclick="selectAge('senior')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👴 61-80</button>
-                    <button onclick="selectAge('elder')" style="background: white; border: 1px solid #dee2e6; padding: 6px 4px; border-radius: 4px; cursor: pointer; font-size: 11px; color: #495057;">👵 81-102</button>
+                <div class="grid-3">
+                    <button onclick="selectAge('infant')" class="btn-secondary">👶 0-2</button>
+                    <button onclick="selectAge('toddler')" class="btn-secondary">👧 3-5</button>
+                    <button onclick="selectAge('early_childhood')" class="btn-secondary">👦 6-8</button>
+                    <button onclick="selectAge('middle_childhood')" class="btn-secondary">🧒 9-11</button>
+                    <button onclick="selectAge('pre_teen')" class="btn-secondary">👱‍♀️ 12-14</button>
+                    <button onclick="selectAge('teen')" class="btn-secondary">👨‍🎓 15-17</button>
+                    <button onclick="selectAge('young_adult')" class="btn-primary">👩‍💼 18-25</button>
+                    <button onclick="selectAge('adult')" class="btn-secondary">👨‍💻 26-40</button>
+                    <button onclick="selectAge('middle_age')" class="btn-secondary">👨‍🏫 41-60</button>
+                    <button onclick="selectAge('senior')" class="btn-secondary">👴 61-80</button>
+                    <button onclick="selectAge('elder')" class="btn-secondary">👵 81-102</button>
                 </div>
             </div>
             
@@ -879,16 +713,7 @@
                 </div>
             </div>
             
-            <button onclick="closeModal('age-modal')" style="width: 100%; margin-top: 8px;">Close</button>
-        </div>
-    </div>
-    
-    <div class="modal" id="controls-modal">
-        <div class="modal-content">
-            <h3>🎛️ Controls</h3>
-            <p>This panel is always open on the right side!</p>
-            <p>Use the controls panel for Play/Pause/Volume</p>
-            <button onclick="closeModal('controls-modal')">Close</button>
+            <button onclick="closeModal('age-modal')">Close</button>
         </div>
     </div>
 
@@ -909,6 +734,52 @@
                 // Show the modal
                 modal.classList.add('visible');
                 modal.style.display = 'flex';
+            }
+        }
+        
+        // Modal positioning function - Clean & Working
+        function positionModalNextToIcon(modal, modalId) {
+            const modalContent = modal.querySelector('.modal-content');
+            if (!modalContent) return;
+            
+            // Get the clicked icon
+            const icon = event.target.closest('.rail-btn');
+            if (!icon) return;
+            
+            const iconRect = icon.getBoundingClientRect();
+            const modalWidth = 280; // Modal width
+            const modalHeight = 360; // Modal height
+            const viewportHeight = window.innerHeight;
+            const iconTop = iconRect.top;
+            
+            // Calculate top position to keep modal within viewport
+            let topPosition = iconTop - (modalHeight / 2);
+            if (topPosition < 20) {
+                topPosition = 20;
+            }
+            if (topPosition + modalHeight > viewportHeight - 20) {
+                topPosition = viewportHeight - modalHeight - 20;
+            }
+            
+            // Position modal to the left of the icon (right side of screen)
+            const iconRight = iconRect.right;
+            const modalLeft = Math.max(20, iconRight - modalWidth - 16);
+            
+            // Apply positioning
+            modalContent.style.position = 'fixed';
+            modalContent.style.top = `${topPosition}px`;
+            modalContent.style.left = `${modalLeft}px`;
+            modalContent.style.right = 'auto';
+            modalContent.style.maxHeight = `${modalHeight}px`;
+            modalContent.style.zIndex = '1002';
+            
+            // Special handling for avatar modal - position to the left of avatar icon
+            if (modalId === 'avatar-modal') {
+                const iconRight = iconRect.right;
+                const modalLeft = Math.max(20, iconRight - modalWidth - 16);
+                modalContent.style.left = `${modalLeft}px`;
+                modalContent.style.right = 'auto';
+                modalContent.style.zIndex = '1002'; // Higher z-index for avatar modal
             }
         }
 
@@ -1268,70 +1139,7 @@
             }
         }
     
-    // Tone selection
-    function selectTone(tone, emoji) {
-        const toneIcon = document.getElementById('icon-tone');
-        const currentToneSpan = document.getElementById('current-tone');
-        
-        if (toneIcon) {
-            toneIcon.textContent = emoji;
-            toneIcon.setAttribute('data-tooltip', `😊 Tone - ${tone.charAt(0).toUpperCase() + tone.slice(1)}`);
-        }
-        
-        if (currentToneSpan) {
-            currentToneSpan.textContent = `${emoji} ${tone.charAt(0).toUpperCase() + tone.slice(1)}`;
-        }
-        
-        updateStatus(`🎭 Tone changed to: ${tone}`);
-    }
-    
-    // Language selection
-    function selectLanguage(lang, flag) {
-        const langIcon = document.getElementById('icon-language');
-        const currentLangSpan = document.getElementById('current-language');
-        
-        if (langIcon) {
-            langIcon.textContent = flag;
-            langIcon.setAttribute('data-tooltip', `${flag} Language - ${lang.toUpperCase()}`);
-        }
-        
-        if (currentLangSpan) {
-            currentLangSpan.textContent = `${flag} ${lang === 'en' ? 'English' : lang === 'es' ? 'Spanish' : 'French'}`;
-        }
-        
-        updateStatus(`🌍 Language changed to: ${lang.toUpperCase()}`);
-    }
-    
-    // Age selection
-    function selectAge(ageGroup) {
-        console.log(`🎯 Age group selected: ${ageGroup}`);
-        
-        // Map age group to display text and emoji
-        const ageDisplay = {
-            'infant': '👶',
-            'toddler': '👧', 
-            'early_childhood': '👦',
-            'middle_childhood': '🧒',
-            'pre_teen': '👱‍♀️',
-            'teen': '👨‍🎓',
-            'young_adult': '👩‍💼',
-            'adult': '👨‍💻',
-            'middle_age': '👨‍🏫',
-            'senior': '👴',
-            'elder': '👵'
-        };
-        
-        const emoji = ageDisplay[ageGroup] || '👤';
-        const ageIcon = document.getElementById('icon-age');
-        
-        if (ageIcon) {
-            ageIcon.textContent = emoji;
-            ageIcon.setAttribute('data-tooltip', `${emoji} ${ageGroup.replace('_', ' ')} - Current age setting`);
-        }
-        
-        updateStatus(`✅ Age group set to ${ageGroup.replace('_', ' ')}`);
-        closeModal('age-modal');
-    }
+
     
     // Avatar switching function
     function switchAvatar(avatarType) {
@@ -1377,37 +1185,7 @@
         updateStatus(`👤 Switched to ${avatarType === 'kelly' ? 'Kelly' : 'Ken'} avatar`);
     }
     
-    // Controls functions
-    let isPlaying = false;
-    let isMuted = false;
-    
-    function togglePlayPause() {
-        const playBtn = document.getElementById('play-pause');
-        isPlaying = !isPlaying;
-        
-        if (playBtn) {
-            playBtn.textContent = isPlaying ? '⏸️' : '▶️';
-            playBtn.classList.toggle('active', isPlaying);
-        }
-        
-        updateStatus(isPlaying ? '▶️ Playing' : '⏸️ Paused');
-    }
-    
-    function updateVolume(value) {
-        updateStatus(`🔊 Volume: ${value}%`);
-    }
-    
-    function toggleMute() {
-        const muteBtn = document.getElementById('mute');
-        isMuted = !isMuted;
-        
-        if (muteBtn) {
-            muteBtn.textContent = isMuted ? '🔇' : '🔊';
-            muteBtn.classList.toggle('active', isMuted);
-        }
-        
-        updateStatus(isMuted ? '🔇 Muted' : '🔊 Unmuted');
-    }
+
 
         // Close modals when clicking outside
         document.addEventListener('click', (e) => {
