@@ -682,48 +682,48 @@
         </div>
     </div>
     
-    <!-- Calendar Modal - Beautiful Month/Day Picker -->
+    <!-- Calendar Modal - Ultra-Compact Month/Day Picker -->
     <div class="modal" id="calendar-modal">
         <div class="modal-content">
             <h3>📅 Lesson Calendar</h3>
             
             <!-- Month Navigation -->
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-                <button onclick="previousMonth()" class="btn-secondary" style="padding: 6px 10px; font-size: 12px;">‹</button>
-                <div style="font-weight: 600; font-size: 16px; color: #1a1a1a;" id="current-month">August 2024</div>
-                <button onclick="nextMonth()" class="btn-secondary" style="padding: 6px 10px; font-size: 12px;">›</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <button onclick="previousMonth()" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;">‹</button>
+                <div style="font-weight: 600; font-size: 14px; color: #1a1a1a;" id="current-month">August 2024</div>
+                <button onclick="nextMonth()" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;">›</button>
             </div>
             
             <!-- Day Headers -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 8px;">
-                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">S</div>
-                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">M</div>
-                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">T</div>
-                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">W</div>
-                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">T</div>
-                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">F</div>
-                <div style="text-align: center; font-size: 10px; font-weight: 600; color: #666; padding: 4px;">S</div>
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; margin-bottom: 6px;">
+                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">S</div>
+                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">M</div>
+                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">T</div>
+                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">W</div>
+                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">T</div>
+                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">F</div>
+                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">S</div>
             </div>
             
             <!-- Calendar Grid -->
-            <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 16px;">
+            <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; margin-bottom: 12px;">
                 <!-- Calendar days will be generated here -->
             </div>
             
             <!-- Today's Lesson Preview -->
-            <div id="today-lesson" style="background: #f0f8ff; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007AFF;">
-                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 13px;">☀️ Today's Lesson</div>
-                <div style="color: #666; font-size: 11px; margin-bottom: 8px;">The Sun - Our Star</div>
-                <button onclick="startLesson('sun-lesson-001')" class="btn-primary" style="padding: 6px 12px; font-size: 11px;">Start Lesson</button>
+            <div id="today-lesson" style="background: #f0f8ff; padding: 8px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #007AFF;">
+                <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 11px;">☀️ Today's Lesson</div>
+                <div style="color: #666; font-size: 9px; margin-bottom: 6px;">The Sun - Our Star</div>
+                <button onclick="startLesson('sun-lesson-001')" class="btn-primary" style="padding: 4px 8px; font-size: 9px;">Start Lesson</button>
             </div>
             
             <!-- Quick Actions -->
-            <div style="display: flex; gap: 6px;">
-                <button onclick="jumpToToday()" class="btn-secondary" style="flex: 1; padding: 8px; font-size: 11px;">Today</button>
-                <button onclick="jumpToBirthday()" class="btn-secondary" style="flex: 1; padding: 8px; font-size: 11px;">Birthday</button>
+            <div style="display: flex; gap: 4px;">
+                <button onclick="jumpToToday()" class="btn-secondary" style="flex: 1; padding: 6px; font-size: 10px;">Today</button>
+                <button onclick="jumpToBirthday()" class="btn-secondary" style="flex: 1; padding: 6px; font-size: 10px;">Birthday</button>
             </div>
             
-            <button onclick="closeModal('calendar-modal')" style="margin-top: 12px;">Close</button>
+            <button onclick="closeModal('calendar-modal')" style="margin-top: 8px;">Close</button>
         </div>
     </div>
     
@@ -763,119 +763,119 @@
         </div>
     </div>
     
-    <!-- Tone Modal - Compact & Elegant -->
+    <!-- Tone Modal - Ultra-Compact & Elegant -->
     <div class="modal" id="tone-modal">
         <div class="modal-content">
             <h3>😊 Tone Selection</h3>
             
             <!-- Current Tone Display -->
-            <div style="text-align: center; margin: 8px 0; padding: 6px; background: #fff3cd; border-radius: 6px;">
-                <div style="font-size: 20px; margin-bottom: 2px;">😊</div>
-                <div style="font-size: 11px; font-weight: 600; color: #1a1a1a;">Neutral</div>
+            <div style="text-align: center; margin: 6px 0; padding: 4px; background: #fff3cd; border-radius: 6px;">
+                <div style="font-size: 18px; margin-bottom: 2px;">😊</div>
+                <div style="font-size: 10px; font-weight: 600; color: #1a1a1a;">Neutral</div>
             </div>
             
-            <!-- Tone Options - Compact Grid -->
-            <div style="margin-bottom: 8px;">
-                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 10px;">Select Learning Tone</div>
+            <!-- Tone Options - Ultra-Compact Grid -->
+            <div style="margin-bottom: 6px;">
+                <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 9px;">Select Learning Tone</div>
                 <div class="grid-3">
                     <button onclick="selectTone('neutral', '😊')" class="btn-primary">
-                        <span style="font-size: 12px;">😊</span><br><span style="font-size: 8px;">Neutral</span>
+                        <span style="font-size: 11px;">😊</span><br><span style="font-size: 7px;">Neutral</span>
                     </button>
                     <button onclick="selectTone('fun', '🎉')" class="btn-secondary">
-                        <span style="font-size: 12px;">🎉</span><br><span style="font-size: 8px;">Fun</span>
+                        <span style="font-size: 11px;">🎉</span><br><span style="font-size: 7px;">Fun</span>
                     </button>
                     <button onclick="selectTone('grandparent', '👴')" class="btn-secondary">
-                        <span style="font-size: 12px;">👴</span><br><span style="font-size: 8px;">Warm</span>
+                        <span style="font-size: 11px;">👴</span><br><span style="font-size: 7px;">Warm</span>
                     </button>
                 </div>
             </div>
             
-            <!-- Quick Info -->
-            <div style="background: #f8f9fa; padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 9px; color: #666;">
+            <!-- Ultra-Compact Info -->
+            <div style="background: #f8f9fa; padding: 4px; border-radius: 4px; margin: 4px 0; font-size: 8px; color: #666; line-height: 1.2;">
                 <strong>😊 Neutral:</strong> Professional • <strong>🎉 Fun:</strong> Playful • <strong>👴 Warm:</strong> Nurturing
             </div>
             
-            <button onclick="closeModal('tone-modal')" style="margin-top: 8px;">Close</button>
+            <button onclick="closeModal('tone-modal')" style="margin-top: 6px;">Close</button>
         </div>
     </div>
     
-    <!-- Language Modal - Compact & Elegant -->
+    <!-- Language Modal - Ultra-Compact & Elegant -->
     <div class="modal" id="language-modal">
         <div class="modal-content">
             <h3>🌍 Language Selection</h3>
             
             <!-- Current Language Display -->
-            <div style="text-align: center; margin: 8px 0; padding: 6px; background: #f0f8ff; border-radius: 6px;">
-                <div style="font-size: 20px; margin-bottom: 2px;">🇺🇸</div>
-                <div style="font-size: 11px; font-weight: 600; color: #1a1a1a;">English</div>
+            <div style="text-align: center; margin: 6px 0; padding: 4px; background: #f0f8ff; border-radius: 6px;">
+                <div style="font-size: 18px; margin-bottom: 2px;">🇺🇸</div>
+                <div style="font-size: 10px; font-weight: 600; color: #1a1a1a;">English</div>
             </div>
             
-            <!-- Language Grid - Compact 3x4 Layout -->
-            <div style="margin-bottom: 8px;">
-                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 10px;">Select Language</div>
+            <!-- Language Grid - Ultra-Compact 3x4 Layout -->
+            <div style="margin-bottom: 6px;">
+                <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 9px;">Select Language</div>
                 <div class="grid-3">
                     <button onclick="selectLanguage('en', '🇺🇸')" class="btn-primary">
-                        <span style="font-size: 12px;">🇺🇸</span><br><span style="font-size: 8px;">EN</span>
+                        <span style="font-size: 11px;">🇺🇸</span><br><span style="font-size: 7px;">EN</span>
                     </button>
                     <button onclick="selectLanguage('es', '🇪🇸')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇪🇸</span><br><span style="font-size: 8px;">ES</span>
+                        <span style="font-size: 11px;">🇪🇸</span><br><span style="font-size: 7px;">ES</span>
                     </button>
                     <button onclick="selectLanguage('fr', '🇫🇷')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇫🇷</span><br><span style="font-size: 8px;">FR</span>
+                        <span style="font-size: 11px;">🇫🇷</span><br><span style="font-size: 7px;">FR</span>
                     </button>
                     <button onclick="selectLanguage('de', '🇩🇪')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇩🇪</span><br><span style="font-size: 8px;">DE</span>
+                        <span style="font-size: 11px;">🇩🇪</span><br><span style="font-size: 7px;">DE</span>
                     </button>
                     <button onclick="selectLanguage('it', '🇮🇹')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇮🇹</span><br><span style="font-size: 8px;">IT</span>
+                        <span style="font-size: 11px;">🇮🇹</span><br><span style="font-size: 8px;">IT</span>
                     </button>
                     <button onclick="selectLanguage('pt', '🇵🇹')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇵🇹</span><br><span style="font-size: 8px;">PT</span>
+                        <span style="font-size: 11px;">🇵🇹</span><br><span style="font-size: 7px;">PT</span>
                     </button>
                     <button onclick="selectLanguage('zh', '🇨🇳')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇨🇳</span><br><span style="font-size: 8px;">ZH</span>
+                        <span style="font-size: 11px;">🇨🇳</span><br><span style="font-size: 7px;">ZH</span>
                     </button>
                     <button onclick="selectLanguage('ja', '🇯🇵')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇯🇵</span><br><span style="font-size: 8px;">JA</span>
+                        <span style="font-size: 11px;">🇯🇵</span><br><span style="font-size: 7px;">JA</span>
                     </button>
                     <button onclick="selectLanguage('ko', '🇰🇷')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇰🇷</span><br><span style="font-size: 8px;">KO</span>
+                        <span style="font-size: 11px;">🇰🇷</span><br><span style="font-size: 8px;">KO</span>
                     </button>
                     <button onclick="selectLanguage('ar', '🇸🇦')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇸🇦</span><br><span style="font-size: 8px;">AR</span>
+                        <span style="font-size: 11px;">🇸🇦</span><br><span style="font-size: 7px;">AR</span>
                     </button>
                     <button onclick="selectLanguage('hi', '🇮🇳')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇮🇳</span><br><span style="font-size: 8px;">HI</span>
+                        <span style="font-size: 11px;">🇮🇳</span><br><span style="font-size: 7px;">HI</span>
                     </button>
                     <button onclick="selectLanguage('ru', '🇷🇺')" class="btn-secondary">
-                        <span style="font-size: 12px;">🇷🇺</span><br><span style="font-size: 8px;">RU</span>
+                        <span style="font-size: 11px;">🇷🇺</span><br><span style="font-size: 7px;">RU</span>
                     </button>
                 </div>
             </div>
             
-            <!-- Quick Content Info -->
-            <div style="background: #e8f5e8; padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 9px; color: #2e7d32;">
+            <!-- Ultra-Compact Content Info -->
+            <div style="background: #e8f5e8; padding: 4px; border-radius: 4px; margin: 4px 0; font-size: 8px; color: #2e7d32; line-height: 1.2;">
                 <strong>🇺🇸🇪🇸🇫🇷:</strong> Full (366) • <strong>🇩🇪🇮🇹🇵🇹:</strong> Core (200+) • <strong>🇨🇳🇯🇵🇰🇷:</strong> Basic (100+) • <strong>🇸🇦🇮🇳🇷🇺:</strong> Essential (50+)
             </div>
             
-            <button onclick="closeModal('language-modal')" style="margin-top: 8px;">Close</button>
+            <button onclick="closeModal('language-modal')" style="margin-top: 6px;">Close</button>
         </div>
     </div>
     
-    <!-- Age Modal - Compact PhaseDNA System -->
+    <!-- Age Modal - Ultra-Compact PhaseDNA System -->
     <div class="modal" id="age-modal">
         <div class="modal-content">
             <h3>🎯 Age Selection</h3>
             
             <!-- Current Age Display -->
-            <div style="text-align: center; margin: 8px 0; padding: 6px; background: #f0f8ff; border-radius: 6px;">
-                <div style="font-size: 20px; color: #007AFF; font-weight: 700;">👩‍💼</div>
-                <div style="color: #666; font-size: 10px;">Young Adult (25 years)</div>
+            <div style="text-align: center; margin: 6px 0; padding: 4px; background: #f0f8ff; border-radius: 6px;">
+                <div style="font-size: 18px; color: #007AFF; font-weight: 700;">👩‍💼</div>
+                <div style="color: #666; font-size: 9px;">Young Adult (25 years)</div>
             </div>
             
-            <!-- Age Groups Grid - Compact 10 Groups -->
-            <div style="margin-bottom: 8px;">
-                <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 10px;">Select Age Group</div>
+            <!-- Age Groups Grid - Ultra-Compact 10 Groups -->
+            <div style="margin-bottom: 6px;">
+                <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 9px;">Select Age Group</div>
                 <div class="grid-3">
                     <button onclick="selectAge('age_2')" class="btn-secondary">👶 2</button>
                     <button onclick="selectAge('age_5')" class="btn-secondary">👧 5</button>
@@ -890,12 +890,12 @@
                 </div>
             </div>
             
-            <!-- Quick Learning Guide -->
-            <div style="background: #e8f5e8; padding: 6px; border-radius: 4px; margin: 6px 0; font-size: 9px; color: #2e7d32;">
-                <strong>👶👧👦 2-8:</strong> Child-friendly • <strong>🧒👱‍♀️ 12-16:</strong> Teen-interactive • <strong>👩‍💼👨‍💻 25-40:</strong> Adult-detailed • <strong>👨‍🏫👴👵 60-102:</strong> Mature-comprehensive
+            <!-- Ultra-Compact Learning Guide -->
+            <div style="background: #e8f5e8; padding: 4px; border-radius: 4px; margin: 4px 0; font-size: 8px; color: #2e7d32; line-height: 1.2;">
+                <strong>👶👧👦 2-8:</strong> Child-friendly • <strong>🧒👱‍♀️ 12-16:</strong> Teen-interactive • <strong>👩‍💼👨‍💻 25-40:</strong> Adult-detailed • <strong>👨‍🏫👴👵 60-102:</strong> Mature
             </div>
             
-            <button onclick="closeModal('age-modal')" style="margin-top: 8px;">Close</button>
+            <button onclick="closeModal('age-modal')" style="margin-top: 6px;">Close</button>
         </div>
     </div>
 
@@ -936,7 +936,7 @@
             });
         }
         
-        // Modal positioning function - ELEGANT & PROPER SIZING
+        // Modal positioning function - CORRECT positioning next to icon rail
         function positionModalNextToIcon(modal, modalId) {
             const modalContent = modal.querySelector('.modal-content');
             if (!modalContent) return;
@@ -946,7 +946,7 @@
             if (!icon) return;
             
             const iconRect = icon.getBoundingClientRect();
-            const modalWidth = 320; // Increased modal width for better content fit
+            const modalWidth = 360; // Wider modals that extend further toward center
             const viewportHeight = window.innerHeight;
             const iconTop = iconRect.top;
             
@@ -959,9 +959,10 @@
                 topPosition = viewportHeight - 420;
             }
             
-            // Position modal to the left of the icon rail
-            const iconRight = iconRect.right;
-            const modalLeft = Math.max(20, iconRight - modalWidth - 20);
+            // CRITICAL FIX: Position modal to the LEFT of the icon rail, not over it
+            // The icon rail is at right: 20px, so modals should be positioned to its left
+            const railRightEdge = 20; // Right edge of icon rail
+            const modalLeft = Math.max(20, railRightEdge - modalWidth - 16); // 16px gap from rail
             
             // Apply positioning with proper sizing
             modalContent.style.position = 'fixed';
@@ -974,6 +975,8 @@
             // Ensure modal fits content properly
             modalContent.style.overflowY = 'auto';
             modalContent.style.overflowX = 'hidden';
+            
+            console.log(`📍 Modal ${modalId} positioned: left=${modalLeft}px, top=${topPosition}px, width=${modalWidth}px`);
         }
 
         // CORRECT PhaseDNA Age System Functions
@@ -1289,7 +1292,7 @@
             // Add days of the month
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayElement = document.createElement('div');
-                dayElement.style="padding: 8px; text-align: center; font-size: 11px; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
+                dayElement.style="padding: 6px; text-align: center; font-size: 10px; cursor: pointer; border-radius: 3px; transition: all 0.2s;";
                 dayElement.textContent = day;
                 
                 // Check if this day has a lesson
@@ -1297,7 +1300,7 @@
                 if (lessonEmoji) {
                     dayElement.style.background = '#f0f8ff';
                     dayElement.style.border = '1px solid #007AFF';
-                    dayElement.innerHTML = `${day}<br><span style="font-size: 9px;">${lessonEmoji}</span>`;
+                    dayElement.innerHTML = `${day}<br><span style="font-size: 8px;">${lessonEmoji}</span>`;
                 }
                 
                 // Highlight today
@@ -1313,8 +1316,8 @@
                 // Hover effects
                 dayElement.onmouseenter = () => {
                     if (lessonEmoji) {
-                        dayElement.style.transform = 'scale(1.1)';
-                        dayElement.style.boxShadow = '0 2px 8px rgba(0,122,255,0.3)';
+                        dayElement.style.transform = 'scale(1.05)';
+                        dayElement.style.boxShadow = '0 1px 4px rgba(0,122,255,0.3)';
                     }
                 };
                 dayElement.onmouseleave = () => {
