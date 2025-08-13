@@ -359,13 +359,13 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
-            padding: 20px;
+            padding: 16px;
             border-radius: var(--radius-lg);
-            max-width: 480px;
+            width: 400px;
             box-shadow: var(--shadow-xl);
             position: relative;
             z-index: 9999;
-            max-height: 80vh;
+            max-height: 70vh;
             overflow-y: auto;
             color: #1a1a1a;
             border: 1px solid rgba(255,255,255,0.2);
@@ -813,7 +813,7 @@
                     <button onclick="selectTone('fun', '🎉')" class="btn-secondary">
                         <span style="font-size: 11px;">🎉</span><br><span style="font-size: 7px;">Fun</span>
                     </button>
-                    <button onclick="selectTone('grandparent', '👴')" class="btn-secondary">
+                    <button onclick="selectTone('warm', '👴')" class="btn-secondary">
                         <span style="font-size: 11px;">👴</span><br><span style="font-size: 7px;">Warm</span>
                     </button>
                 </div>
@@ -834,7 +834,7 @@
             <h3>🌍 Language Selection</h3>
             
             <!-- Current Language Display -->
-            <div style="text-align: center; margin: 6px 0; padding: 4px; background: #f0f8ff; border-radius: 6px;">
+            <div style="text-align: center; margin: 4px 0; padding: 3px; background: #f0f8ff; border-radius: 4px;">
                 <div style="font-size: 18px; margin-bottom: 2px;">🇺🇸</div>
                 <div style="font-size: 10px; font-weight: 600; color: #1a1a1a;">English</div>
             </div>
@@ -897,14 +897,14 @@
             <h3>🎯 Age Selection</h3>
             
             <!-- Current Age Display -->
-            <div style="text-align: center; margin: 6px 0; padding: 4px; background: #f0f8ff; border-radius: 6px;">
-                <div style="font-size: 18px; color: #007AFF; font-weight: 700;">👩‍💼</div>
-                <div style="color: #666; font-size: 9px;">Young Adult (25 years)</div>
+            <div style="text-align: center; margin: 4px 0; padding: 3px; background: #f0f8ff; border-radius: 4px;">
+                <div style="font-size: 16px; color: #007AFF; font-weight: 700;">👩‍💼</div>
+                <div style="color: #666; font-size: 8px;">Young Adult (25 years)</div>
             </div>
             
             <!-- Age Groups Grid - Ultra-Compact 10 Groups -->
-            <div style="margin-bottom: 6px;">
-                <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 9px;">Select Age Group</div>
+            <div style="margin-bottom: 4px;">
+                <div style="font-weight: 600; margin-bottom: 2px; color: #1a1a1a; font-size: 8px;">Select Age Group</div>
                 <div class="grid-3">
                     <button onclick="selectAge('age_2')" class="btn-secondary">👶 2</button>
                     <button onclick="selectAge('age_5')" class="btn-secondary">👧 5</button>
@@ -920,11 +920,11 @@
             </div>
             
             <!-- Ultra-Compact Learning Guide -->
-            <div style="background: #e8f5e8; padding: 4px; border-radius: 4px; margin: 4px 0; font-size: 8px; color: #2e7d32; line-height: 1.2;">
+            <div style="background: #e8f5e8; padding: 3px; border-radius: 3px; margin: 3px 0; font-size: 7px; color: #2e7d32; line-height: 1.1;">
                 <strong>👶👧👦 2-8:</strong> Child-friendly • <strong>🧒👱‍♀️ 12-16:</strong> Teen-interactive • <strong>👩‍💼👨‍💻 25-40:</strong> Adult-detailed • <strong>👨‍🏫👴👵 60-102:</strong> Mature
             </div>
             
-            <button onclick="closeModal('age-modal')" style="margin-top: 6px;">Close</button>
+            <button onclick="closeModal('age-modal')" style="margin-top: 4px;">Close</button>
         </div>
     </div>
 
@@ -965,7 +965,7 @@
             });
         }
         
-        // Modal positioning function - PROPER positioning next to RIGHT-SIDE icons
+        // Modal positioning function - CORRECT positioning next to RIGHT-SIDE icons
         function positionModalNextToIcon(modal, modalId) {
             const modalContent = modal.querySelector('.modal-content');
             if (!modalContent) return;
@@ -975,12 +975,12 @@
             if (!icon) return;
             
             const iconRect = icon.getBoundingClientRect();
-            const modalWidth = 360; // Wider modals that extend further toward center
             const viewportHeight = window.innerHeight;
+            const viewportWidth = window.innerWidth;
             const iconTop = iconRect.top;
             
             // Calculate optimal position to keep modal fully visible
-            let topPosition = iconTop - 200; // Center modal with icon
+            let topPosition = iconTop - 150; // Center modal with icon
             if (topPosition < 20) {
                 topPosition = 20;
             }
@@ -988,16 +988,19 @@
                 topPosition = viewportHeight - 420;
             }
             
-            // PROPER POSITIONING: Modals open to the LEFT of the right-side icon rail
-            // Icon rail is at right: 20px, so modals should open at left: 20px (full width)
-            const modalLeft = 20; // Left edge of screen, giving full width for content
+            // CORRECT POSITIONING: Modals open to the LEFT of the right-side icon rail
+            // Icon rail is at right: 20px, so modals should open to its LEFT with proper spacing
+            const railRightEdge = viewportWidth - 20; // Right edge of screen minus rail width
+            const modalWidth = 400; // Fixed width for consistency
+            const modalLeft = Math.max(20, railRightEdge - modalWidth - 40); // 40px gap from rail
             
             // Apply positioning with proper sizing
             modalContent.style.position = 'fixed';
             modalContent.style.top = `${topPosition}px`;
             modalContent.style.left = `${modalLeft}px`;
+            modalContent.style.width = `${modalWidth}px`;
             modalContent.style.right = 'auto';
-            modalContent.style.maxHeight = '80vh';
+            modalContent.style.maxHeight = '70vh'; // Reduced for mobile compatibility
             modalContent.style.zIndex = '9999';
             
             // Ensure modal fits content properly
