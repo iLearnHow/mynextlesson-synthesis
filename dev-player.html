@@ -86,6 +86,8 @@
   <script src="./corrected-variant-generator-v2.js"></script>
   <script src="./complete-lesson-player.js"></script>
   <script>
+    // Configure proxy for the manifest player
+    window.DEV_PROXY_URL = 'http://localhost:8001/proxy?url=';
     const logEl = document.getElementById('log');
     const manifestViewEl = document.getElementById('manifest-view');
     const avatarCanvas = document.getElementById('avatar-canvas');
@@ -125,12 +127,32 @@
 
     function showManifest(m){ manifestViewEl.textContent = JSON.stringify(m, null, 2); }
 
+    // Helper to proxy URLs through the dev proxy to avoid CORS during local dev
+    const useProxy = true;
+    const prox = (u) => useProxy ? (`http://localhost:8001/proxy?url=${encodeURIComponent(u)}`) : u;
+
     document.getElementById('btn-load-api').addEventListener('click', async ()=>{
       try {
         const p = getParams();
-        const r = await window.loadManifest(p);
+        const r = await (async ()=>{
+          // Build API URL and proxy it
+          const base = 'https://api.ilearnhow.com';
+          const url = new URL('/api/v1/manifest', base);
+          url.searchParams.set('date', p.date);
+          url.searchParams.set('lang', p.lang);
+          url.searchParams.set('age', p.ageBand);
+          url.searchParams.set('tone', p.tone);
+          url.searchParams.set('avatar', p.avatarId);
+          const res = await fetch(prox(url.toString()));
+          if (!res.ok) throw new Error(`API ${res.status}`);
+          return await res.json();
+        })();
         log(`Manifest URL: ${r.manifest_url}`);
-        const man = await window.loadVariantByManifest(r.manifest_url);
+        const man = await (async ()=>{
+          const res = await fetch(prox(r.manifest_url));
+          if (!res.ok) throw new Error(`Manifest ${res.status}`);
+          return await res.json();
+        })();
         showManifest(man);
         renderAvatarForSlide(man.slides[0]);
         await MP.prepare(man);
@@ -141,7 +163,8 @@
     document.getElementById('btn-load-file').addEventListener('click', async ()=>{
       try {
         const url = document.getElementById('sel-example').value;
-        const man = await window.loadVariantByManifest(url);
+        const res = await fetch(url);
+        const man = await res.json();
         showManifest(man);
         renderAvatarForSlide(man.slides[0]);
         await MP.prepare(man);

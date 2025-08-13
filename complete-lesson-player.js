@@ -2375,6 +2375,13 @@ if (typeof window !== 'undefined') {
   const listeners = new Map();
   function emit(evt, data){ (listeners.get(evt) || []).forEach(fn => { try { fn(data); } catch {} }); }
   function on(evt, fn){ const arr = listeners.get(evt) || []; arr.push(fn); listeners.set(evt, arr); }
+  function prox(url){
+    try {
+      const p = window.DEV_PROXY_URL;
+      if (p && /^https?:/i.test(url)) return `${p}${encodeURIComponent(url)}`;
+    } catch {}
+    return url;
+  }
 
   const ManifestPlayer = {
     _manifest: null,
@@ -2390,7 +2397,7 @@ if (typeof window !== 'undefined') {
       const slide = manifest.slides[0];
       const firstChunk = slide.audio_manifest?.chunks?.[0];
       if (firstChunk) {
-        const r = await fetch(firstChunk);
+        const r = await fetch(prox(firstChunk));
         const ab = await r.arrayBuffer();
         const buffered = await this._audio.appendChunk(ab);
         emit('buffer', Math.floor(buffered * 1000));
