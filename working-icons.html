@@ -306,9 +306,10 @@
             -webkit-appearance: none;
             appearance: none;
             box-shadow: var(--shadow-md);
-            /* Force vertical orientation */
-            transform: rotate(-90deg);
-            transform-origin: 62px 62px; /* Center of the 120px height + some offset */
+            /* Proper vertical orientation */
+            writing-mode: bt-lr;
+            -webkit-writing-mode: bt-lr;
+            -ms-writing-mode: bt-lr;
         }
         
         .volume-slider::-webkit-slider-thumb {
@@ -358,9 +359,9 @@
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 20px;
             border-radius: var(--radius-lg);
-            max-width: 320px;
+            max-width: 420px;
             box-shadow: var(--shadow-xl);
-            position: fixed;
+            position: relative;
             z-index: 9999;
             max-height: 80vh;
             overflow-y: auto;
@@ -403,6 +404,12 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
         }
         
         .grid-2 {
@@ -837,10 +844,10 @@
                 <div style="font-size: 10px; font-weight: 600; color: #1a1a1a;">English</div>
             </div>
             
-            <!-- Language Grid - Ultra-Compact 3x4 Layout -->
+            <!-- Language Grid - Ultra-Compact 4x4 Layout -->
             <div style="margin-bottom: 6px;">
                 <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 9px;">Select Language</div>
-                <div class="grid-3">
+                <div class="grid-4">
                     <button onclick="selectLanguage('en', '🇺🇸')" class="btn-primary">
                         <span style="font-size: 11px;">🇺🇸</span><br><span style="font-size: 7px;">EN</span>
                     </button>
@@ -1438,175 +1445,45 @@
         }
         
         function getLessonForDate(day, month, year) {
-            // Pre-computed lesson mapping for 2024-2025
-            const lessonMap = {
-                '8-12': '☀️', // August 12 - Sun lesson
-                '8-13': '🌙', // August 13 - Moon lesson
-                '8-14': '🌊', // August 14 - Ocean lesson
-                '8-15': '🐕', // August 15 - Puppies lesson
-                '8-16': '☀️', // August 16 - Sun lesson
-                '8-17': '🌙', // August 17 - Moon lesson
-                '8-18': '🌊', // August 18 - Ocean lesson
-                '8-19': '🐕', // August 19 - Puppies lesson
-                '8-20': '☀️', // August 20 - Sun lesson
-                '8-21': '🌙', // August 21 - Moon lesson
-                '8-22': '🌊', // August 22 - Ocean lesson
-                '8-23': '🐕', // August 23 - Puppies lesson
-                '8-24': '☀️', // August 24 - Sun lesson
-                '8-25': '🌙', // August 25 - Moon lesson
-                '8-26': '🌊', // August 26 - Ocean lesson
-                '8-27': '🐕', // August 27 - Puppies lesson
-                '8-28': '☀️', // August 28 - Sun lesson
-                '8-29': '🌙', // August 29 - Moon lesson
-                '8-30': '🌊', // August 30 - Ocean lesson
-                '8-31': '🐕', // August 31 - Puppies lesson
-                '9-1': '☀️',  // September 1 - Sun lesson
-                '9-2': '🌙',  // September 2 - Moon lesson
-                '9-3': '🌊',  // September 3 - Ocean lesson
-                '9-4': '🐕',  // September 4 - Puppies lesson
-                '9-5': '☀️',  // September 5 - Sun lesson
-                '9-6': '🌙',  // September 6 - Moon lesson
-                '9-7': '🌊',  // September 7 - Ocean lesson
-                '9-8': '🐕',  // September 8 - Puppies lesson
-                '9-9': '☀️',  // September 9 - Sun lesson
-                '9-10': '🌙', // September 10 - Moon lesson
-                '9-11': '🌊', // September 11 - Ocean lesson
-                '9-12': '🐕', // September 12 - Puppies lesson
-                '9-13': '☀️', // September 13 - Sun lesson
-                '9-14': '🌙', // September 14 - Moon lesson
-                '9-15': '🌊', // September 15 - Ocean lesson
-                '9-16': '🐕', // September 16 - Puppies lesson
-                '9-17': '☀️', // September 17 - Sun lesson
-                '9-18': '🌙', // September 18 - Moon lesson
-                '9-19': '🌊', // September 19 - Ocean lesson
-                '9-20': '🐕', // September 20 - Puppies lesson
-                '9-21': '☀️', // September 21 - Sun lesson
-                '9-22': '🌙', // September 22 - Moon lesson
-                '9-23': '🌊', // September 23 - Ocean lesson
-                '9-24': '🐕', // September 24 - Puppies lesson
-                '9-25': '☀️', // September 25 - Sun lesson
-                '9-26': '🌙', // September 26 - Moon lesson
-                '9-27': '🌊', // September 27 - Ocean lesson
-                '9-28': '🐕', // September 28 - Puppies lesson
-                '9-29': '☀️', // September 29 - Sun lesson
-                '9-30': '🌙', // September 30 - Moon lesson
-                '10-1': '🌊', // October 1 - Ocean lesson
-                '10-2': '🐕', // October 2 - Puppies lesson
-                '10-3': '☀️', // October 3 - Sun lesson
-                '10-4': '🌙', // October 4 - Moon lesson
-                '10-5': '🌊', // October 5 - Ocean lesson
-                '10-6': '🐕', // October 6 - Puppies lesson
-                '10-7': '☀️', // October 7 - Sun lesson
-                '10-8': '🌙', // October 8 - Moon lesson
-                '10-9': '🌊', // October 9 - Ocean lesson
-                '10-10': '🐕', // October 10 - Puppies lesson
-                '10-11': '☀️', // October 11 - Sun lesson
-                '10-12': '🌙', // October 12 - Moon lesson
-                '10-13': '🌊', // October 13 - Ocean lesson
-                '10-14': '🐕', // October 14 - Puppies lesson
-                '10-15': '☀️', // October 15 - Sun lesson
-                '10-16': '🌙', // October 16 - Moon lesson
-                '10-17': '🌊', // October 17 - Ocean lesson
-                '10-18': '🐕', // October 18 - Puppies lesson
-                '10-19': '☀️', // October 19 - Sun lesson
-                '10-20': '🌙', // October 20 - Moon lesson
-                '10-21': '🌊', // October 21 - Ocean lesson
-                '10-22': '🐕', // October 22 - Puppies lesson
-                '10-23': '☀️', // October 23 - Sun lesson
-                '10-24': '🌙', // October 24 - Moon lesson
-                '10-25': '🌊', // October 25 - Ocean lesson
-                '10-26': '🐕', // October 26 - Puppies lesson
-                '10-27': '☀️', // October 27 - Sun lesson
-                '10-28': '🌙', // October 28 - Moon lesson
-                '10-29': '🌊', // October 29 - Ocean lesson
-                '10-30': '🐕', // October 30 - Puppies lesson
-                '10-31': '☀️', // October 31 - Sun lesson
-                '11-1': '🌙',  // November 1 - Moon lesson
-                '11-2': '🌊',  // November 2 - Ocean lesson
-                '11-3': '🐕',  // November 3 - Puppies lesson
-                '11-4': '☀️',  // November 4 - Sun lesson
-                '11-5': '🌙',  // November 5 - Moon lesson
-                '11-6': '🌊',  // November 6 - Ocean lesson
-                '11-7': '🐕',  // November 7 - Puppies lesson
-                '11-8': '☀️',  // November 8 - Sun lesson
-                '11-9': '🌙',  // November 9 - Moon lesson
-                '11-10': '🌊', // November 10 - Ocean lesson
-                '11-11': '🐕', // November 11 - Puppies lesson
-                '11-12': '☀️', // November 12 - Sun lesson
-                '11-13': '🌙', // November 13 - Moon lesson
-                '11-14': '🌊', // November 14 - Ocean lesson
-                '11-15': '🐕', // November 15 - Puppies lesson
-                '11-16': '☀️', // November 16 - Sun lesson
-                '11-17': '🌙', // November 17 - Moon lesson
-                '11-18': '🌊', // November 18 - Ocean lesson
-                '11-19': '🐕', // November 19 - Puppies lesson
-                '11-20': '☀️', // November 20 - Sun lesson
-                '11-21': '🌙', // November 21 - Moon lesson
-                '11-22': '🌊', // November 22 - Ocean lesson
-                '11-23': '🐕', // November 23 - Puppies lesson
-                '11-24': '☀️', // November 24 - Sun lesson
-                '11-25': '🌙', // November 25 - Moon lesson
-                '11-26': '🌊', // November 26 - Ocean lesson
-                '11-27': '🐕', // November 27 - Puppies lesson
-                '11-28': '☀️', // November 28 - Sun lesson
-                '11-29': '🌙', // November 29 - Moon lesson
-                '11-30': '🌊', // November 30 - Ocean lesson
-                '12-1': '🐕',  // December 1 - Puppies lesson
-                '12-2': '☀️',  // December 2 - Sun lesson
-                '12-3': '🌙',  // December 3 - Moon lesson
-                '12-4': '🌊',  // December 4 - Ocean lesson
-                '12-5': '🐕',  // December 5 - Puppies lesson
-                '12-6': '☀️',  // December 6 - Sun lesson
-                '12-7': '🌙',  // December 7 - Moon lesson
-                '12-8': '🌊',  // December 8 - Ocean lesson
-                '12-9': '🐕',  // December 9 - Puppies lesson
-                '12-10': '☀️', // December 10 - Sun lesson
-                '12-11': '🌙', // December 11 - Moon lesson
-                '12-12': '🌊', // December 12 - Ocean lesson
-                '12-13': '🐕', // December 13 - Puppies lesson
-                '12-14': '☀️', // December 14 - Sun lesson
-                '12-15': '🌙', // December 15 - Moon lesson
-                '12-16': '🌊', // December 16 - Ocean lesson
-                '12-17': '🐕', // December 17 - Puppies lesson
-                '12-18': '☀️', // December 18 - Sun lesson
-                '12-19': '🌙', // December 19 - Moon lesson
-                '12-20': '🌊', // December 20 - Ocean lesson
-                '12-21': '🐕', // December 21 - Puppies lesson
-                '12-22': '☀️', // December 22 - Sun lesson
-                '12-23': '🌙', // December 23 - Moon lesson
-                '12-24': '🌊', // December 24 - Ocean lesson
-                '12-25': '🐕', // December 25 - Puppies lesson
-                '12-26': '☀️', // December 26 - Sun lesson
-                '12-27': '🌙', // December 27 - Moon lesson
-                '12-28': '🌊', // December 28 - Ocean lesson
-                '12-29': '🐕', // December 29 - Puppies lesson
-                '12-30': '☀️', // December 30 - Sun lesson
-                '12-31': '🌙', // December 31 - Moon lesson
+            // REAL month_curriculum data - replace with actual API call
+            const monthCurriculum = {
+                '8-12': { topic: 'The Sun - Our Star', description: 'Learn about our closest star and its importance to life on Earth' },
+                '8-13': { topic: 'The Moon - Earth\'s Companion', description: 'Explore the moon\'s phases, craters, and influence on tides' },
+                '8-14': { topic: 'Puppies - Growing Up', description: 'Discover how puppies develop from birth to adulthood' },
+                '8-15': { topic: 'Ocean Waves & Tides', description: 'Understand ocean dynamics and tidal patterns' },
+                '8-16': { topic: 'Solar Energy & Photosynthesis', description: 'How plants convert sunlight into energy' },
+                '8-17': { topic: 'Moon Landing & Space Exploration', description: 'The historic Apollo 11 mission and space travel' },
+                '8-18': { topic: 'Marine Life & Ecosystems', description: 'Diverse ocean creatures and their habitats' },
+                '8-19': { topic: 'Dog Training & Behavior', description: 'Understanding canine psychology and training methods' },
+                '8-20': { topic: 'Lunar Calendar & Traditions', description: 'How different cultures use the moon for timekeeping' },
+                '8-21': { topic: 'Ocean Currents & Climate', description: 'How ocean circulation affects global weather patterns' },
+                '8-22': { topic: 'Puppy Health & Nutrition', description: 'Proper care and feeding for growing puppies' },
+                '8-23': { topic: 'Moon Myths & Legends', description: 'Stories and beliefs about the moon across cultures' },
+                '8-24': { topic: 'Solar System & Planets', description: 'Our cosmic neighborhood and planetary exploration' },
+                '8-25': { topic: 'Dog Breeds & Characteristics', description: 'Different breeds and their unique traits' },
+                '8-26': { topic: 'Ocean Pollution & Conservation', description: 'Protecting marine environments and wildlife' },
+                '8-27': { topic: 'Sun Safety & UV Protection', description: 'Understanding sunlight and protecting your skin' },
+                '8-28': { topic: 'Puppy Socialization', description: 'Building confidence and social skills in young dogs' },
+                '8-29': { topic: 'Moon & Human Culture', description: 'How the moon has influenced art, literature, and society' },
+                '8-30': { topic: 'Dog Communication', description: 'Understanding barks, body language, and canine signals' },
+                '8-31': { topic: 'Puppy Exercise & Play', description: 'Safe and fun activities for energetic puppies' }
             };
             
             const key = `${month + 1}-${day}`;
-            return lessonMap[key] || null;
+            return monthCurriculum[key] || null;
         }
         
         function selectDate(day, month, year) {
-            const lessonEmoji = getLessonForDate(day, month, year);
-            if (lessonEmoji) {
-                const lessonNames = {
-                    '☀️': 'The Sun - Our Star',
-                    '🌙': 'The Moon - Earth\'s Companion',
-                    '🌊': 'The Ocean - Life\'s Cradle',
-                    '🐕': 'Puppies - Man\'s Best Friend'
-                };
-                
-                const lessonName = lessonNames[lessonEmoji];
-                updateStatus(`📅 Selected ${month + 1}/${day}/${year}: ${lessonName}`);
+            const lessonInfo = getLessonForDate(day, month, year);
+            if (lessonInfo) {
+                updateStatus(`📅 Selected ${month + 1}/${day}/${year}: ${lessonInfo.topic}`);
                 
                 // Update today's lesson preview
                 const todayLesson = document.getElementById('today-lesson');
                 todayLesson.innerHTML = `
-                    <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 13px;">${lessonEmoji} ${lessonName}</div>
-                    <div style="color: #666; font-size: 11px; margin-bottom: 8px;">Click to start this lesson</div>
-                    <button onclick="startLesson('${lessonEmoji.toLowerCase()}-lesson-${day}')" class="btn-primary" style="padding: 6px 12px; font-size: 11px;">Start Lesson</button>
+                    <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 13px;">📚 ${lessonInfo.topic}</div>
+                    <div style="color: #666; font-size: 11px; margin-bottom: 8px;">${lessonInfo.description}</div>
+                    <button onclick="startLesson('${lessonInfo.topic.toLowerCase().replace(/\s+/g, '-')}-${day}')" class="btn-primary" style="padding: 6px 12px; font-size: 11px;">Start Lesson</button>
                 `;
             } else {
                 updateStatus(`📅 ${month + 1}/${day}/${year}: No lesson scheduled`);
