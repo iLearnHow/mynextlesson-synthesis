@@ -350,9 +350,7 @@
         }
         
         .modal.visible {
-            display: flex;
-            align-items: flex-start;
-            justify-content: flex-start;
+            display: block;
         }
         
         .modal-content {
@@ -1030,7 +1028,7 @@
             });
         }
         
-        // Modal positioning function - CORRECT positioning next to RIGHT-SIDE icons
+        // Modal positioning function - FIXED positioning for proper modal overlay
         function positionModalNextToIcon(modal, modalId) {
             const modalContent = modal.querySelector('.modal-content');
             if (!modalContent) return;
@@ -1053,11 +1051,21 @@
                 topPosition = viewportHeight - 420;
             }
             
-            // CORRECT POSITIONING: Modals open to the LEFT of the right-side icon rail
-            // Icon rail is at right: 20px, so modals should open to its LEFT with proper spacing
+            // FIXED POSITIONING: Modals open as proper overlays to the LEFT of the right-side icon rail
             const railRightEdge = viewportWidth - 20; // Right edge of screen minus rail width
             const modalWidth = 400; // Fixed width for consistency
             const modalLeft = Math.max(20, railRightEdge - modalWidth - 40); // 40px gap from rail
+            
+            // Reset any previous positioning
+            modalContent.style.position = '';
+            modalContent.style.top = '';
+            modalContent.style.left = '';
+            modalContent.style.width = '';
+            modalContent.style.right = '';
+            modalContent.style.maxHeight = '';
+            modalContent.style.zIndex = '';
+            modalContent.style.overflowY = '';
+            modalContent.style.overflowX = '';
             
             // Apply positioning with proper sizing
             modalContent.style.position = 'fixed';
