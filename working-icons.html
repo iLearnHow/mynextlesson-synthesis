@@ -1407,11 +1407,13 @@
                 dayElement.textContent = day;
                 
                 // Check if this day has a lesson
-                const lessonEmoji = getLessonForDate(day, currentMonth, currentYear);
-                if (lessonEmoji) {
+                const lessonInfo = getLessonForDate(day, currentMonth, currentYear);
+                if (lessonInfo) {
                     dayElement.style.background = '#f0f8ff';
                     dayElement.style.border = '1px solid #007AFF';
-                    dayElement.innerHTML = `${day}<br><span style="font-size: 8px;">${lessonEmoji}</span>`;
+                    // Use lesson topic emoji based on content type
+                    const topicEmoji = getTopicEmoji(lessonInfo.topic);
+                    dayElement.innerHTML = `${day}<br><span style="font-size: 8px;">${topicEmoji}</span>`;
                 }
                 
                 // Highlight today
@@ -1426,13 +1428,13 @@
                 
                 // Hover effects
                 dayElement.onmouseenter = () => {
-                    if (lessonEmoji) {
+                    if (lessonInfo) {
                         dayElement.style.transform = 'scale(1.05)';
                         dayElement.style.boxShadow = '0 1px 4px rgba(0,122,255,0.3)';
                     }
                 };
                 dayElement.onmouseleave = () => {
-                    if (lessonEmoji) {
+                    if (lessonInfo) {
                         dayElement.style.transform = 'scale(1)';
                         dayElement.style.boxShadow = 'none';
                     }
@@ -1440,6 +1442,19 @@
                 
                 grid.appendChild(dayElement);
             }
+        }
+        
+        function getTopicEmoji(topic) {
+            // Convert lesson topics to appropriate emojis
+            if (topic.includes('Sun') || topic.includes('Solar')) return '☀️';
+            if (topic.includes('Moon') || topic.includes('Lunar')) return '🌙';
+            if (topic.includes('Ocean') || topic.includes('Marine')) return '🌊';
+            if (topic.includes('Puppy') || topic.includes('Dog')) return '🐕';
+            if (topic.includes('Space') || topic.includes('Planet')) return '🚀';
+            if (topic.includes('Plant') || topic.includes('Photo')) return '🌱';
+            if (topic.includes('Culture') || topic.includes('Art')) return '🎨';
+            if (topic.includes('Health') || topic.includes('Training')) return '🏥';
+            return '📚'; // Default for other topics
         }
         
         function getLessonForDate(day, month, year) {
