@@ -577,13 +577,6 @@
         <strong>iLearn How - Working Icons</strong><br>
         Status: Ready<br>
         Click any icon to test<br>
-        <button onclick="demoBadgeUpdates()">🎭 Full Demo</button>
-        <button onclick="testAllFunctionality()">🧪 Test All</button>
-        <button onclick="testIconFunctionality('age')">🎯 Test Age</button>
-        <button onclick="testIconFunctionality('language')">🌍 Test Lang</button>
-        <button onclick="testIconFunctionality('tone')">😊 Test Tone</button>
-        <button onclick="testIconFunctionality('avatar')">👩‍🏫 Test Avatar</button>
-        <button onclick="testIconFunctionality('calendar')">📅 Test Calendar</button>
         <button onclick="switchAvatar('ken')">👨‍💼 Switch to Ken</button>
         <button onclick="switchAvatar('kelly')">👩‍💼 Switch to Kelly</button>
     </div>
@@ -1208,59 +1201,7 @@
             }
         }
         
-        // Comprehensive functionality test
-        function testAllFunctionality() {
-            updateStatus('🧪 Starting comprehensive functionality test...');
-            
-            // Test calendar system
-            setTimeout(() => {
-                updateStatus('📅 Testing calendar system...');
-                renderCalendar();
-                selectDate(15, 7, 2024); // August 15
-            }, 500);
-            
-            // Test age system
-            setTimeout(() => {
-                updateStatus('🎯 Testing age system...');
-                selectAge('age_8');
-            }, 1500);
-            
-            // Test language system
-            setTimeout(() => {
-                updateStatus('🌍 Testing language system...');
-                selectLanguage('es', '🇪🇸');
-            }, 2500);
-            
-            // Test tone system
-            setTimeout(() => {
-                updateStatus('😊 Testing tone system...');
-                selectTone('fun', '🎉');
-            }, 3500);
-            
-            // Test avatar system
-            setTimeout(() => {
-                updateStatus('👩‍🏫 Testing avatar system...');
-                switchAvatar('ken');
-            }, 4500);
-            
-            // Test controls
-            setTimeout(() => {
-                updateStatus('🎛️ Testing controls...');
-                togglePlayPause();
-                updateVolume(75);
-            }, 5500);
-            
-            // Reset to defaults
-            setTimeout(() => {
-                updateStatus('🔄 Resetting to defaults...');
-                selectAge('age_25');
-                selectLanguage('en', '🇺🇸');
-                selectTone('neutral', '😊');
-                switchAvatar('kelly');
-                togglePlayPause(); // Stop playing
-                updateStatus('✅ Comprehensive test complete! All systems working.');
-            }, 6500);
-        }
+
         
         // Avatar switching function
         function switchAvatar(avatarType) {
@@ -1285,93 +1226,14 @@
             updateStatus(`👤 Switched to ${avatarType === 'kelly' ? 'Kelly' : 'Ken'} avatar`);
         }
         
-        // Comprehensive Testing & Demo Functions
-        function demoBadgeUpdates() {
-            updateStatus('🎭 Demo: Testing ALL icon functionality comprehensively...');
-            
-            // Test each icon individually with proper timing
-            const testSequence = [
-                { modal: 'age-modal', name: 'Age', delay: 500 },
-                { modal: 'language-modal', name: 'Language', delay: 1000 },
-                { modal: 'tone-modal', name: 'Tone', delay: 1500 },
-                { modal: 'settings-modal', name: 'Settings', delay: 2000 },
-                { modal: 'find-modal', name: 'Find', delay: 2500 },
-                { modal: 'calendar-modal', name: 'Calendar', delay: 3000 },
-                { modal: 'avatar-modal', name: 'Avatar', delay: 3500 }
-            ];
-            
-            testSequence.forEach(({ modal, name, delay }) => {
-                setTimeout(() => {
-                    testClick(modal, name);
-                    updateStatus(`✅ Testing ${name} icon...`);
-                }, delay);
-            });
-            
-            // Test controls
-            setTimeout(() => {
-                updateStatus('🎛️ Testing controls...');
-                togglePlayPause();
-                setTimeout(() => togglePlayPause(), 500);
-            }, 4000);
-            
-            setTimeout(() => {
-                updateStatus('🔊 Testing volume...');
-                updateVolume(75);
-            }, 4500);
-            
-            setTimeout(() => {
-                updateStatus('🔇 Testing mute...');
-                toggleMute();
-                setTimeout(() => toggleMute(), 500);
-            }, 5000);
-            
-            // Close all and show completion
-            setTimeout(() => {
-                closeAllModals();
-                updateStatus('✅ Comprehensive demo complete! All icons, modals, and controls tested successfully.');
-            }, 6000);
-        }
-        
-        // Test individual icon functionality
-        function testIconFunctionality(iconName) {
-            updateStatus(`🧪 Testing ${iconName} icon functionality...`);
-            
-            switch(iconName) {
-                case 'age':
-                    // Test age selection
-                    setTimeout(() => selectAge('age_8'), 500);
-                    setTimeout(() => selectAge('age_25'), 1000);
-                    break;
-                case 'language':
-                    // Test language modal opening
-                    setTimeout(() => testClick('language-modal', 'Language'), 500);
-                    break;
-                case 'tone':
-                    // Test tone selection
-                    setTimeout(() => selectTone('fun', '🎉'), 500);
-                    setTimeout(() => selectTone('neutral', '😊'), 1000);
-                    break;
-                case 'avatar':
-                    // Test avatar switching
-                    setTimeout(() => switchAvatar('ken'), 500);
-                    setTimeout(() => switchAvatar('kelly'), 1000);
-                    break;
-            }
-        }
+
         
         function updateStatus(message) {
             const status = document.getElementById('status');
             if (status) {
                 status.innerHTML = `<strong>iLearn How - Working Icons</strong><br>Status: ${message}<br>Click any icon to test<br>
-                <button onclick="demoBadgeUpdates()">🎭 Full Demo</button>
-                <button onclick="testAllFunctionality()">🧪 Test All</button>
-                <button onclick="testIconFunctionality('age')">🎯 Test Age</button>
-                <button onclick="testIconFunctionality('language')">🌍 Test Lang</button>
-                <button onclick="testIconFunctionality('tone')">😊 Test Tone</button>
-                <button onclick="testIconFunctionality('avatar')">👩‍🏫 Test Avatar</button>
-                <button onclick="testIconFunctionality('calendar')">📅 Test Calendar</button>
-                <button onclick="switchAvatar('ken')">👨 Switch to Ken</button>
-                <button onclick="switchAvatar('kelly')">👩 Switch to Kelly</button>`;
+                <button onclick="switchAvatar('ken')">👨‍💼 Switch to Ken</button>
+                <button onclick="switchAvatar('kelly')">👩‍💼 Switch to Kelly</button>`;
             }
         }
         
