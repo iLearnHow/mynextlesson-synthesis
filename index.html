@@ -915,6 +915,7 @@
         captions.style.position='fixed'; captions.style.left='50%'; captions.style.bottom='70px'; captions.style.transform='translateX(-50%)';
         captions.style.padding='10px 14px'; captions.style.borderRadius='10px'; captions.style.color='#111'; captions.style.background='rgba(255,255,255,.85)'; captions.style.fontSize='14px'; captions.style.zIndex='3000';
         document.body.appendChild(captions);
+        const popupHost = document.createElement('div'); popupHost.id='popup-host'; document.body.appendChild(popupHost);
 
         function getParam(name, def){ const v = url.searchParams.get(name); return v ?? def; }
         const date = getParam('date', '2025-02-28');
@@ -944,6 +945,7 @@
           if (!manifest) manifest = await loadExample();
 
           window.ManifestPlayer.mountCaptions && window.ManifestPlayer.mountCaptions(captions);
+          window.ManifestPlayer.mountPopupHost && window.ManifestPlayer.mountPopupHost(popupHost);
           window.ManifestPlayer.setManifestResolver && window.ManifestPlayer.setManifestResolver(async (partial)=>{
             const t = partial?.tone || tone; const file = `/api/examples/manifests/2025-02-28_en_8-12_${t}_kelly.json`;
             try { const r = await fetch(file); return await r.json(); } catch { return manifest; }

@@ -2399,6 +2399,77 @@ if (typeof window !== 'undefined') {
     throw lastErr || new Error('fetch failed');
   }
 
+  // Minimal protobuf reader for specific message shapes (proto3)
+  class PbReader {
+    constructor(buf){ this.v = new DataView(buf.buffer || buf); this.o = 0; }
+    eof(){ return this.o >= this.v.byteLength; }
+    uint8(){ const x = this.v.getUint8(this.o); this.o += 1; return x; }
+    varint(){ let x = 0n, s = 0n; while(!this.eof()){ const b = BigInt(this.uint8()); x |= (b & 0x7fn) << s; if ((b & 0x80n) === 0n) break; s += 7n; } return Number(x); }
+    f32(){ const x = this.v.getFloat32(this.o, true); this.o += 4; return x; }
+    bytes(len){ const a = new Uint8Array(this.v.buffer, this.o, len); this.o += len; return a; }
+    str(len){ const a = this.bytes(len); try { return new TextDecoder('utf-8').decode(a); } catch { return ''; } }
+  }
+
+  function readLen(reader){ const len = reader.varint(); return len; }
+
+  function decodeVisemeTimeline(u8){
+    const r = new PbReader(u8);
+    const out = { schema_version: '', phoneme_map_id: '', frames: [] };
+    while(!r.eof()){
+      const tag = r.varint(); const fn = tag >>> 3; const wt = tag & 7;
+      if (fn === 1 && wt === 2){ const len = readLen(r); out.schema_version = r.str(len); continue; }
+      if (fn === 2 && wt === 2){ const len = readLen(r); out.phoneme_map_id = r.str(len); continue; }
+      if (fn === 3 && wt === 2){
+        const len = readLen(r); const sub = new PbReader(r.bytes(len));
+        const f = { t_ms: 0, viseme_id: 0, weight: 1.0 };
+        while(!sub.eof()){
+          const t2 = sub.varint(); const fno = t2 >>> 3; const w2 = t2 & 7;
+          if (fno === 1 && w2 === 0){ f.t_ms = sub.varint(); continue; }
+          if (fno === 2 && w2 === 0){ f.viseme_id = sub.varint(); continue; }
+          if (fno === 3 && w2 === 5){ f.weight = sub.f32(); continue; }
+          // skip unknown
+          if (w2 === 2){ const l = readLen(sub); sub.o += l; } else if (w2 === 0){ sub.varint(); } else if (w2 === 5){ sub.o += 4; } else if (w2 === 1){ sub.o += 8; } else { break; }
+        }
+        out.frames.push(f); continue;
+      }
+      // skip unknown field
+      if (wt === 2){ const l = readLen(r); r.o += l; } else if (wt === 0){ r.varint(); } else if (wt === 5){ r.o += 4; } else if (wt === 1){ r.o += 8; } else { break; }
+    }
+    return out;
+  }
+
+  function decodeExpressionTracks(u8){
+    const r = new PbReader(u8);
+    const out = { schema_version: '', channels: [] };
+    while(!r.eof()){
+      const tag = r.varint(); const fn = tag >>> 3; const wt = tag & 7;
+      if (fn === 1 && wt === 2){ const len = readLen(r); out.schema_version = r.str(len); continue; }
+      if (fn === 2 && wt === 2){
+        const len = readLen(r); const sub = new PbReader(r.bytes(len));
+        const ch = { id: '', keys: [] };
+        while(!sub.eof()){
+          const t2 = sub.varint(); const fno = t2 >>> 3; const w2 = t2 & 7;
+          if (fno === 1 && w2 === 2){ const l = readLen(sub); ch.id = sub.str(l); continue; }
+          if (fno === 2 && w2 === 2){
+            const l2 = readLen(sub); const s2 = new PbReader(sub.bytes(l2));
+            const k = { t_ms: 0, v: 0 };
+            while(!s2.eof()){
+              const t3 = s2.varint(); const f3 = t3 >>> 3; const w3 = t3 & 7;
+              if (f3 === 1 && w3 === 0){ k.t_ms = s2.varint(); continue; }
+              if (f3 === 2 && w3 === 5){ k.v = s2.f32(); continue; }
+              if (w3 === 2){ const l3 = readLen(s2); s2.o += l3; } else if (w3 === 0){ s2.varint(); } else if (w3 === 5){ s2.o += 4; } else if (w3 === 1){ s2.o += 8; } else { break; }
+            }
+            ch.keys.push(k); continue;
+          }
+          if (w2 === 2){ const l = readLen(sub); sub.o += l; } else if (w2 === 0){ sub.varint(); } else if (w2 === 5){ sub.o += 4; } else if (w2 === 1){ sub.o += 8; } else { break; }
+        }
+        out.channels.push(ch); continue;
+      }
+      if (wt === 2){ const l = readLen(r); r.o += l; } else if (wt === 0){ r.varint(); } else if (wt === 5){ r.o += 4; } else if (wt === 1){ r.o += 8; } else { break; }
+    }
+    return out;
+  }
+
   const ManifestPlayer = {
     _manifest: null,
     _slideIndex: 0,
@@ -2412,9 +2483,12 @@ if (typeof window !== 'undefined') {
     _prefetchAbort: null,
     _stallTimer: null,
     _captions: { container: null, cues: [], raf: null },
+    _popup: { host: null, shownId: null, raf: null },
+    _timelines: {},
     _resolver: null,
     setManifestResolver(fn){ this._resolver = typeof fn === 'function' ? fn : null; },
     mountCaptions(containerEl){ this._captions.container = containerEl || null; },
+    mountPopupHost(hostEl){ this._popup.host = hostEl || null; },
     _parseVtt(text){
       const lines = String(text||'').split(/\r?\n/);
       const cues = [];
@@ -2462,6 +2536,80 @@ if (typeof window !== 'undefined') {
       this._captions.raf = requestAnimationFrame(tick);
     },
     _stopCaptionsTicker(){ cancelAnimationFrame(this._captions.raf); this._captions.raf=null; if (this._captions.container) this._captions.container.textContent=''; },
+    async _loadTimelinesForSlide(slideIndex){
+      try {
+        const slide = this._manifest.slides[slideIndex];
+        const resV = await fetchWithRetry(prox(slide.viseme_timeline_pb_uri));
+        const resE = await fetchWithRetry(prox(slide.expression_tracks_pb_uri));
+        const u8v = new Uint8Array(await resV.arrayBuffer());
+        const u8e = new Uint8Array(await resE.arrayBuffer());
+        const vis = decodeVisemeTimeline(u8v);
+        const expr = decodeExpressionTracks(u8e);
+        this._timelines[slideIndex] = { vis, expr };
+      } catch (e) { /* optional: log in dev */ }
+    },
+    _startAnimTicker(){
+      cancelAnimationFrame(this._animRaf);
+      const tick = ()=>{
+        try {
+          const idx = this._slideIndex; const line = this._timelines[idx]; if (!line) { this._animRaf = requestAnimationFrame(tick); return; }
+          const tMs = Math.max(0, (this._audio?.ctx?.currentTime - this._slideStartAtAudioTime) * 1000);
+          // Viseme
+          const frames = line.vis?.frames || [];
+          let currentVis = frames.length ? frames[0] : null;
+          for (let i=0; i<frames.length; i++){ if (frames[i].t_ms <= tMs) currentVis = frames[i]; else break; }
+          // Expression channels (example: blink)
+          const chBlink = (line.expr?.channels || []).find(c=>c.id==='blink');
+          if (chBlink){
+            const k = chBlink.keys.find(k=>k.t_ms>=tMs) || chBlink.keys[chBlink.keys.length-1];
+            // noop; could toggle CSS based on k.v
+          }
+          // Hook: when viseme changes significantly, update avatar expression heuristically
+          if (currentVis){
+            const v = currentVis.viseme_id;
+            if (v === 0) { /* silence */ }
+            else if (v % 3 === 0) this.updateAvatar(this.currentVariant.avatar, 'teaching_explaining');
+            else this.updateAvatar(this.currentVariant.avatar, 'question_curious');
+          }
+        } catch {}
+        this._animRaf = requestAnimationFrame(tick);
+      };
+      this._animRaf = requestAnimationFrame(tick);
+    },
+    _stopAnimTicker(){ cancelAnimationFrame(this._animRaf); this._animRaf = null; },
+    _startPopupTicker(){
+      cancelAnimationFrame(this._popup.raf);
+      const host = this._popup.host; if (!host) return;
+      host.style.position='fixed'; host.style.right='20px'; host.style.top='20px'; host.style.zIndex='3200';
+      const tick = ()=>{
+        try {
+          const slide = this._manifest.slides[this._slideIndex];
+          const payload = slide.popup_payload || null; const tpl = slide.popup_template_id || null; if (!payload || !tpl) { this._popup.raf = requestAnimationFrame(tick); return; }
+          const at = Number(payload.at_ms || 0); const tMs = Math.max(0, (this._audio?.ctx?.currentTime - this._slideStartAtAudioTime) * 1000);
+          const show = tMs >= at && tMs <= (at + 4000);
+          if (show){
+            if (this._popup.shownId !== at){ this._popup.shownId = at; host.innerHTML = renderPopup(tpl, payload); }
+          } else {
+            if (host.innerHTML) host.innerHTML = '';
+          }
+        } catch {}
+        this._popup.raf = requestAnimationFrame(tick);
+      };
+      this._popup.raf = requestAnimationFrame(tick);
+      function renderPopup(tpl, p){
+        const card = (inner)=>`<div style="background:rgba(255,255,255,.92);color:#111;border-radius:12px;padding:12px 14px;max-width:320px;box-shadow:0 6px 24px rgba(0,0,0,.2);font-size:14px;">${inner}</div>`;
+        switch(String(tpl)){
+          case 'quote_card': return card(`<div style='font-weight:600'>&ldquo;${p.quote||''}&rdquo;</div>`);
+          case 'list_points': {
+            const items = Array.isArray(p.items)?p.items:[]; return card(`<ul style='margin-left:18px'>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`);
+          }
+          case 'number_highlight': return card(`<div style='font-size:26px;font-weight:700'>${p.value||0}<span style='font-size:13px;margin-left:6px'>${p.unit||''}</span></div><div>${p.label||''}</div>`);
+          case 'definition_card': return card(`<div><strong>${p.term||''}</strong></div><div>${p.definition||''}</div>`);
+          default: return card(`<div>${tpl}</div>`);
+        }
+      }
+    },
+    _stopPopupTicker(){ cancelAnimationFrame(this._popup.raf); this._popup.raf=null; if (this._popup.host) this._popup.host.innerHTML=''; },
     async prepare(manifest){
       this._manifest = manifest; this._slideIndex = 0; this._prepared = false; this._buffers = [];
       this._audio = new window.BufferedOpusPlayer();
@@ -2479,6 +2627,7 @@ if (typeof window !== 'undefined') {
         emit('buffer', Math.floor(buffered * 1000));
       }
       await this._loadCaptionsForSlide(slide); this._startCaptionsTicker();
+      await this._loadTimelinesForSlide(0); this._startAnimTicker(); this._startPopupTicker();
       this._prepared = true;
       this._startStallMonitor();
     },
@@ -2500,6 +2649,7 @@ if (typeof window !== 'undefined') {
         this._currentChunkIndex = 1; this._schedulePrefetch();
       }
       await this._loadCaptionsForSlide(slide); this._startCaptionsTicker();
+      await this._loadTimelinesForSlide(this._slideIndex); this._startAnimTicker(); this._startPopupTicker();
       emit('slide_started', this._slideIndex);
     },
     _schedulePrefetch(){

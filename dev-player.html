@@ -95,6 +95,7 @@
     captionsEl.style.marginTop = '8px'; captionsEl.style.minHeight = '24px'; captionsEl.style.opacity = '0.92';
     captionsEl.style.fontSize = '14px'; captionsEl.style.lineHeight = '1.3';
     document.querySelector('.panel').appendChild(captionsEl);
+    const popupHost = document.createElement('div'); popupHost.id='popup-host'; document.body.appendChild(popupHost);
 
     function log(msg){
       const ts = new Date().toISOString().split('T')[1].replace('Z','');
@@ -160,6 +161,7 @@
         showManifest(man);
         renderAvatarForSlide(man.slides[0]);
         MP.mountCaptions && MP.mountCaptions(captionsEl);
+        MP.mountPopupHost && MP.mountPopupHost(popupHost);
         MP.setManifestResolver && MP.setManifestResolver(async (partial)=>{
           return await window.resolveVariantFromPartial(man, partial);
         });
@@ -176,6 +178,7 @@
         showManifest(man);
         renderAvatarForSlide(man.slides[0]);
         MP.mountCaptions && MP.mountCaptions(captionsEl);
+        MP.mountPopupHost && MP.mountPopupHost(popupHost);
         MP.setManifestResolver && MP.setManifestResolver(async (partial)=>{
           return await window.resolveVariantFromPartial(man, partial);
         });
