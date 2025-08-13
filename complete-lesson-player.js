@@ -2382,6 +2382,22 @@ if (typeof window !== 'undefined') {
     } catch {}
     return url;
   }
+  async function fetchWithRetry(url, opts={}, retries=3, backoffMs=250){
+    let lastErr = null; let attempt = 0; const max = Math.max(0, retries);
+    while(attempt <= max){
+      try {
+        const res = await fetch(url, opts);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res;
+      } catch(e){
+        lastErr = e; attempt++;
+        if (attempt>max) break;
+        const jitter = Math.random()*backoffMs;
+        await new Promise(r=>setTimeout(r, backoffMs + jitter));
+      }
+    }
+    throw lastErr || new Error('fetch failed');
+  }
 
   const ManifestPlayer = {
     _manifest: null,
@@ -2393,6 +2409,8 @@ if (typeof window !== 'undefined') {
     _slideStartAtAudioTime: 0,
     _currentChunkIndex: 0,
     _prefetchTimer: null,
+    _prefetchAbort: null,
+    _stallTimer: null,
     _captions: { container: null, cues: [], raf: null },
     _resolver: null,
     setManifestResolver(fn){ this._resolver = typeof fn === 'function' ? fn : null; },
@@ -2452,7 +2470,7 @@ if (typeof window !== 'undefined') {
       const slide = manifest.slides[0];
       const firstChunk = slide.audio_manifest?.chunks?.[0];
       if (firstChunk) {
-        const r = await fetch(prox(firstChunk));
+        const r = await fetchWithRetry(prox(firstChunk));
         const ab = await r.arrayBuffer();
         const buffered = await this._audio.appendChunk(ab);
         this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds());
@@ -2462,6 +2480,7 @@ if (typeof window !== 'undefined') {
       }
       await this._loadCaptionsForSlide(slide); this._startCaptionsTicker();
       this._prepared = true;
+      this._startStallMonitor();
     },
     async play(){ if (!this._prepared) return; this._audio.resume(); this._isPlaying = true; emit('slide_started', this._slideIndex); },
     pause(){ if (!this._prepared) return; this._audio.pause(); this._isPlaying = false; },
@@ -2470,10 +2489,11 @@ if (typeof window !== 'undefined') {
       if (!this._manifest) return;
       this._slideIndex = Math.max(0, Math.min(4, i));
       this._audio.stop(); this._currentChunkIndex = 0; this._stopCaptionsTicker();
+      clearInterval(this._prefetchTimer); this._prefetchTimer = null; if (this._prefetchAbort) try { this._prefetchAbort.abort(); } catch {}
       const slide = this._manifest.slides[this._slideIndex];
       const firstChunk = slide.audio_manifest?.chunks?.[0];
       if (firstChunk) {
-        const r = await fetch(prox(firstChunk));
+        const r = await fetchWithRetry(prox(firstChunk));
         const ab = await r.arrayBuffer();
         await this._audio.appendChunk(ab);
         this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds());
@@ -2484,6 +2504,7 @@ if (typeof window !== 'undefined') {
     },
     _schedulePrefetch(){
       clearInterval(this._prefetchTimer);
+      this._prefetchAbort = new AbortController();
       this._prefetchTimer = setInterval(async ()=>{
         try {
           const slide = this._manifest.slides[this._slideIndex];
@@ -2492,10 +2513,20 @@ if (typeof window !== 'undefined') {
           const bufferedSec = this._audio.getBufferedSeconds();
           if (bufferedSec < 2.0) {
             const url = chunks[this._currentChunkIndex++];
-            const r = await fetch(prox(url)); const ab = await r.arrayBuffer(); await this._audio.appendChunk(ab);
+            const r = await fetchWithRetry(prox(url), { signal: this._prefetchAbort.signal });
+            const ab = await r.arrayBuffer(); await this._audio.appendChunk(ab);
           }
         } catch {}
       }, 250);
+    },
+    _startStallMonitor(){
+      clearInterval(this._stallTimer);
+      this._stallTimer = setInterval(()=>{
+        try {
+          const b = this._audio.getBufferedSeconds();
+          if (this._isPlaying && b < 0.2) emit('playback_stalled');
+        } catch {}
+      }, 200);
     },
     async requestVariantChange(partial){
       // Determine next boundary from current slide
@@ -2516,7 +2547,7 @@ if (typeof window !== 'undefined') {
               const newSlide = newMan.slides[this._slideIndex];
               const first = newSlide?.audio_manifest?.chunks?.[0];
               if (first) {
-                const r = await fetch(prox(first)); const ab = await r.arrayBuffer();
+                const r = await fetchWithRetry(prox(first)); const ab = await r.arrayBuffer();
                 const buf = await this._audio.decodeOpus(ab);
                 await this._audio.crossfadeTo([buf]);
                 this._manifest = newMan; this._currentChunkIndex = 1; this._schedulePrefetch();

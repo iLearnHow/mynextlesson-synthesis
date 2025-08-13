@@ -903,5 +903,57 @@
         });
     });
     </script>
+    <script>
+    // Manifest player wiring (feature-flagged by ?player=manifest)
+    (function(){
+      try {
+        const url = new URL(window.location.href);
+        const enable = url.searchParams.get('player') === 'manifest';
+        if (!enable || !window.ManifestPlayer) return;
+        const captions = document.createElement('div');
+        captions.id = 'manifest-captions';
+        captions.style.position='fixed'; captions.style.left='50%'; captions.style.bottom='70px'; captions.style.transform='translateX(-50%)';
+        captions.style.padding='10px 14px'; captions.style.borderRadius='10px'; captions.style.color='#111'; captions.style.background='rgba(255,255,255,.85)'; captions.style.fontSize='14px'; captions.style.zIndex='3000';
+        document.body.appendChild(captions);
+
+        function getParam(name, def){ const v = url.searchParams.get(name); return v ?? def; }
+        const date = getParam('date', '2025-02-28');
+        const lang = getParam('lang', 'en');
+        const age = getParam('age', '8-12');
+        const tone = getParam('tone', 'fun');
+        const avatar = getParam('avatar', 'kelly');
+
+        async function loadExample(){
+          const local = `/api/examples/manifests/2025-02-28_en_8-12_fun_kelly.json`;
+          const r = await fetch(local); return await r.json();
+        }
+
+        async function boot(){
+          let manifest;
+          try {
+            const token = localStorage.getItem('ilearn_access_token');
+            if (token) {
+              const api = new URL('https://api.ilearnhow.com/api/v1/manifest');
+              api.searchParams.set('date', date); api.searchParams.set('lang', lang); api.searchParams.set('age', age); api.searchParams.set('tone', tone); api.searchParams.set('avatar', avatar);
+              const res = await fetch(api.toString(), { headers: { Authorization: `Bearer ${token}` } });
+              if (!res.ok) throw new Error('pointer');
+              const j = await res.json();
+              const m = await fetch(j.manifest_url); manifest = await m.json();
+            }
+          } catch(_) {}
+          if (!manifest) manifest = await loadExample();
+
+          window.ManifestPlayer.mountCaptions && window.ManifestPlayer.mountCaptions(captions);
+          window.ManifestPlayer.setManifestResolver && window.ManifestPlayer.setManifestResolver(async (partial)=>{
+            const t = partial?.tone || tone; const file = `/api/examples/manifests/2025-02-28_en_8-12_${t}_kelly.json`;
+            try { const r = await fetch(file); return await r.json(); } catch { return manifest; }
+          });
+          await window.ManifestPlayer.prepare(manifest);
+          window.ManifestPlayer.play();
+        }
+        boot();
+      } catch(e) { console.warn('manifest wiring failed', e); }
+    })();
+    </script>
 </body>
 </html>
