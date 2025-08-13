@@ -711,84 +711,113 @@
         </div>
     </div>
     
-    <!-- Calendar Modal - Ultra-Compact Month/Day Picker -->
+    <!-- Calendar Modal - Full Height Design -->
     <div class="modal" id="calendar-modal">
         <div class="modal-content">
             <h3>📅 Lesson Calendar</h3>
             
             <!-- Month Navigation -->
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                <button onclick="previousMonth()" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;">‹</button>
-                <div style="font-weight: 600; font-size: 14px; color: #1a1a1a;" id="current-month">August 2024</div>
-                <button onclick="nextMonth()" class="btn-secondary" style="padding: 4px 8px; font-size: 11px;">›</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                <button onclick="previousMonth()" class="btn-secondary" style="padding: 8px 12px; font-size: 14px; font-weight: 600;">‹</button>
+                <div style="font-weight: 700; font-size: 18px; color: #1a1a1a;" id="current-month">August 2024</div>
+                <button onclick="nextMonth()" class="btn-secondary" style="padding: 8px 12px; font-size: 14px; font-weight: 600;">›</button>
             </div>
             
             <!-- Day Headers -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; margin-bottom: 6px;">
-                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">S</div>
-                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">M</div>
-                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">T</div>
-                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">W</div>
-                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">T</div>
-                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">F</div>
-                <div style="text-align: center; font-size: 9px; font-weight: 600; color: #666; padding: 3px;">S</div>
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 12px;">
+                <div style="text-align: center; font-size: 12px; font-weight: 600; color: #666; padding: 8px;">S</div>
+                <div style="text-align: center; font-size: 12px; font-weight: 600; color: #666; padding: 8px;">M</div>
+                <div style="text-align: center; font-size: 12px; font-weight: 600; color: #666; padding: 8px;">T</div>
+                <div style="text-align: center; font-size: 12px; font-weight: 600; color: #666; padding: 8px;">W</div>
+                <div style="text-align: center; font-size: 12px; font-weight: 600; color: #666; padding: 8px;">T</div>
+                <div style="text-align: center; font-size: 12px; font-weight: 600; color: #666; padding: 8px;">F</div>
+                <div style="text-align: center; font-size: 12px; font-weight: 600; color: #666; padding: 8px;">S</div>
             </div>
             
             <!-- Calendar Grid -->
-            <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; margin-bottom: 12px;">
+            <div id="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 20px;">
                 <!-- Calendar days will be generated here -->
             </div>
             
-            <!-- Today's Lesson Preview -->
-            <div id="today-lesson" style="background: #f0f8ff; padding: 8px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #007AFF;">
-                <div style="font-weight: 600; margin-bottom: 3px; color: #1a1a1a; font-size: 11px;">☀️ Today's Lesson</div>
-                <div style="color: #666; font-size: 9px; margin-bottom: 6px;">The Sun - Our Star</div>
-                <button onclick="startLesson('sun-lesson-001')" class="btn-primary" style="padding: 4px 8px; font-size: 9px;">Start Lesson</button>
+            <!-- Selected Lesson Preview -->
+            <div id="today-lesson" style="background: #f0f8ff; padding: 16px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #007AFF;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div style="font-size: 24px;">📚</div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px; color: #1a1a1a; font-size: 16px;">☀️ Today's Lesson</div>
+                        <div style="color: #666; font-size: 13px;">The Sun - Our Star</div>
+                    </div>
+                </div>
+                <div style="color: #666; font-size: 12px; margin-bottom: 12px; line-height: 1.4;">
+                    Learn about our closest star and its importance to life on Earth. Discover solar energy, sunspots, and how the sun powers our planet.
+                </div>
+                <button onclick="startLesson('sun-lesson-001')" class="btn-primary" style="padding: 10px 20px; font-size: 14px; width: 100%;">Start Lesson</button>
             </div>
             
             <!-- Quick Actions -->
-            <div style="display: flex; gap: 4px;">
-                <button onclick="jumpToToday()" class="btn-secondary" style="flex: 1; padding: 6px; font-size: 10px;">Today</button>
-                <button onclick="jumpToBirthday()" class="btn-secondary" style="flex: 1; padding: 6px; font-size: 10px;">Birthday</button>
+            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <button onclick="jumpToToday()" class="btn-secondary" style="flex: 1; padding: 12px; font-size: 13px;">📅 Jump to Today</button>
+                <button onclick="jumpToBirthday()" class="btn-secondary" style="flex: 1; padding: 12px; font-size: 13px;">🎂 Birthday Lesson</button>
             </div>
             
-            <button onclick="closeModal('calendar-modal')" style="margin-top: 8px;">Close</button>
+            <button onclick="closeModal('calendar-modal')" style="margin-top: 16px;">Close</button>
         </div>
     </div>
     
-    <!-- Avatar Modal - Fixed Positioning -->
+    <!-- Avatar Modal - Full Height Design -->
     <div class="modal" id="avatar-modal">
         <div class="modal-content">
             <h3>👩‍🏫 Choose Your Avatar</h3>
-            <div style="display: flex; flex-direction: column; gap: 8px; margin: 12px 0;">
-                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; background: #f8f9fa; cursor: pointer;" onclick="switchAvatar('kelly')">
-                    <img src="./production-deploy/assets/avatars/kelly/kelly_neutral_default.png" alt="Kelly" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    <div>
-                        <div style="font-weight: 600; color: #1a1a1a; font-size: 14px;">Kelly</div>
-                        <div style="color: #666; font-size: 12px;">Friendly & Encouraging</div>
+            
+            <!-- Current Avatar Display -->
+            <div style="text-align: center; margin: 16px 0; padding: 16px; background: #f0f8ff; border-radius: 8px; border: 2px solid #007AFF;">
+                <img src="./production-deploy/assets/avatars/kelly/kelly_neutral_default.png" alt="Kelly" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 8px;">
+                <div style="font-weight: 600; color: #007AFF; font-size: 16px;">Kelly (Current)</div>
+                <div style="color: #666; font-size: 12px;">Friendly & Encouraging</div>
+            </div>
+            
+            <!-- Avatar Options -->
+            <div style="display: flex; flex-direction: column; gap: 12px; margin: 20px 0;">
+                <div style="display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 8px; background: #f8f9fa; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" onclick="switchAvatar('kelly')" onmouseenter="this.style.borderColor='#007AFF'; this.style.background='#e3f2fd'" onmouseleave="this.style.borderColor='transparent'; this.style.background='#f8f9fa'">
+                    <img src="./production-deploy/assets/avatars/kelly/kelly_neutral_default.png" alt="Kelly" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1a1a1a; font-size: 16px;">Kelly</div>
+                        <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Friendly & Encouraging</div>
+                        <div style="color: #007AFF; font-size: 11px;">Perfect for beginners and young learners</div>
                     </div>
+                    <div style="font-size: 20px; color: #007AFF;">✓</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; background: #f8f9fa; cursor: pointer;" onclick="switchAvatar('ken')">
-                    <img src="./production-deploy/assets/avatars/ken/ken_neutral_default.png" alt="Ken" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    <div>
-                        <div style="font-weight: 600; color: #1a1a1a; font-size: 14px;">Ken</div>
-                        <div style="color: #666; font-size: 12px;">Wise & Patient</div>
+                
+                <div style="display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 8px; background: #f8f9fa; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" onclick="switchAvatar('ken')" onmouseenter="this.style.borderColor='#007AFF'; this.style.background='#e3f2fd'" onmouseleave="this.style.borderColor='transparent'; this.style.background='#f8f9fa'">
+                    <img src="./production-deploy/assets/avatars/ken/ken_neutral_default.png" alt="Ken" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1a1a1a; font-size: 16px;">Ken</div>
+                        <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Wise & Patient</div>
+                        <div style="color: #007AFF; font-size: 11px;">Ideal for advanced learners and deep thinkers</div>
                     </div>
+                    <div style="font-size: 20px; color: #666;">→</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 6px; background: #f8f9fa; cursor: pointer;">
-                    <div style="width: 40px; height: 40px; border-radius: 50%; background: #007AFF; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white;">📱</div>
-                    <div>
-                        <div style="font-weight: 600; color: #1a1a1a; font-size: 14px;">You</div>
-                        <div style="color: #666; font-size: 12px;">Facescan Training</div>
+                
+                <div style="display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 8px; background: #f8f9fa; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" onmouseenter="this.style.borderColor='#007AFF'; this.style.background='#e3f2fd'" onmouseleave="this.style.borderColor='transparent'; this.style.background='#f8f9fa'">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: #007AFF; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white;">📱</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #1a1a1a; font-size: 16px;">You</div>
+                        <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Facescan Training</div>
+                        <div style="color: #007AFF; font-size: 11px;">Become your own personalized avatar</div>
                     </div>
+                    <div style="font-size: 20px; color: #666;">→</div>
                 </div>
             </div>
-            <div style="text-align: center; padding: 8px; background: #e3f2fd; border-radius: 6px; margin-top: 12px;">
-                <div style="font-size: 11px; color: #1976d2;">
-                    <strong>Facescan Training:</strong> Record yourself to become your own avatar
+            
+            <!-- Facescan Info -->
+            <div style="background: #e3f2fd; padding: 16px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007AFF;">
+                <div style="font-weight: 600; color: #1976d2; font-size: 14px; margin-bottom: 8px;">🎯 Facescan Training</div>
+                <div style="color: #1976d2; font-size: 12px; line-height: 1.4;">
+                    Record yourself to become your own avatar. Our AI will learn your expressions, voice, and teaching style to create a truly personalized learning experience.
                 </div>
             </div>
-            <button onclick="closeModal('avatar-modal')">Close</button>
+            
+            <button onclick="closeModal('avatar-modal')" style="margin-top: 16px;">Close</button>
         </div>
     </div>
     
@@ -834,9 +863,10 @@
             <h3>🌍 Language Selection</h3>
             
             <!-- Current Language Display -->
-            <div style="text-align: center; margin: 4px 0; padding: 3px; background: #f0f8ff; border-radius: 4px;">
-                <div style="font-size: 18px; margin-bottom: 2px;">🇺🇸</div>
-                <div style="font-size: 10px; font-weight: 600; color: #1a1a1a;">English</div>
+            <div style="text-align: center; margin: 20px 0; padding: 20px; background: #f0f8ff; border-radius: 12px; border: 3px solid #007AFF;">
+                <div style="font-size: 48px; margin-bottom: 12px;">🇺🇸</div>
+                <div style="font-weight: 600; color: #007AFF; font-size: 18px; margin-bottom: 4px;">English</div>
+                <div style="color: #666; font-size: 14px;">Current Language</div>
             </div>
             
             <!-- Language Grid - Ultra-Compact 4x4 Layout -->
@@ -891,40 +921,75 @@
         </div>
     </div>
     
-    <!-- Age Modal - Ultra-Compact PhaseDNA System -->
+    <!-- Age Modal - Full Height Design -->
     <div class="modal" id="age-modal">
         <div class="modal-content">
             <h3>🎯 Age Selection</h3>
             
             <!-- Current Age Display -->
-            <div style="text-align: center; margin: 4px 0; padding: 3px; background: #f0f8ff; border-radius: 4px;">
-                <div style="font-size: 16px; color: #007AFF; font-weight: 700;">👩‍💼</div>
-                <div style="color: #666; font-size: 8px;">Young Adult (25 years)</div>
+            <div style="text-align: center; margin: 20px 0; padding: 20px; background: #f0f8ff; border-radius: 12px; border: 3px solid #007AFF;">
+                <div style="font-size: 48px; color: #007AFF; font-weight: 700; margin-bottom: 12px;">👩‍💼</div>
+                <div style="color: #007AFF; font-size: 18px; font-weight: 600; margin-bottom: 4px;">Young Adult</div>
+                <div style="color: #666; font-size: 14px;">25 years (Current)</div>
             </div>
             
-            <!-- Age Groups Grid - Ultra-Compact 10 Groups -->
-            <div style="margin-bottom: 4px;">
-                <div style="font-weight: 600; margin-bottom: 2px; color: #1a1a1a; font-size: 8px;">Select Age Group</div>
-                <div class="grid-3">
-                    <button onclick="selectAge('age_2')" class="btn-secondary">👶 2</button>
-                    <button onclick="selectAge('age_5')" class="btn-secondary">👧 5</button>
-                    <button onclick="selectAge('age_8')" class="btn-secondary">👦 8</button>
-                    <button onclick="selectAge('age_12')" class="btn-secondary">🧒 12</button>
-                    <button onclick="selectAge('age_16')" class="btn-secondary">👱‍♀️ 16</button>
-                    <button onclick="selectAge('age_25')" class="btn-primary">👩‍💼 25</button>
-                    <button onclick="selectAge('age_40')" class="btn-secondary">👨‍💻 40</button>
-                    <button onclick="selectAge('age_60')" class="btn-secondary">👨‍🏫 60</button>
-                    <button onclick="selectAge('age_80')" class="btn-secondary">👴 80</button>
-                    <button onclick="selectAge('age_102')" class="btn-secondary">👵 102</button>
+            <!-- Age Groups Organized by Life Stage -->
+            <div style="margin-bottom: 24px;">
+                <div style="font-weight: 600; margin-bottom: 16px; color: #1a1a1a; font-size: 16px; text-align: center;">Select Your Age Group</div>
+                
+                <!-- Early Childhood -->
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #666; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Early Childhood</div>
+                    <div class="grid-3" style="gap: 8px;">
+                        <button onclick="selectAge('age_2')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">👶 2</button>
+                        <button onclick="selectAge('age_5')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">👧 5</button>
+                        <button onclick="selectAge('age_8')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">👦 8</button>
+                    </div>
+                </div>
+                
+                <!-- Pre-Teen -->
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #666; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Pre-Teen</div>
+                    <div class="grid-3" style="gap: 8px;">
+                        <button onclick="selectAge('age_12')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">🧒 12</button>
+                        <button onclick="selectAge('age_16')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">👱‍♀️ 16</button>
+                        <div style="padding: 12px 8px; font-size: 14px; color: #ccc; text-align: center;">-</div>
+                    </div>
+                </div>
+                
+                <!-- Young Adult -->
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #666; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Young Adult</div>
+                    <div class="grid-3" style="gap: 8px;">
+                        <button onclick="selectAge('age_25')" class="btn-primary" style="padding: 12px 8px; font-size: 14px;">👩‍💼 25</button>
+                        <button onclick="selectAge('age_40')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">👨‍💻 40</button>
+                        <div style="padding: 12px 8px; font-size: 14px; color: #ccc; text-align: center;">-</div>
+                    </div>
+                </div>
+                
+                <!-- Mature Adult -->
+                <div style="margin-bottom: 20px;">
+                    <div style="font-weight: 600; color: #666; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Mature Adult</div>
+                    <div class="grid-3" style="gap: 8px;">
+                        <button onclick="selectAge('age_60')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">👨‍🏫 60</button>
+                        <button onclick="selectAge('age_80')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">👴 80</button>
+                        <button onclick="selectAge('age_102')" class="btn-secondary" style="padding: 12px 8px; font-size: 14px;">👵 102</button>
+                    </div>
                 </div>
             </div>
             
-            <!-- Ultra-Compact Learning Guide -->
-            <div style="background: #e8f5e8; padding: 3px; border-radius: 3px; margin: 3px 0; font-size: 7px; color: #2e7d32; line-height: 1.1;">
-                <strong>👶👧👦 2-8:</strong> Child-friendly • <strong>🧒👱‍♀️ 12-16:</strong> Teen-interactive • <strong>👩‍💼👨‍💻 25-40:</strong> Adult-detailed • <strong>👨‍🏫👴👵 60-102:</strong> Mature
+            <!-- Learning Style Guide -->
+            <div style="background: #e8f5e8; padding: 16px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2e7d32;">
+                <div style="font-weight: 600; color: #2e7d32; font-size: 14px; margin-bottom: 12px;">🎓 Learning Style Guide</div>
+                <div style="color: #2e7d32; font-size: 12px; line-height: 1.5;">
+                    <strong>👶👧👦 2-8:</strong> Child-friendly language, lots of visuals, interactive elements<br>
+                    <strong>🧒👱‍♀️ 12-16:</strong> Teen-interactive, relatable examples, social learning<br>
+                    <strong>👩‍💼👨‍💻 25-40:</strong> Adult-detailed, professional context, practical applications<br>
+                    <strong>👨‍🏫👴👵 60-102:</strong> Mature perspective, life experience integration, wisdom sharing
+                </div>
             </div>
             
-            <button onclick="closeModal('age-modal')" style="margin-top: 4px;">Close</button>
+            <button onclick="closeModal('age-modal')" style="margin-top: 20px;">Close</button>
         </div>
     </div>
 
