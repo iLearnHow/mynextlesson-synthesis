@@ -2390,9 +2390,64 @@ if (typeof window !== 'undefined') {
     _buffers: [],
     _prepared: false,
     _isPlaying: false,
+    _slideStartAtAudioTime: 0,
+    _currentChunkIndex: 0,
+    _prefetchTimer: null,
+    _captions: { container: null, cues: [], raf: null },
+    _resolver: null,
+    setManifestResolver(fn){ this._resolver = typeof fn === 'function' ? fn : null; },
+    mountCaptions(containerEl){ this._captions.container = containerEl || null; },
+    _parseVtt(text){
+      const lines = String(text||'').split(/\r?\n/);
+      const cues = [];
+      let i=0; while(i<lines.length){
+        const l = lines[i].trim(); i++;
+        if (!l || /^WEBVTT/i.test(l)) continue;
+        // Expected: 00:00:01.000 --> 00:00:02.500
+        const m = l.match(/(\d\d:\d\d:\d\d[.,]\d+|\d+:\d\d[.,]\d+)\s*-->\s*(\d\d:\d\d:\d\d[.,]\d+|\d+:\d\d[.,]\d+)/);
+        if (!m) continue;
+        const start = m[1]; const end = m[2];
+        const toMs = (t)=>{
+          const s = t.replace(',', '.');
+          const parts = s.split(':').map(Number);
+          if (parts.length===3){ return ((parts[0]*3600)+(parts[1]*60)+parts[2]) * 1000; }
+          if (parts.length===2){ return ((parts[0]*60)+parts[1]) * 1000; }
+          return 0;
+        };
+        let textLines=[]; while(i<lines.length && lines[i].trim()!==''){ textLines.push(lines[i]); i++; }
+        cues.push({ startMs: toMs(start), endMs: toMs(end), text: textLines.join('\n') });
+      }
+      return cues;
+    },
+    async _loadCaptionsForSlide(slide){
+      try {
+        if (!this._captions.container) return;
+        const url = slide.captions_vtt_uri; if (!url) return;
+        const res = await fetch(prox(url));
+        if (!res.ok) return;
+        const txt = await res.text();
+        this._captions.cues = this._parseVtt(txt);
+      } catch {}
+    },
+    _startCaptionsTicker(){
+      if (!this._captions.container) return;
+      cancelAnimationFrame(this._captions.raf);
+      const tick = ()=>{
+        try {
+          if (!this._captions.container) return;
+          const tMs = Math.max(0, (this._audio?.ctx?.currentTime - this._slideStartAtAudioTime) * 1000);
+          const cue = this._captions.cues.find(c=> tMs >= c.startMs && tMs <= c.endMs);
+          this._captions.container.textContent = cue ? cue.text : '';
+        } catch {}
+        this._captions.raf = requestAnimationFrame(tick);
+      };
+      this._captions.raf = requestAnimationFrame(tick);
+    },
+    _stopCaptionsTicker(){ cancelAnimationFrame(this._captions.raf); this._captions.raf=null; if (this._captions.container) this._captions.container.textContent=''; },
     async prepare(manifest){
       this._manifest = manifest; this._slideIndex = 0; this._prepared = false; this._buffers = [];
       this._audio = new window.BufferedOpusPlayer();
+      this._currentChunkIndex = 0;
       // Prefetch first slide: protobufs (ignored here) and first audio chunk
       const slide = manifest.slides[0];
       const firstChunk = slide.audio_manifest?.chunks?.[0];
@@ -2400,22 +2455,76 @@ if (typeof window !== 'undefined') {
         const r = await fetch(prox(firstChunk));
         const ab = await r.arrayBuffer();
         const buffered = await this._audio.appendChunk(ab);
+        this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds());
+        this._currentChunkIndex = 1;
+        this._schedulePrefetch();
         emit('buffer', Math.floor(buffered * 1000));
       }
+      await this._loadCaptionsForSlide(slide); this._startCaptionsTicker();
       this._prepared = true;
     },
     async play(){ if (!this._prepared) return; this._audio.resume(); this._isPlaying = true; emit('slide_started', this._slideIndex); },
     pause(){ if (!this._prepared) return; this._audio.pause(); this._isPlaying = false; },
     stop(){ if (!this._prepared) return; this._audio.stop(); this._isPlaying = false; },
-    async seekToSlide(i){ if (!this._manifest) return; this._slideIndex = Math.max(0, Math.min(4, i)); emit('slide_started', this._slideIndex); },
+    async seekToSlide(i){
+      if (!this._manifest) return;
+      this._slideIndex = Math.max(0, Math.min(4, i));
+      this._audio.stop(); this._currentChunkIndex = 0; this._stopCaptionsTicker();
+      const slide = this._manifest.slides[this._slideIndex];
+      const firstChunk = slide.audio_manifest?.chunks?.[0];
+      if (firstChunk) {
+        const r = await fetch(prox(firstChunk));
+        const ab = await r.arrayBuffer();
+        await this._audio.appendChunk(ab);
+        this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds());
+        this._currentChunkIndex = 1; this._schedulePrefetch();
+      }
+      await this._loadCaptionsForSlide(slide); this._startCaptionsTicker();
+      emit('slide_started', this._slideIndex);
+    },
+    _schedulePrefetch(){
+      clearInterval(this._prefetchTimer);
+      this._prefetchTimer = setInterval(async ()=>{
+        try {
+          const slide = this._manifest.slides[this._slideIndex];
+          const chunks = slide.audio_manifest?.chunks || [];
+          if (this._currentChunkIndex >= chunks.length) { clearInterval(this._prefetchTimer); return; }
+          const bufferedSec = this._audio.getBufferedSeconds();
+          if (bufferedSec < 2.0) {
+            const url = chunks[this._currentChunkIndex++];
+            const r = await fetch(prox(url)); const ab = await r.arrayBuffer(); await this._audio.appendChunk(ab);
+          }
+        } catch {}
+      }, 250);
+    },
     async requestVariantChange(partial){
       // Determine next boundary from current slide
       try {
         const slide = this._manifest.slides[this._slideIndex];
         const arr = Array.isArray(slide.sentence_boundaries_ms) ? slide.sentence_boundaries_ms.slice() : [0];
-        const nowMs = 0; // simplified clock stub; we tie to AudioContext clock in advanced pass
+        const nowMs = Math.max(0, (this._audio?.ctx?.currentTime - this._slideStartAtAudioTime) * 1000);
         const next = arr.find(x => x > nowMs) ?? arr[arr.length - 1];
         const appliedBoundaryMs = Math.max(0, next);
+        // If we have a resolver and partial, fetch new manifest and swap at boundary
+        if (this._resolver) {
+          const timeUntil = Math.max(0, appliedBoundaryMs - nowMs);
+          const fadeMs = 200;
+          setTimeout(async ()=>{
+            try {
+              const newMan = await this._resolver(partial || {});
+              // For simplicity, switch to same slide index and use first chunk from new manifest
+              const newSlide = newMan.slides[this._slideIndex];
+              const first = newSlide?.audio_manifest?.chunks?.[0];
+              if (first) {
+                const r = await fetch(prox(first)); const ab = await r.arrayBuffer();
+                const buf = await this._audio.decodeOpus(ab);
+                await this._audio.crossfadeTo([buf]);
+                this._manifest = newMan; this._currentChunkIndex = 1; this._schedulePrefetch();
+                await this._loadCaptionsForSlide(newSlide);
+              }
+            } catch {}
+          }, Math.max(0, timeUntil - fadeMs));
+        }
         emit('variant_changed', { appliedBoundaryMs });
         return { appliedBoundaryMs };
       } catch { return { appliedBoundaryMs: 0 }; }

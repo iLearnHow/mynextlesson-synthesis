@@ -417,4 +417,23 @@ if (typeof window !== 'undefined') {
         }
         return manifest;
     };
+
+    // Helper resolver for variant switching in ManifestPlayer
+    window.resolveVariantFromPartial = async function resolveVariantFromPartial(current, partial){
+        try {
+            const base = new URL(window.location.href);
+            const fileSel = document.getElementById('sel-example');
+            // If example selector exists, swap tone in the filename as a simple local demo
+            if (fileSel && fileSel.value) {
+                const url = new URL(fileSel.value, base);
+                const tone = partial?.tone || 'neutral';
+                const changed = url.pathname.replace(/_(fun|neutral|warm)_/,'_'+tone+'_');
+                const localUrl = changed.startsWith('/') ? changed : '/'+changed;
+                const res = await fetch(localUrl);
+                return await res.json();
+            }
+        } catch {}
+        // Fallback: return current manifest unchanged
+        return current;
+    };
 } 

@@ -91,6 +91,10 @@
     const logEl = document.getElementById('log');
     const manifestViewEl = document.getElementById('manifest-view');
     const avatarCanvas = document.getElementById('avatar-canvas');
+    const captionsEl = document.createElement('div');
+    captionsEl.style.marginTop = '8px'; captionsEl.style.minHeight = '24px'; captionsEl.style.opacity = '0.92';
+    captionsEl.style.fontSize = '14px'; captionsEl.style.lineHeight = '1.3';
+    document.querySelector('.panel').appendChild(captionsEl);
 
     function log(msg){
       const ts = new Date().toISOString().split('T')[1].replace('Z','');
@@ -125,11 +129,11 @@
     MP.on('buffer', (ms)=> log(`buffer: ${ms}ms ready`));
     MP.on('playback_stalled', ()=> log('playback_stalled'));
 
-    function showManifest(m){ manifestViewEl.textContent = JSON.stringify(m, null, 2); }
+    function showManifest(m){ manifestViewEl.textContent = JSON.stringify(m || {info:'No manifest'}, null, 2); }
 
     // Helper to proxy URLs through the dev proxy to avoid CORS during local dev
     const useProxy = true;
-    const prox = (u) => useProxy ? (`http://localhost:8001/proxy?url=${encodeURIComponent(u)}`) : u;
+    const proxyUrl = (u) => useProxy ? (`http://localhost:8001/proxy?url=${encodeURIComponent(u)}`) : u;
 
     document.getElementById('btn-load-api').addEventListener('click', async ()=>{
       try {
@@ -143,18 +147,22 @@
           url.searchParams.set('age', p.ageBand);
           url.searchParams.set('tone', p.tone);
           url.searchParams.set('avatar', p.avatarId);
-          const res = await fetch(prox(url.toString()));
+          const res = await fetch(proxyUrl(url.toString()));
           if (!res.ok) throw new Error(`API ${res.status}`);
           return await res.json();
         })();
         log(`Manifest URL: ${r.manifest_url}`);
         const man = await (async ()=>{
-          const res = await fetch(prox(r.manifest_url));
+          const res = await fetch(proxyUrl(r.manifest_url));
           if (!res.ok) throw new Error(`Manifest ${res.status}`);
           return await res.json();
         })();
         showManifest(man);
         renderAvatarForSlide(man.slides[0]);
+        MP.mountCaptions && MP.mountCaptions(captionsEl);
+        MP.setManifestResolver && MP.setManifestResolver(async (partial)=>{
+          return await window.resolveVariantFromPartial(man, partial);
+        });
         await MP.prepare(man);
         log('Prepared from API manifest.');
       } catch (e) { log(`Error: ${e.message||e}`); }
@@ -167,6 +175,10 @@
         const man = await res.json();
         showManifest(man);
         renderAvatarForSlide(man.slides[0]);
+        MP.mountCaptions && MP.mountCaptions(captionsEl);
+        MP.setManifestResolver && MP.setManifestResolver(async (partial)=>{
+          return await window.resolveVariantFromPartial(man, partial);
+        });
         await MP.prepare(man);
         log('Prepared from local example.');
       } catch (e) { log(`Error: ${e.message||e}`); }
