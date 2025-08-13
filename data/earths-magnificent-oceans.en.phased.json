@@ -1,0 +1,367 @@
+{
+  "metadata": {
+    "version": "phase_v1",
+    "lessonId": "earths-magnificent-oceans",
+    "title": "Earth's Magnificent Oceans - The Blue Heart of Our Living Planet"
+  },
+  "phases": [
+    {
+      "id": "welcome",
+      "timing": {
+        "minListen": 6
+      },
+      "narration": {
+        "voiceOver": "Welcome. Think of the ocean not as pieces with names, but as one moving body—currents linking every shore. I’ll guide you and offer hints when needed."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "right_shoulder",
+                "id": "intro",
+                "text": "Earth's Magnificent Oceans - The Blue Heart of Our Living Planet"
+              }
+            ]
+          }
+        ]
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "teaching_explaining"
+          }
+        ]
+      }
+    },
+    {
+      "id": "beginning",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": {
+        "voiceOver": "Question one. Which description fits best—separate oceans that don’t affect each other, or one global ocean connected by currents? Choose when you're ready.",
+        "onNoChoice": "Hint: energy and life travel on currents around the world—one connected ocean."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "beginning_q",
+                "text": "What best describes Earth's oceans?"
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "beginning_choices",
+                "text": "",
+                "extra": {
+                  "a": "Separate oceans that don't affect each other",
+                  "b": "One global ocean connected by currents"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "beginning_tm_b",
+                "text": "Exactly. We name parts, but currents link them into one body—energy and life flow around the world."
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "beginning_tm_a",
+                "text": "They have names, yes—but water, heat, salt, and life constantly mix. The ocean acts as one connected system."
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "What best describes Earth's oceans?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "Separate oceans that don't affect each other"
+          },
+          {
+            "id": "b",
+            "text": "One global ocean connected by currents"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "They have names, yes—but water, heat, salt, and life constantly mix. The ocean acts as one connected system.",
+          "b": "Exactly. We name parts, but currents link them into one body—energy and life flow around the world."
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "middle",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": {
+        "voiceOver": "Question two. What mainly drives the ocean’s great conveyors—only tides from the Moon, or wind with temperature and salt (density) differences? Choose when you're ready.",
+        "onNoChoice": "Notice wind pushes the surface, heat and salt change density—together they move water."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "middle_q",
+                "text": "What mainly drives ocean currents?"
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "middle_choices",
+                "text": "",
+                "extra": {
+                  "a": "Only the tides from the Moon",
+                  "b": "Wind, heat differences, and salt (density)"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "middle_tm_b",
+                "text": "Right. Wind pushes the surface, the Sun makes temperature differences, and salt changes density—together they steer great conveyors."
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "middle_tm_a",
+                "text": "Tides matter near coasts, but big global flows need more than a gentle tug—temperature and salt make water sink and rise."
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "What mainly drives ocean currents?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "Only the tides from the Moon"
+          },
+          {
+            "id": "b",
+            "text": "Wind, heat differences, and salt (density)"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "Tides matter near coasts, but big global flows need more than a gentle tug—temperature and salt make water sink and rise.",
+          "b": "Right. Wind pushes the surface, the Sun makes temperature differences, and salt changes density—together they steer great conveyors."
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "end",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": {
+        "voiceOver": "Question three. Why do healthy oceans matter to you and me—is it mainly about fish and beaches, or about oxygen, climate balance, food, and livelihoods? Choose when you're ready.",
+        "onNoChoice": "Breathe in—half your oxygen comes from the ocean. It feeds and steadies us—let’s choose B."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "end_q",
+                "text": "Why are healthy oceans essential for people?"
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "end_choices",
+                "text": "",
+                "extra": {
+                  "a": "It's mainly about fish and beaches",
+                  "b": "Oxygen, climate balance, food, and livelihoods"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "end_tm_b",
+                "text": "Exactly. The ocean breathes with us, feeds us, carries ships and stories—our daily life depends on it."
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "end_tm_a",
+                "text": "Yes, and so much more—the ocean makes oxygen, feeds families, and keeps our climate steady."
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "Why are healthy oceans essential for people?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "It's mainly about fish and beaches"
+          },
+          {
+            "id": "b",
+            "text": "Oxygen, climate balance, food, and livelihoods"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "Yes, and so much more—the ocean makes oxygen, feeds families, and keeps our climate steady.",
+          "b": "Exactly. The ocean breathes with us, feeds us, carries ships and stories—our daily life depends on it."
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wisdom",
+      "timing": {
+        "minListen": 6
+      },
+      "narration": {
+        "voiceOver": "Wisdom to carry: care for the ocean and it cares for you—each breath, each meal, each calm day. Do one small protective act today."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "fortune",
+                "region": "right_shoulder",
+                "id": "fortune",
+                "text": "Care for the ocean, and it will keep caring for you—every breath, every meal, every calm day."
+              }
+            ]
+          }
+        ]
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "happy_celebrating"
+          }
+        ]
+      }
+    }
+  ]
+}

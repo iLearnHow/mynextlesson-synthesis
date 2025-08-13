@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/popup/number_highlight.schema.json",
+  "title": "Number Highlight Popup",
+  "type": "object",
+  "required": ["label", "value", "at_ms"],
+  "properties": {
+    "label": { "type": "string", "minLength": 1 },
+    "value": { "type": "number" },
+    "unit": { "type": ["string", "null"] },
+    "at_ms": { "type": "integer", "minimum": 0 }
+  }
+}

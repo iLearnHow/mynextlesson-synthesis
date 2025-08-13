@@ -1,0 +1,9 @@
+{
+  "active": true,
+  "user_id": "u_123",
+  "plan": "premium.monthly",
+  "features": ["languages", "offline", "personalization"],
+  "iat": 1734105600,
+  "exp": 1734192000,
+  "signature_valid": true
+}

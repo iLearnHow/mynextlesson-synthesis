@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iLearn Dev Player (Sandbox)</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 16px; background: #0b0c10; color: #e6edf3; }
+    h1 { font-size: 18px; margin: 0 0 12px; }
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    label { font-size: 12px; opacity: 0.85; }
+    input, select { background: #161b22; border: 1px solid #30363d; color: #e6edf3; padding: 6px 8px; border-radius: 6px; }
+    button { background: #238636; color: white; border: none; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
+    button.secondary { background: #30363d; }
+    #log { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; padding: 10px; height: 180px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
+    .panel { border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin-bottom: 12px; background: #0d1117; }
+    #avatar-canvas { width: 320px; height: 240px; background: #111; border: 1px solid #30363d; border-radius: 8px; background-size: cover; background-position: center; }
+    .grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; }
+    .mono { font-family: ui-monospace, Menlo, monospace; font-size: 12px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>iLearn Dev Player (Sandbox)</h1>
+
+  <div class="panel">
+    <div class="row">
+      <label>Date</label>
+      <input id="inp-date" value="2025-02-28" />
+      <label>Lang</label>
+      <input id="inp-lang" value="en" />
+      <label>Age</label>
+      <input id="inp-age" value="8-12" />
+      <label>Tone</label>
+      <select id="inp-tone">
+        <option value="fun">fun</option>
+        <option value="neutral">neutral</option>
+        <option value="warm">warm</option>
+      </select>
+      <label>Avatar</label>
+      <select id="inp-avatar">
+        <option value="kelly">kelly</option>
+        <option value="ken">ken</option>
+      </select>
+      <button id="btn-load-api">Load via API</button>
+      <button id="btn-load-file" class="secondary">Load example file</button>
+      <select id="sel-example">
+        <option value="/api/examples/manifests/2025-02-28_en_8-12_fun_kelly.json">8-12 fun kelly</option>
+        <option value="/api/examples/manifests/2025-02-28_en_18-34_neutral_ken.json">18-34 neutral ken</option>
+        <option value="/api/examples/manifests/2025-02-28_en_5-7_warm_kelly.json">5-7 warm kelly</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <button id="btn-play">Play</button>
+      <button id="btn-pause" class="secondary">Pause</button>
+      <button id="btn-stop" class="secondary">Stop</button>
+      <label>Seek slide</label>
+      <select id="sel-slide">
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+      <button id="btn-seek">Go</button>
+      <button id="btn-switch-variant" class="secondary">Switch variant (tone)</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div id="avatar-canvas"></div>
+    </div>
+    <div>
+      <div class="panel">
+        <div id="log" class="mono"></div>
+      </div>
+      <div class="panel">
+        <div id="manifest-view" class="mono">Manifest not loaded</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./complete-curriculum.js"></script>
+  <script src="./complete-elevenlabs-integration.js"></script>
+  <script src="./corrected-variant-generator-v2.js"></script>
+  <script src="./complete-lesson-player.js"></script>
+  <script>
+    const logEl = document.getElementById('log');
+    const manifestViewEl = document.getElementById('manifest-view');
+    const avatarCanvas = document.getElementById('avatar-canvas');
+
+    function log(msg){
+      const ts = new Date().toISOString().split('T')[1].replace('Z','');
+      logEl.textContent += `[${ts}] ${msg}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function getParams(){
+      return {
+        date: document.getElementById('inp-date').value,
+        lang: document.getElementById('inp-lang').value,
+        ageBand: document.getElementById('inp-age').value,
+        tone: document.getElementById('inp-tone').value,
+        avatarId: document.getElementById('inp-avatar').value
+      };
+    }
+
+    function renderAvatarForSlide(slide){
+      try {
+        // Minimal placeholder using existing avatar assets in repo
+        const avatar = document.getElementById('inp-avatar').value;
+        const path = `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+        avatarCanvas.style.backgroundImage = `url('${path}')`;
+      } catch {}
+    }
+
+    // Wire events
+    const MP = window.ManifestPlayer;
+    MP.on('slide_started', (idx)=> log(`slide_started: ${idx}`));
+    MP.on('slide_completed', (idx)=> log(`slide_completed: ${idx}`));
+    MP.on('variant_changed', (info)=> log(`variant_changed at ${info.appliedBoundaryMs}ms`));
+    MP.on('buffer', (ms)=> log(`buffer: ${ms}ms ready`));
+    MP.on('playback_stalled', ()=> log('playback_stalled'));
+
+    function showManifest(m){ manifestViewEl.textContent = JSON.stringify(m, null, 2); }
+
+    document.getElementById('btn-load-api').addEventListener('click', async ()=>{
+      try {
+        const p = getParams();
+        const r = await window.loadManifest(p);
+        log(`Manifest URL: ${r.manifest_url}`);
+        const man = await window.loadVariantByManifest(r.manifest_url);
+        showManifest(man);
+        renderAvatarForSlide(man.slides[0]);
+        await MP.prepare(man);
+        log('Prepared from API manifest.');
+      } catch (e) { log(`Error: ${e.message||e}`); }
+    });
+
+    document.getElementById('btn-load-file').addEventListener('click', async ()=>{
+      try {
+        const url = document.getElementById('sel-example').value;
+        const man = await window.loadVariantByManifest(url);
+        showManifest(man);
+        renderAvatarForSlide(man.slides[0]);
+        await MP.prepare(man);
+        log('Prepared from local example.');
+      } catch (e) { log(`Error: ${e.message||e}`); }
+    });
+
+    document.getElementById('btn-play').addEventListener('click', ()=> MP.play());
+    document.getElementById('btn-pause').addEventListener('click', ()=> MP.pause());
+    document.getElementById('btn-stop').addEventListener('click', ()=> MP.stop());
+    document.getElementById('btn-seek').addEventListener('click', ()=> MP.seekToSlide(Number(document.getElementById('sel-slide').value)));
+    document.getElementById('btn-switch-variant').addEventListener('click', async ()=>{
+      const tone = document.getElementById('inp-tone').value;
+      const nextTone = tone === 'fun' ? 'neutral' : (tone === 'neutral' ? 'warm' : 'fun');
+      document.getElementById('inp-tone').value = nextTone;
+      const res = await MP.requestVariantChange({ tone: nextTone });
+      log(`Variant change requested; will apply at ~${res.appliedBoundaryMs}ms`);
+    });
+  </script>
+</body>
+</html>
+
+

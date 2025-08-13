@@ -434,3 +434,88 @@ if (typeof module !== 'undefined' && module.exports) {
 } else if (typeof window !== 'undefined') {
     window.ElevenLabsIntegration = ElevenLabsIntegration;
 }
+
+// Dev/production shared buffered Opus player (minimal)
+if (typeof window !== 'undefined') {
+  window.BufferedOpusPlayer = (function(){
+    class BufferedOpusPlayer {
+      constructor() {
+        this.ctx = null;
+        this.queue = [];
+        this.playHead = 0;
+        this.minBufferSec = 2.0;
+        this.crossfadeMs = 200;
+        this.gain = null;
+        this.isPlaying = false;
+      }
+      ensureCtx(){
+        if (!this.ctx) {
+          const C = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new C();
+          this.gain = this.ctx.createGain();
+          this.gain.connect(this.ctx.destination);
+        }
+      }
+      async decodeOpus(arrayBuffer){
+        this.ensureCtx();
+        return await this.ctx.decodeAudioData(arrayBuffer.slice(0));
+      }
+      getBufferedSeconds(){
+        const now = this.ctx ? this.ctx.currentTime : 0;
+        return Math.max(0, this.playHead - now);
+      }
+      scheduleBuffer(audioBuffer){
+        this.ensureCtx();
+        const src = this.ctx.createBufferSource();
+        src.buffer = audioBuffer;
+        const node = this.ctx.createGain();
+        node.gain.value = 1;
+        src.connect(node).connect(this.gain);
+        const startAt = Math.max(this.ctx.currentTime + 0.01, this.playHead || this.ctx.currentTime + 0.01);
+        src.start(startAt);
+        this.playHead = startAt + audioBuffer.duration;
+        this.queue.push({ src, node, startAt, duration: audioBuffer.duration });
+      }
+      async appendChunk(opusArrayBuffer){
+        const ab = await this.decodeOpus(opusArrayBuffer);
+        this.scheduleBuffer(ab);
+        return this.getBufferedSeconds();
+      }
+      async crossfadeTo(newBuffers){
+        // Simple crossfade: ramp down current, ramp up new first buffer
+        const now = this.ctx.currentTime;
+        const fade = this.crossfadeMs / 1000;
+        if (this.queue.length) {
+          try {
+            const last = this.queue[this.queue.length - 1];
+            last.node.gain.cancelScheduledValues(now);
+            last.node.gain.setValueAtTime(last.node.gain.value, now);
+            last.node.gain.linearRampToValueAtTime(0.0001, now + fade);
+          } catch {}
+        }
+        for (const buf of newBuffers) {
+          this.scheduleBuffer(buf);
+        }
+        // ramp in the first of new buffers
+        try {
+          const first = this.queue[this.queue.length - newBuffers.length];
+          first.node.gain.setValueAtTime(0.0001, now);
+          first.node.gain.linearRampToValueAtTime(1.0, now + fade);
+        } catch {}
+      }
+      pause(){ try { this.ctx && this.ctx.suspend(); this.isPlaying = false; } catch {}
+      }
+      resume(){ try { this.ctx && this.ctx.resume(); this.isPlaying = true; } catch {}
+      }
+      stop(){
+        try {
+          this.queue.forEach(q => { try { q.src.stop(); } catch {} });
+        } catch {}
+        this.queue = [];
+        this.playHead = this.ctx ? this.ctx.currentTime : 0;
+        this.isPlaying = false;
+      }
+    }
+    return BufferedOpusPlayer;
+  })();
+}

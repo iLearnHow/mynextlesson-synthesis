@@ -1,0 +1,367 @@
+{
+  "metadata": {
+    "version": "phase_v1",
+    "lessonId": "the-sun",
+    "title": "The sun as a universal source of energy, life, and connection."
+  },
+  "phases": [
+    {
+      "id": "welcome",
+      "timing": {
+        "minListen": 6
+      },
+      "narration": {
+        "voiceOver": "Welcome. Today we’ll look at the Sun like a teacher looks at a class: What does it do for us every single day, and how do we notice it? I’ll guide you through three short questions, with hints if you need them."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "right_shoulder",
+                "id": "intro",
+                "text": "The sun as a universal source of energy, life, and connection."
+              }
+            ]
+          }
+        ]
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "teaching_explaining"
+          }
+        ]
+      }
+    },
+    {
+      "id": "beginning",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": {
+        "voiceOver": "Question one. Listen first, then choose. Which technology directly uses the Sun’s energy—geothermal power, or solar power? I’ll help if you’re unsure.",
+        "onNoChoice": "Here’s the nudge: solar power captures sunlight directly. Let’s pick that and I’ll explain."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "beginning_q",
+                "text": "The sun's energy is a key part of which sustainable technology?"
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "beginning_choices",
+                "text": "",
+                "extra": {
+                  "a": "Geothermal power",
+                  "b": "Solar power"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "beginning_tm_b",
+                "text": "Yes! Solar panels are a brilliant way to harness the sun's clean energy."
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "beginning_tm_a",
+                "text": "Geothermal power comes from the Earth's heat. Solar power comes directly from the sun."
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "The sun's energy is a key part of which sustainable technology?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "Geothermal power"
+          },
+          {
+            "id": "b",
+            "text": "Solar power"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "Geothermal power comes from the Earth's heat. Solar power comes directly from the sun.",
+          "b": "Yes! Solar panels are a brilliant way to harness the sun's clean energy."
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "middle",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": {
+        "voiceOver": "Question two. Sunlight helps our bodies make which vitamin—Vitamin C, or Vitamin D? Take a breath, then choose.",
+        "onNoChoice": "A quick clue: it’s the sunshine vitamin—Vitamin D. Let’s choose it and see why."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "middle_q",
+                "text": "Our body produces which essential vitamin from sunlight?"
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "middle_choices",
+                "text": "",
+                "extra": {
+                  "a": "Vitamin C",
+                  "b": "Vitamin D"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "middle_tm_b",
+                "text": "Yes! Vitamin D is important for strong bones."
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "middle_tm_a",
+                "text": "We get Vitamin C from fruits like oranges. The sun helps us make Vitamin D."
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "Our body produces which essential vitamin from sunlight?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "Vitamin C"
+          },
+          {
+            "id": "b",
+            "text": "Vitamin D"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "We get Vitamin C from fruits like oranges. The sun helps us make Vitamin D.",
+          "b": "Yes! Vitamin D is important for strong bones."
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "end",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": {
+        "voiceOver": "Question three. The Sun lights everyone without picking favorites. What’s that a metaphor for—competition, or fairness and impartiality? Choose when you're ready.",
+        "onNoChoice": "Think of sunlight touching every face—fairness and impartiality. Let’s choose that together."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "end_q",
+                "text": "The sun's light illuminates everything equally, a metaphor for..."
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "end_choices",
+                "text": "",
+                "extra": {
+                  "a": "Competition",
+                  "b": "Fairness and impartiality"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "end_tm_b",
+                "text": "Perfect. It treats everyone the same, a powerful metaphor for impartiality."
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "end_tm_a",
+                "text": "The sun's equal light is a symbol of fairness, not competition."
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "The sun's light illuminates everything equally, a metaphor for...",
+        "choices": [
+          {
+            "id": "a",
+            "text": "Competition"
+          },
+          {
+            "id": "b",
+            "text": "Fairness and impartiality"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "The sun's equal light is a symbol of fairness, not competition.",
+          "b": "Perfect. It treats everyone the same, a powerful metaphor for impartiality."
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wisdom",
+      "timing": {
+        "minListen": 6
+      },
+      "narration": {
+        "voiceOver": "Wisdom to carry: the same light that warms you powers life all around you. Notice it today—then be a little sun for someone else."
+      },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "fortune",
+                "region": "right_shoulder",
+                "id": "fortune",
+                "text": "Your understanding of the sun... connects you to the vast and powerful universe."
+              }
+            ]
+          }
+        ]
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "happy_celebrating"
+          }
+        ]
+      }
+    }
+  ]
+}

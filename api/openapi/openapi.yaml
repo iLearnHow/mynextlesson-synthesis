@@ -1,0 +1,567 @@
+openapi: 3.1.0
+info:
+  title: iLearn Public and Admin API
+  version: 1.0.0
+  description: API for iLearn manifest fetch, progress, analytics, purchases, and admin publishing.
+servers:
+  - url: https://api.ilearnhow.com
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/manifest:
+    get:
+      summary: Get manifest URL for a specific lesson variant
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            description: UTC date key (YYYY-MM-DD)
+          description: Lesson date in UTC
+        - in: query
+          name: lang
+          required: true
+          schema:
+            type: string
+            example: en
+        - in: query
+          name: age
+          required: true
+          schema:
+            type: string
+            description: Age band key (e.g., 8-12)
+        - in: query
+          name: tone
+          required: true
+          schema:
+            type: string
+            enum: [fun, neutral, warm]
+        - in: query
+          name: avatar
+          required: true
+          schema:
+            type: string
+            example: kelly
+      responses:
+        "200":
+          description: Manifest pointer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManifestResponse"
+  /api/v1/progress:
+    post:
+      summary: Report slide or lesson progress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgressEvent"
+      responses:
+        "200":
+          description: Acknowledged
+  /api/v1/events/batch:
+    post:
+      summary: Send analytics events batch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/AnalyticsEvent"
+      responses:
+        "200":
+          description: Acknowledged
+  /api/v1/purchase/validate:
+    post:
+      summary: Validate a purchase and update entitlements
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PurchaseValidateRequest"
+      responses:
+        "200":
+          description: Entitlements updated
+  /admin/v1/publish:
+    post:
+      summary: Publish a validated content bundle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublishRequest"
+      responses:
+        "200":
+          description: Published
+
+  /api/v1/auth/magic-link:
+    post:
+      summary: Request a magic sign-in link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Link sent if email exists
+
+  /api/v1/auth/token:
+    post:
+      summary: Exchange magic token for JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: JWT issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  expires_in:
+                    type: integer
+
+  /api/v1/consent/guardian:
+    post:
+      summary: Record/verifiy guardian consent token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [child_user_id, method]
+              properties:
+                child_user_id:
+                  type: string
+                method:
+                  type: string
+                  enum: [email_link, micro_charge]
+                reference:
+                  type: string
+      responses:
+        "200":
+          description: Consent recorded
+
+  /admin/v1/warm:
+    post:
+      summary: Warm cache for a variant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, lang, age, tone, avatar]
+              properties:
+                date:
+                  type: string
+                lang:
+                  type: string
+                age:
+                  type: string
+                tone:
+                  type: string
+                  enum: [fun, neutral, warm]
+                avatar:
+                  type: string
+      responses:
+        "202":
+          description: Warm job accepted
+
+  /admin/v1/invalidate:
+    post:
+      summary: Invalidate a manifest pointer (bump content version)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, lang]
+              properties:
+                date:
+                  type: string
+                lang:
+                  type: string
+                note:
+                  type: string
+      responses:
+        "200":
+          description: Invalidated
+
+  /api/v1/entitlements:
+    get:
+      summary: Get current user entitlements
+      responses:
+        "200":
+          description: Entitlement list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entitlements:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Entitlement"
+
+  /admin/v1/reports/usage:
+    get:
+      summary: Get usage report snapshot
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            description: UTC date key (YYYY-MM-DD)
+      responses:
+        "200":
+          description: Usage metrics snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageReport"
+
+  /admin/v1/reports/usage/{date}:
+    get:
+      summary: Get usage report snapshot for a specific date
+      parameters:
+        - in: path
+          name: date
+          required: true
+          schema:
+            type: string
+            description: UTC date key (YYYY-MM-DD)
+      responses:
+        "200":
+          description: Usage metrics snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageReport"
+
+  /api/v1/entitlements/token:
+    post:
+      summary: Issue a short-lived signed entitlement token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  expires_in:
+                    type: integer
+
+  /api/v1/entitlements/token/introspect:
+    post:
+      summary: Introspect a signed entitlement token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+      responses:
+        "200":
+          description: Introspection result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenIntrospection"
+
+  /admin/v1/consent/audit/search:
+    get:
+      summary: Search consent audit logs
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Audit entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ConsentAudit"
+
+  /admin/v1/consent/audit/export:
+    get:
+      summary: Export consent audit CSV
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: CSV content
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /admin/v1/consent/export:
+    get:
+      summary: Export consent records JSON
+      parameters:
+        - in: query
+          name: date
+          required: true
+          schema:
+            type: string
+            description: UTC date key (YYYY-MM-DD)
+      responses:
+        "200":
+          description: Consent export JSON
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConsentExport"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ManifestResponse:
+      type: object
+      required: [manifest_url, expires_in, content_version]
+      properties:
+        manifest_url:
+          type: string
+          format: uri
+        expires_in:
+          type: integer
+          minimum: 1
+        content_version:
+          type: string
+        warm_hint:
+          type: array
+          items:
+            type: string
+    ProgressEvent:
+      type: object
+      required: [module_id, event, client_ts]
+      properties:
+        module_id:
+          type: string
+          description: Module/lesson identifier (e.g., date key)
+        slide_index:
+          type: integer
+          minimum: 0
+          maximum: 4
+        event:
+          type: string
+          enum: [slide_started, slide_completed, lesson_completed]
+        client_ts:
+          type: string
+          format: date-time
+    AnalyticsEvent:
+      type: object
+      required: [type, ts]
+      properties:
+        type:
+          type: string
+          description: Event type key
+        ts:
+          type: integer
+          description: Unix timestamp seconds
+        attrs:
+          type: object
+          additionalProperties: true
+    PurchaseValidateRequest:
+      type: object
+      required: [platform, receipt, product_id]
+      properties:
+        platform:
+          type: string
+          enum: [web, ios, android]
+        receipt:
+          type: string
+        product_id:
+          type: string
+    PublishRequest:
+      type: object
+      required: [module_id, language, age_band, tone, avatar_id, bundle_ref]
+      properties:
+        module_id:
+          type: string
+        language:
+          type: string
+        age_band:
+          type: string
+        tone:
+          type: string
+          enum: [fun, neutral, warm]
+        avatar_id:
+          type: string
+        bundle_ref:
+          type: string
+          description: R2 URI reference for the content bundle
+    Entitlement:
+      type: object
+      required: [plan, features]
+      properties:
+        plan:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        expiration:
+          type: ["string", "null"]
+          format: date-time
+    UsageReport:
+      type: object
+      required: [date, dau, lessons_completed, avg_ttf_speech_ms]
+      properties:
+        date:
+          type: string
+        dau:
+          type: integer
+        lessons_completed:
+          type: integer
+        avg_ttf_speech_ms:
+          type: number
+        regions:
+          type: array
+          items:
+            type: object
+            required: [region, dau]
+            properties:
+              region:
+                type: string
+              dau:
+                type: integer
+    ConsentAudit:
+      type: object
+      required: [user_id, action, timestamp]
+      properties:
+        user_id:
+          type: string
+        actor:
+          type: string
+          enum: [system, guardian, user, admin]
+        action:
+          type: string
+          enum: [requested, sent, verified, revoked]
+        method:
+          type: [string, "null"]
+          enum: [email_link, micro_charge, null]
+        reference:
+          type: [string, "null"]
+        timestamp:
+          type: string
+          format: date-time
+        notes:
+          type: [string, "null"]
+    TokenIntrospection:
+      type: object
+      required: [active, user_id, features, iat, exp]
+      properties:
+        active:
+          type: boolean
+        user_id:
+          type: string
+        plan:
+          type: [string, "null"]
+        features:
+          type: array
+          items:
+            type: string
+        iat:
+          type: integer
+        exp:
+          type: integer
+        signature_valid:
+          type: [boolean, "null"]
+    ConsentExport:
+      type: object
+      required: [date, count, records]
+      properties:
+        date:
+          type: string
+        count:
+          type: integer
+        records:
+          type: array
+          items:
+            type: object
+            required: [user_id, type, issued_at]
+            properties:
+              user_id:
+                type: string
+              type:
+                type: string
+                enum: [guardian, likeness]
+              token:
+                type: [string, "null"]
+              scope:
+                oneOf:
+                  - type: string
+                  - type: array
+                    items:
+                      type: string
+                  - type: "null"
+              issued_at:
+                type: string
+                format: date-time
+              revoked_at:
+                type: [string, "null"]
+                format: date-time

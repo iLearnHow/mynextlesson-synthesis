@@ -42,6 +42,7 @@ Create a universal learning platform accessible to everyone on Earth, regardless
 
 ### **Core Files:**
 - `index.html` (1799 lines) - Main interface
+- `dev-player.html` (DEV-ONLY) - Sandbox for manifest-driven playback validation; must be removed before production merges
 - `complete-lesson-player.js` (1181 lines) - Universal lesson player
 - `complete-curriculum.js` (377 lines) - 366-day curriculum
 - `corrected-variant-generator-v2.js` (973 lines) - Variant system
@@ -51,6 +52,21 @@ Create a universal learning platform accessible to everyone on Earth, regardless
 - `data/` - Monthly curriculum JSON files (12 files)
 - `dna_files/` - DNA lesson templates (3 files)
 - `production-deploy/` - Deployment-ready files
+- `api/` - Imported OpenAPI, JSON Schemas, and example manifests used for local validation and dev playback
+
+## 🧪 DEV-ONLY SANDBOX POLICY
+
+- `dev-player.html` is permitted for local development to validate: manifest fetch/parse, first‑chunk prefetch, Opus chunk playback with cross‑fade (150–250 ms), captions/popups, and sentence‑boundary variant switching.
+- It reuses existing runtime modules (`complete-curriculum.js`, `complete-lesson-player.js`, `complete-elevenlabs-integration.js`, `corrected-variant-generator-v2.js`).
+- It must not be deployed or merged into production branches. All final wiring happens in `index.html`.
+
+## 📦 PLANNING SUITE IMPORTS
+
+- OpenAPI: `api/openapi/openapi.yaml`
+- Schemas: `api/schemas/*.json` (incl. `manifest.schema.json` and popup payload schemas)
+- Examples: `api/examples/manifests/*.json`
+
+These artifacts are authoritative for the manifest player integration and validation during development.
 
 ## 🎯 **SUCCESS CRITERIA**
 

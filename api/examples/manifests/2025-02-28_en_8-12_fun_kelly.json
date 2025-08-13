@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0",
+  "module_id": "2025-02-28",
+  "date_key_utc": "2025-02-28",
+  "content_version": "v1",
+  "language": "en",
+  "age_band": "8-12",
+  "tone": "fun",
+  "avatar_id": "kelly",
+  "slides": [
+    {
+      "slide_index": 0,
+      "title": "Welcome",
+      "script_text": "Hello! Today we explore …",
+      "captions_vtt_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/0.vtt",
+      "target_duration_ms": 12000,
+      "sentence_boundaries_ms": [0, 3500, 8200, 12000],
+      "prosody_plan_pb_uri": null,
+      "viseme_timeline_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/0_vi.pb",
+      "expression_tracks_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/0_ex.pb",
+      "audio_manifest": {
+        "codec": "opus",
+        "sample_rate": 48000,
+        "chunk_duration_ms": 1500,
+        "chunks": [
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/0_000.opus",
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/0_001.opus"
+        ]
+      },
+      "popup_template_id": "quote_card",
+      "popup_payload": { "quote": "Key idea", "at_ms": 4000 },
+      "asset_hashes": { "viseme": "sha256:abc", "audio_000": "sha256:def" }
+    },
+    {
+      "slide_index": 1,
+      "title": "Beginning",
+      "script_text": "Let’s start with …",
+      "captions_vtt_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/1.vtt",
+      "target_duration_ms": 10000,
+      "sentence_boundaries_ms": [0, 5000, 10000],
+      "prosody_plan_pb_uri": null,
+      "viseme_timeline_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/1_vi.pb",
+      "expression_tracks_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/1_ex.pb",
+      "audio_manifest": {
+        "codec": "opus",
+        "sample_rate": 48000,
+        "chunk_duration_ms": 1500,
+        "chunks": [
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/1_000.opus",
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/1_001.opus"
+        ]
+      },
+      "popup_template_id": "list_points",
+      "popup_payload": { "items": ["A", "B"], "at_ms": 2000 },
+      "asset_hashes": { "viseme": "sha256:ghi" }
+    },
+    {
+      "slide_index": 2,
+      "title": "Middle",
+      "script_text": "Here’s the core …",
+      "captions_vtt_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/2.vtt",
+      "target_duration_ms": 11000,
+      "sentence_boundaries_ms": [0, 6000, 11000],
+      "prosody_plan_pb_uri": null,
+      "viseme_timeline_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/2_vi.pb",
+      "expression_tracks_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/2_ex.pb",
+      "audio_manifest": {
+        "codec": "opus",
+        "sample_rate": 48000,
+        "chunk_duration_ms": 1500,
+        "chunks": [
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/2_000.opus",
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/2_001.opus"
+        ]
+      },
+      "popup_template_id": "number_highlight",
+      "popup_payload": { "label": "Steps", "value": 3, "unit": null, "at_ms": 5000 },
+      "asset_hashes": { "viseme": "sha256:jkl" }
+    },
+    {
+      "slide_index": 3,
+      "title": "End",
+      "script_text": "We wrap up …",
+      "captions_vtt_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/3.vtt",
+      "target_duration_ms": 9000,
+      "sentence_boundaries_ms": [0, 4500, 9000],
+      "prosody_plan_pb_uri": null,
+      "viseme_timeline_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/3_vi.pb",
+      "expression_tracks_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/3_ex.pb",
+      "audio_manifest": {
+        "codec": "opus",
+        "sample_rate": 48000,
+        "chunk_duration_ms": 1500,
+        "chunks": [
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/3_000.opus",
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/3_001.opus"
+        ]
+      },
+      "popup_template_id": "quote_card",
+      "popup_payload": { "quote": "Well done!", "at_ms": 3000 },
+      "asset_hashes": { "viseme": "sha256:mno" }
+    },
+    {
+      "slide_index": 4,
+      "title": "Wisdom",
+      "script_text": "Remember …",
+      "captions_vtt_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/4.vtt",
+      "target_duration_ms": 8000,
+      "sentence_boundaries_ms": [0, 8000],
+      "prosody_plan_pb_uri": null,
+      "viseme_timeline_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/4_vi.pb",
+      "expression_tracks_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/4_ex.pb",
+      "audio_manifest": {
+        "codec": "opus",
+        "sample_rate": 48000,
+        "chunk_duration_ms": 1500,
+        "chunks": [
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/4_000.opus",
+          "https://assets.ilearnhow.com/examples/2025-02-28/en/8-12/fun/kelly/4_001.opus"
+        ]
+      },
+      "popup_template_id": "list_points",
+      "popup_payload": { "items": ["Practice", "Share"], "at_ms": 1000 },
+      "asset_hashes": { "viseme": "sha256:pqr" }
+    }
+  ],
+  "integrity": { "manifest_sig": "hmac256:demo", "created_at": "2025-02-10T12:00:00Z" }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/entitlement.schema.json",
+  "title": "Entitlement",
+  "type": "object",
+  "required": ["plan", "features"],
+  "properties": {
+    "plan": { "type": "string" },
+    "features": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "expiration": { "type": ["string", "null"], "format": "date-time" },
+    "receipts": { "type": ["object", "null"], "additionalProperties": true }
+  }
+}

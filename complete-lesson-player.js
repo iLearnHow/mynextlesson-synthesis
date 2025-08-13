@@ -2369,3 +2369,51 @@ The system is ready for real curriculum integration!`,
 }
 
 // Lesson player will be initialized by index.html to avoid double initialization 
+
+// Manifest-driven minimal player API (dev + prod)
+if (typeof window !== 'undefined') {
+  const listeners = new Map();
+  function emit(evt, data){ (listeners.get(evt) || []).forEach(fn => { try { fn(data); } catch {} }); }
+  function on(evt, fn){ const arr = listeners.get(evt) || []; arr.push(fn); listeners.set(evt, arr); }
+
+  const ManifestPlayer = {
+    _manifest: null,
+    _slideIndex: 0,
+    _audio: null,
+    _buffers: [],
+    _prepared: false,
+    _isPlaying: false,
+    async prepare(manifest){
+      this._manifest = manifest; this._slideIndex = 0; this._prepared = false; this._buffers = [];
+      this._audio = new window.BufferedOpusPlayer();
+      // Prefetch first slide: protobufs (ignored here) and first audio chunk
+      const slide = manifest.slides[0];
+      const firstChunk = slide.audio_manifest?.chunks?.[0];
+      if (firstChunk) {
+        const r = await fetch(firstChunk);
+        const ab = await r.arrayBuffer();
+        const buffered = await this._audio.appendChunk(ab);
+        emit('buffer', Math.floor(buffered * 1000));
+      }
+      this._prepared = true;
+    },
+    async play(){ if (!this._prepared) return; this._audio.resume(); this._isPlaying = true; emit('slide_started', this._slideIndex); },
+    pause(){ if (!this._prepared) return; this._audio.pause(); this._isPlaying = false; },
+    stop(){ if (!this._prepared) return; this._audio.stop(); this._isPlaying = false; },
+    async seekToSlide(i){ if (!this._manifest) return; this._slideIndex = Math.max(0, Math.min(4, i)); emit('slide_started', this._slideIndex); },
+    async requestVariantChange(partial){
+      // Determine next boundary from current slide
+      try {
+        const slide = this._manifest.slides[this._slideIndex];
+        const arr = Array.isArray(slide.sentence_boundaries_ms) ? slide.sentence_boundaries_ms.slice() : [0];
+        const nowMs = 0; // simplified clock stub; we tie to AudioContext clock in advanced pass
+        const next = arr.find(x => x > nowMs) ?? arr[arr.length - 1];
+        const appliedBoundaryMs = Math.max(0, next);
+        emit('variant_changed', { appliedBoundaryMs });
+        return { appliedBoundaryMs };
+      } catch { return { appliedBoundaryMs: 0 }; }
+    },
+    on,
+  };
+  window.ManifestPlayer = ManifestPlayer;
+}

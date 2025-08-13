@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/manifest.schema.json",
+  "title": "Lesson Manifest",
+  "type": "object",
+  "required": ["schema_version", "module_id", "date_key_utc", "content_version", "language", "age_band", "tone", "avatar_id", "slides", "integrity"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "module_id": { "type": "string" },
+    "date_key_utc": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "content_version": { "type": "string" },
+    "language": { "type": "string" },
+    "age_band": { "type": "string" },
+    "tone": { "type": "string", "enum": ["fun", "neutral", "warm"] },
+    "avatar_id": { "type": "string" },
+    "slides": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": { "$ref": "#/definitions/slide" }
+    },
+    "integrity": { "$ref": "#/definitions/integrity" }
+  },
+  "definitions": {
+    "integrity": {
+      "type": "object",
+      "required": ["manifest_sig", "created_at"],
+      "properties": {
+        "manifest_sig": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "slide": {
+      "type": "object",
+      "required": ["slide_index", "title", "script_text", "captions_vtt_uri", "target_duration_ms", "sentence_boundaries_ms", "viseme_timeline_pb_uri", "expression_tracks_pb_uri", "audio_manifest", "popup_template_id", "asset_hashes"],
+      "properties": {
+        "slide_index": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "title": { "type": "string" },
+        "script_text": { "type": "string" },
+        "captions_vtt_uri": { "type": "string", "format": "uri" },
+        "target_duration_ms": { "type": "integer", "minimum": 1000 },
+        "sentence_boundaries_ms": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "minItems": 2
+        },
+        "prosody_plan_pb_uri": { "type": ["string", "null"], "format": "uri" },
+        "viseme_timeline_pb_uri": { "type": "string", "format": "uri" },
+        "expression_tracks_pb_uri": { "type": "string", "format": "uri" },
+        "audio_manifest": {
+          "type": "object",
+          "required": ["codec", "sample_rate", "chunk_duration_ms", "chunks"],
+          "properties": {
+            "codec": { "type": "string", "enum": ["opus"] },
+            "sample_rate": { "type": "integer", "enum": [48000] },
+            "chunk_duration_ms": { "type": "integer", "minimum": 500, "maximum": 3000 },
+            "chunks": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "format": "uri" }
+            }
+          }
+        },
+        "popup_template_id": { "type": "string" },
+        "popup_payload": { "type": ["object", "null"], "additionalProperties": true },
+        "asset_hashes": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    }
+  }
+}

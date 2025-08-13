@@ -1,0 +1,8 @@
+{
+  "date": "2025-02-28",
+  "count": 2,
+  "records": [
+    { "user_id": "u_123", "type": "guardian", "token": "tkn_a", "scope": ["account"], "issued_at": "2025-02-28T01:02:03Z", "revoked_at": null },
+    { "user_id": "u_456", "type": "likeness", "token": "tkn_b", "scope": "persisted", "issued_at": "2025-02-27T11:22:33Z", "revoked_at": null }
+  ]
+}

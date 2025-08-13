@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/token_introspection.schema.json",
+  "title": "Entitlement Token Introspection",
+  "type": "object",
+  "required": ["active", "user_id", "features", "iat", "exp"],
+  "properties": {
+    "active": { "type": "boolean" },
+    "user_id": { "type": "string" },
+    "plan": { "type": ["string", "null"] },
+    "features": { "type": "array", "items": { "type": "string" } },
+    "iat": { "type": "integer", "minimum": 0 },
+    "exp": { "type": "integer", "minimum": 0 },
+    "signature_valid": { "type": ["boolean", "null"] }
+  }
+}

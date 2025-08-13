@@ -385,4 +385,36 @@ if (typeof window !== 'undefined') {
     window.getDNALessonData = getDNALessonData;
     window.COMPLETE_CURRICULUM = COMPLETE_CURRICULUM;
     console.log('✅ Curriculum system loaded and available globally');
+
+    // Manifest/API integration (dev + production)
+    // GET /api/v1/manifest → { manifest_url, warm_hint? }
+    window.loadManifest = async function loadManifest(params) {
+        const { date, lang, ageBand, tone, avatarId } = params || {};
+        const base = 'https://api.ilearnhow.com';
+        const url = new URL('/api/v1/manifest', base);
+        if (date) url.searchParams.set('date', date);
+        if (lang) url.searchParams.set('lang', lang);
+        if (ageBand) url.searchParams.set('age', ageBand);
+        if (tone) url.searchParams.set('tone', tone);
+        if (avatarId) url.searchParams.set('avatar', avatarId);
+        const headers = { 'Accept': 'application/json' };
+        try {
+            const token = localStorage.getItem('ilearn_access_token');
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+        } catch {}
+        const res = await fetch(url.toString(), { headers });
+        if (!res.ok) throw new Error(`Manifest fetch failed: ${res.status}`);
+        return await res.json();
+    };
+
+    // Load manifest JSON directly from a URL (R2, local file, or example)
+    window.loadVariantByManifest = async function loadVariantByManifest(manifestUrl) {
+        const res = await fetch(manifestUrl, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`Manifest JSON not found: ${res.status}`);
+        const manifest = await res.json();
+        if (!manifest || !Array.isArray(manifest.slides) || manifest.slides.length !== 5) {
+            console.warn('Manifest shape unexpected; see api/schemas/manifest.schema.json');
+        }
+        return manifest;
+    };
 } 

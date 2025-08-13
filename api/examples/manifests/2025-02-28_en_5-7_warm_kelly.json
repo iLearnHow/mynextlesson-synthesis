@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "module_id": "2025-02-28",
+  "date_key_utc": "2025-02-28",
+  "content_version": "v2",
+  "language": "en",
+  "age_band": "5-7",
+  "tone": "warm",
+  "avatar_id": "kelly",
+  "slides": [
+    {
+      "slide_index": 0,
+      "title": "Welcome",
+      "script_text": "Hi friend! Today we’ll…",
+      "captions_vtt_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/5-7/warm/kelly/0.vtt",
+      "target_duration_ms": 8000,
+      "sentence_boundaries_ms": [0, 3000, 8000],
+      "prosody_plan_pb_uri": null,
+      "viseme_timeline_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/5-7/warm/kelly/0_vi.pb",
+      "expression_tracks_pb_uri": "https://assets.ilearnhow.com/examples/2025-02-28/en/5-7/warm/kelly/0_ex.pb",
+      "audio_manifest": {"codec":"opus","sample_rate":48000,"chunk_duration_ms":1500,"chunks":["https://assets.ilearnhow.com/examples/2025-02-28/en/5-7/warm/kelly/0_000.opus"]},
+      "popup_template_id": "list_points",
+      "popup_payload": {"items":["Try","Learn","Smile"],"at_ms":1500},
+      "asset_hashes": {"viseme":"sha256:y2"}
+    }
+  ],
+  "integrity": {"manifest_sig": "hmac256:demo","created_at":"2025-02-10T12:00:00Z"}
+}

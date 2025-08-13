@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/popup/quote_card.schema.json",
+  "title": "Quote Card Popup",
+  "type": "object",
+  "required": ["quote", "at_ms"],
+  "properties": {
+    "quote": { "type": "string", "minLength": 1 },
+    "author": { "type": ["string", "null"] },
+    "at_ms": { "type": "integer", "minimum": 0 }
+  }
+}

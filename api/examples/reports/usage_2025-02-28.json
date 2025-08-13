@@ -1,0 +1,11 @@
+{
+  "date": "2025-02-28",
+  "dau": 10234,
+  "lessons_completed": 63421,
+  "avg_ttf_speech_ms": 412.7,
+  "regions": [
+    { "region": "US", "dau": 5210 },
+    { "region": "EU", "dau": 3187 },
+    { "region": "APAC", "dau": 1837 }
+  ]
+}

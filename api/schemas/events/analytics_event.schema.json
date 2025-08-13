@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/event.schema.json",
+  "title": "Analytics Event",
+  "type": "object",
+  "required": ["type", "ts"],
+  "properties": {
+    "type": { "type": "string" },
+    "ts": { "type": "integer", "minimum": 0 },
+    "attrs": { "type": "object", "additionalProperties": true }
+  }
+}

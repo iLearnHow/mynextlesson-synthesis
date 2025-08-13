@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/progress.schema.json",
+  "title": "Progress Record",
+  "type": "object",
+  "required": ["user_id", "module_id", "event", "recorded_at"],
+  "properties": {
+    "user_id": { "type": "string" },
+    "module_id": { "type": "string" },
+    "slide_index": { "type": ["integer", "null"], "minimum": 0, "maximum": 4 },
+    "event": { "type": "string", "enum": ["slide_started", "slide_completed", "lesson_completed"] },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "streak_count": { "type": ["integer", "null"], "minimum": 0 },
+    "platform": { "type": ["string", "null"] },
+    "app_version": { "type": ["string", "null"] }
+  }
+}

@@ -1,0 +1,127 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../critical-foundations"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/tts_training 2"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/tts_training 2/data"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/tts_training 2/configs"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/ken"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/ken/animation_refs"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/ken/video"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/ken/audio"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/ken/images"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/animation_refs"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/hands"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/body_positions"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/head_positions"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/breathing"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/cheeks"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/mouth"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/eyes"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/face"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/kelly/images/full_body"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/data/asl"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/models"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/assets_migration_log"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/scripts"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/notebooks"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/configs"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/outputs"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/my-next-lesson/code"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/kenny"
+		},
+		{
+			"path": "../critical-foundations/proof-test/audio and transcript chunking"
+		},
+		{
+			"path": "../my-project/node_modules/@elevenlabs/elevenlabs-js/api/resources/dubbing/resources/transcript"
+		},
+		{
+			"path": "../my-project/node_modules/@elevenlabs/elevenlabs-js/serialization/resources/dubbing/resources/transcript"
+		},
+		{
+			"path": "../my-project/node_modules/@elevenlabs/elevenlabs-js/dist/serialization/resources/dubbing/resources/transcript"
+		},
+		{
+			"path": "../my-project/node_modules/@elevenlabs/elevenlabs-js/dist/api/resources/dubbing/resources/transcript"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/processed_data/transcripts"
+		},
+		{
+			"path": "../Desktop/a-z/data/cleaned_transcripts"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "ilearn_how"
+	}
+}

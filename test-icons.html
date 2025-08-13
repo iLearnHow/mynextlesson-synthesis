@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Test</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; margin: 0; padding: 20px; background: #f0f0f0; }
+        .test-container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .rail { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); display: flex; flex-direction: column; gap: 12px; z-index: 2147483647; }
+        .rail-btn { width: 44px; height: 44px; border-radius: 14px; border: none; background: rgba(255,255,255,0.8); box-shadow: 0 10px 40px rgba(0,0,0,0.2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .rail-btn:hover { background: rgba(255,255,255,0.9); transform: translateY(-1px); }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .modal.visible { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; max-width: 400px; }
+        .log { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-top: 20px; font-family: monospace; font-size: 14px; max-height: 300px; overflow-y: auto; }
+        .log-entry { margin-bottom: 8px; padding: 4px 8px; border-radius: 4px; }
+        .log-entry.success { background: #d4edda; color: #155724; }
+        .log-entry.error { background: #f8d7da; color: #721c24; }
+        .log-entry.info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Icon Clickability Test</h1>
+        <p>This page tests the right-side rail icons to see if they're clickable. Click any icon to test.</p>
+        
+        <div class="rail">
+            <button class="rail-btn" id="icon-live" title="Live" onclick="testClick('live-modal', 'Live')">🟢</button>
+            <button class="rail-btn" id="icon-find" title="Find" onclick="testClick('find-modal', 'Find')">🔎</button>
+            <button class="rail-btn" id="icon-settings" title="Settings" onclick="testClick('settings-modal', 'Settings')">⚙️</button>
+            <button class="rail-btn" id="icon-calendar" title="Calendar" onclick="testClick('calendar-modal', 'Calendar')">📅</button>
+            <button class="rail-btn" id="icon-model" title="Avatar" onclick="testClick('avatar-modal', 'Avatar')">🧑‍🏫</button>
+            <button class="rail-btn" id="icon-tone" title="Tone" onclick="testClick('tone-modal', 'Tone')">🎚️</button>
+            <button class="rail-btn" id="icon-language" title="Language" onclick="testClick('language-modal', 'Language')">🌍</button>
+            <button class="rail-btn" id="icon-age" title="Age" onclick="testClick('age-modal', 'Age')">🎯</button>
+            <button class="rail-btn" id="icon-speed" title="Speed" onclick="testClick('speed-modal', 'Speed')">⏩</button>
+            <button class="rail-btn" id="icon-controls" title="Controls" onclick="testClick('controls-modal', 'Controls')">🎛️</button>
+        </div>
+
+        <!-- Test Modals -->
+        <div class="modal" id="live-modal">
+            <div class="modal-content">
+                <h3>Live Modal</h3>
+                <p>Live modal opened successfully!</p>
+                <button onclick="closeModal('live-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="find-modal">
+            <div class="modal-content">
+                <h3>Find Modal</h3>
+                <p>Find modal opened successfully!</p>
+                <button onclick="closeModal('find-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="settings-modal">
+            <div class="modal-content">
+                <h3>Settings Modal</h3>
+                <p>Settings modal opened successfully!</p>
+                <button onclick="closeModal('settings-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="calendar-modal">
+            <div class="modal-content">
+                <h3>Calendar Modal</h3>
+                <p>Calendar modal opened successfully!</p>
+                <button onclick="closeModal('calendar-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="avatar-modal">
+            <div class="modal-content">
+                <h3>Avatar Modal</h3>
+                <p>Avatar modal opened successfully!</p>
+                <button onclick="closeModal('avatar-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="tone-modal">
+            <div class="modal-content">
+                <h3>Tone Modal</h3>
+                <p>Tone modal opened successfully!</p>
+                <button onclick="closeModal('tone-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="language-modal">
+            <div class="modal-content">
+                <h3>Language Modal</h3>
+                <p>Language modal opened successfully!</p>
+                <button onclick="closeModal('language-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="age-modal">
+            <div class="modal-content">
+                <h3>Age Modal</h3>
+                <p>Age modal opened successfully!</p>
+                <button onclick="closeModal('age-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="speed-modal">
+            <div class="modal-content">
+                <h3>Speed Modal</h3>
+                <p>Speed modal opened successfully!</p>
+                <button onclick="closeModal('speed-modal')">Close</button>
+            </div>
+        </div>
+        <div class="modal" id="controls-modal">
+            <div class="modal-content">
+                <h3>Controls Modal</h3>
+                <p>Controls modal opened successfully!</p>
+                <button onclick="closeModal('controls-modal')">Close</button>
+            </div>
+        </div>
+
+        <div class="log" id="log">
+            <div class="log-entry info">Test started. Click any icon to test functionality.</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function testClick(modalId, iconName) {
+            try {
+                log(`Testing ${iconName} icon click...`, 'info');
+                
+                // Test if the modal exists
+                const modal = document.getElementById(modalId);
+                if (!modal) {
+                    log(`ERROR: Modal ${modalId} not found!`, 'error');
+                    return;
+                }
+
+                // Test if the modal can be made visible
+                modal.classList.add('visible');
+                modal.style.display = 'flex';
+                
+                log(`SUCCESS: ${iconName} icon clicked and modal opened!`, 'success');
+                
+                // Auto-close after 3 seconds
+                setTimeout(() => {
+                    closeModal(modalId);
+                }, 3000);
+                
+            } catch (error) {
+                log(`ERROR: ${iconName} icon failed: ${error.message}`, 'error');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('visible');
+                modal.style.display = 'none';
+                log(`Modal ${modalId} closed`, 'info');
+            }
+        }
+
+        // Test event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Page loaded, testing event listeners...', 'info');
+            
+            // Test if all icons have click events
+            const icons = document.querySelectorAll('.rail-btn');
+            icons.forEach(icon => {
+                const hasOnclick = icon.hasAttribute('onclick');
+                const hasClickListeners = icon.onclick !== null;
+                
+                if (hasOnclick || hasClickListeners) {
+                    log(`✓ ${icon.title} icon has click handler`, 'success');
+                } else {
+                    log(`✗ ${icon.title} icon missing click handler`, 'error');
+                }
+            });
+            
+            log('Event listener test complete', 'info');
+        });
+
+        // Test pointer events
+        document.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('.rail-btn')) {
+                log(`Pointer event detected on ${e.target.closest('.rail-btn').title}`, 'info');
+            }
+        });
+
+        // Test click events
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.rail-btn')) {
+                log(`Click event detected on ${e.target.closest('.rail-btn').title}`, 'info');
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/consent.schema.json",
+  "title": "Consent Record",
+  "type": "object",
+  "required": ["type", "issued_at"],
+  "properties": {
+    "type": { "type": "string", "enum": ["guardian", "likeness"] },
+    "token": { "type": ["string", "null"] },
+    "child_user_id": { "type": ["string", "null"] },
+    "scope": { "type": ["string", "array", "null"], "items": { "type": "string" } },
+    "issued_at": { "type": "string", "format": "date-time" },
+    "revoked_at": { "type": ["string", "null"], "format": "date-time" }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ilearnhow.com/schemas/entitlement_token.schema.json",
+  "title": "Entitlement Token",
+  "type": "object",
+  "required": ["user_id", "features", "issued_at", "expires_at"],
+  "properties": {
+    "user_id": { "type": "string" },
+    "plan": { "type": ["string", "null"] },
+    "features": { "type": "array", "items": { "type": "string" } },
+    "issued_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" },
+    "signature": { "type": ["string", "null"] }
+  }
+}
