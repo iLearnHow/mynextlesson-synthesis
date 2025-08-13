@@ -359,7 +359,7 @@
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 20px;
             border-radius: var(--radius-lg);
-            max-width: 420px;
+            max-width: 480px;
             box-shadow: var(--shadow-xl);
             position: relative;
             z-index: 9999;
@@ -409,7 +409,7 @@
         .grid-4 {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
+            gap: 4px;
         }
         
         .grid-2 {
@@ -423,10 +423,10 @@
             background: var(--primary);
             color: white;
             border: none;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
             transition: var(--transition);
         }
@@ -441,10 +441,10 @@
             background: white;
             color: #495057;
             border: 1px solid #dee2e6;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
             transition: var(--transition);
         }
@@ -993,10 +993,9 @@
                 topPosition = viewportHeight - 420;
             }
             
-            // PROPER POSITIONING: Modals open NEXT TO the right-side icon rail
-            // Icon rail is at right: 20px, so modals should open to its LEFT with proper spacing
-            const railRightEdge = window.innerWidth - 20; // Right edge of screen minus rail width
-            const modalLeft = Math.max(20, railRightEdge - modalWidth - 20); // 20px gap from rail
+            // PROPER POSITIONING: Modals open to the LEFT of the right-side icon rail
+            // Icon rail is at right: 20px, so modals should open at left: 20px (full width)
+            const modalLeft = 20; // Left edge of screen, giving full width for content
             
             // Apply positioning with proper sizing
             modalContent.style.position = 'fixed';
