@@ -350,7 +350,9 @@
         }
         
         .modal.visible {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .modal-content {
@@ -1009,7 +1011,6 @@
                 
                 // Show the modal
                 modal.classList.add('visible');
-                modal.style.display = 'flex';
             }
         }
 
@@ -1017,70 +1018,20 @@
             const modal = document.getElementById(modalId);
             if (modal) {
                 modal.classList.remove('visible');
-                modal.style.display = 'none';
             }
         }
 
         function closeAllModals() {
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.classList.remove('visible');
-                modal.style.display = 'none';
             });
         }
         
-        // Modal positioning function - FIXED positioning for proper modal overlay
+        // Modal positioning function - SIMPLIFIED for proper overlay behavior
         function positionModalNextToIcon(modal, modalId) {
-            const modalContent = modal.querySelector('.modal-content');
-            if (!modalContent) return;
-            
-            // Get the clicked icon
-            const icon = event.target.closest('.rail-btn');
-            if (!icon) return;
-            
-            const iconRect = icon.getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-            const viewportWidth = window.innerWidth;
-            const iconTop = iconRect.top;
-            
-            // Calculate optimal position to keep modal fully visible
-            let topPosition = iconTop - 150; // Center modal with icon
-            if (topPosition < 20) {
-                topPosition = 20;
-            }
-            if (topPosition + 400 > viewportHeight - 20) {
-                topPosition = viewportHeight - 420;
-            }
-            
-            // FIXED POSITIONING: Modals open as proper overlays to the LEFT of the right-side icon rail
-            const railRightEdge = viewportWidth - 20; // Right edge of screen minus rail width
-            const modalWidth = 400; // Fixed width for consistency
-            const modalLeft = Math.max(20, railRightEdge - modalWidth - 40); // 40px gap from rail
-            
-            // Reset any previous positioning
-            modalContent.style.position = '';
-            modalContent.style.top = '';
-            modalContent.style.left = '';
-            modalContent.style.width = '';
-            modalContent.style.right = '';
-            modalContent.style.maxHeight = '';
-            modalContent.style.zIndex = '';
-            modalContent.style.overflowY = '';
-            modalContent.style.overflowX = '';
-            
-            // Apply positioning with proper sizing
-            modalContent.style.position = 'fixed';
-            modalContent.style.top = `${topPosition}px`;
-            modalContent.style.left = `${modalLeft}px`;
-            modalContent.style.width = `${modalWidth}px`;
-            modalContent.style.right = 'auto';
-            modalContent.style.maxHeight = '70vh'; // Reduced for mobile compatibility
-            modalContent.style.zIndex = '9999';
-            
-            // Ensure modal fits content properly
-            modalContent.style.overflowY = 'auto';
-            modalContent.style.overflowX = 'hidden';
-            
-            console.log(`📍 Modal ${modalId} positioned: left=${modalLeft}px, top=${topPosition}px, width=${modalWidth}px`);
+            // No positioning needed - modals use CSS-based centering
+            // The modal container handles positioning, content stays within it
+            console.log(`🎯 Modal ${modalId} opened with CSS-based positioning`);
         }
 
         // CORRECT PhaseDNA Age System Functions
