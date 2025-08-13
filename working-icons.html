@@ -1341,9 +1341,8 @@
                     setTimeout(() => selectAge('age_25'), 1000);
                     break;
                 case 'language':
-                    // Test language selection
-                    setTimeout(() => selectLanguage('es', '🇪🇸'), 500);
-                    setTimeout(() => selectLanguage('en', '🇺🇸'), 1000);
+                    // Test language modal opening
+                    setTimeout(() => testClick('language-modal', 'Language'), 500);
                     break;
                 case 'tone':
                     // Test tone selection
