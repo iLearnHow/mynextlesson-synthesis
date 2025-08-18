@@ -1901,12 +1901,10 @@ class UniversalLessonPlayer {
                 await this.loadLessonByDay(1);
             }
         } catch {}
-        if (this.autoplay) {
-            console.log('▶️ Autorun enabled. Starting lesson automatically.');
-            this.startUniversalLesson();
-        } else {
-            console.log('⏳ Lesson loaded and ready. Waiting for Start.');
-        }
+        // Never auto-play - always wait for user interaction
+        console.log('⏳ Lesson loaded and ready. Waiting for Start.');
+        // Remove autoplay completely to prevent macOS voice
+        this.autoplay = false;
     }
 
     /**
@@ -2505,6 +2503,19 @@ The system is ready for real curriculum integration!`,
             try { await this._speakWithLiveRig(narration, chosenAvatar); } catch {}
             return;
         }
+        // Use avatar sync if available
+        if (window.avatarSyncPlayer && window.avatarSyncPlayer.play) {
+            console.log('🎭 Using avatar sync for speech');
+            try {
+                await window.avatarSyncPlayer.play(narration, chosenAvatar);
+                this.isPlaying = true; 
+                this.updatePlayButton();
+                return;
+            } catch (error) {
+                console.error('Avatar sync failed:', error);
+            }
+        }
+        
         // Use pre-synthesized cache if available
         try {
             const cached = this.preSynthCache.get(narration);

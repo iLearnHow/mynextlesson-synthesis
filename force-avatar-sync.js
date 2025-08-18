@@ -1,6 +1,12 @@
 // Force avatar sync to work immediately
 console.log('🎭 Forcing avatar sync activation...');
 
+// Create avatar sync player if it doesn't exist
+if (!window.avatarSyncPlayer && typeof AvatarSyncPlayer !== 'undefined') {
+    window.avatarSyncPlayer = new AvatarSyncPlayer();
+    console.log('✅ Created AvatarSyncPlayer instance');
+}
+
 // Override the speak function to use avatar sync
 if (window.unifiedTTS && window.avatarSyncPlayer) {
     window.unifiedTTS.speak = async function(text, speaker = 'kelly') {
