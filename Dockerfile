@@ -14,6 +14,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
+COPY production-tts-server.py .
 COPY emergency-tts-fix.py .
 COPY hybrid_tts_server_with_phonemes.py .
 
@@ -27,4 +28,4 @@ ENV FLASK_ENV=production
 EXPOSE 5002
 
 # Run server (model will download on first run)
-CMD ["python", "emergency-tts-fix.py"]
+CMD ["python", "production-tts-server.py"]
