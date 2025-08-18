@@ -617,7 +617,10 @@
             </div>
         </div>
         <div id="start-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 2500; pointer-events: auto;">
-            <div class="ios-panel" style="padding:22px 26px; border-radius:20px; display:flex; flex-direction:column; gap:10px; align-items:center; pointer-events: auto;">
+            <div class="ios-panel" style="padding:22px 26px; border-radius:20px; display:flex; flex-direction:column; gap:15px; align-items:center; pointer-events: auto;">
+                <div id="start-lesson-title" style="font-size: 24px; font-weight: 700; color: #333; text-align: center; margin-bottom: 5px;">Loading...</div>
+                <div id="start-lesson-sub" style="font-size: 16px; color: #666; text-align: center; margin-bottom: 15px;">Day 1</div>
+                
                 <button id="start-lesson-btn" onclick="window.__mlStart?.()" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 600; padding: 14px 28px; border-radius: 14px; border: none; background: #007AFF; color: #fff; cursor: pointer; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">Start Lesson</button>
             </div>
         </div>
@@ -694,7 +697,7 @@
                 <button id="language-control" class="rail-btn" data-type="language" data-current="EN-US" title="Language: English (US)">EN</button>
                 <button id="tone-control" class="rail-btn" data-type="tone" data-current="neutral" title="Tone: Neutral">N</button>
                 <button id="model-control" class="rail-btn" data-type="model" data-current="kelly" title="Avatar: Kelly">👩</button>
-                <button id="calendar-control" class="rail-btn" data-type="calendar" data-current="Aug 15" title="Calendar: August 15">15</button>
+                <button id="calendar-control" class="rail-btn" data-type="calendar" data-modal="calendar-modal" data-current="Aug 15" title="Calendar: August 15">15</button>
                 <button id="settings-control" class="rail-btn" data-type="settings" title="Settings">⚙️</button>
                 <button id="find-control" class="rail-btn" data-type="find" title="Find Lessons">🔍</button>
             </div>
@@ -937,6 +940,7 @@
       // Safe stub to silence optional ElevenLabs loader when not in use
       window.ElevenLabsIntegration = window.ElevenLabsIntegration || {};
       // Helper: fetch live API lesson and normalize to PhaseDNA v1 for the player
+      // Falls back to curriculum data when API is unavailable
       window.__mlFetchApiLessonPhases = async function(day, variant){
         try {
           const params = new URLSearchParams({
@@ -978,8 +982,111 @@
           const z = find('wisdom'); if (z) phases.push(toPhase(z,'wisdom'));
           return { metadata:{ version:'phase_v1', day: j.day||day, title: j.title||'' }, phases };
         } catch(e) {
-          console.warn('Live API fetch failed', e);
-          return null;
+          console.warn('Live API fetch failed, using curriculum fallback', e);
+          
+          // Fallback: Generate lesson content from curriculum data
+          try {
+            const curriculumData = window.COMPLETE_CURRICULUM?.[day];
+            if (!curriculumData) {
+              console.warn(`No curriculum data for day ${day}`);
+              return null;
+            }
+            
+            // Generate age-appropriate content based on variant
+            const age = variant?.age || 'age_25';
+            const tone = variant?.tone || 'neutral';
+            const language = variant?.language || 'english';
+            
+            // Create lesson phases from curriculum data
+            const phases = [
+              {
+                id: 'welcome',
+                narration: { 
+                  voiceOver: `Welcome to day ${day}! Today we're learning about ${curriculumData.title}. ${curriculumData.learning_objective}` 
+                },
+                timing: { min_seconds: 10, max_seconds: 30 }
+              },
+              {
+                id: 'beginning',
+                question: {
+                  text: `What interests you most about ${curriculumData.title.split(' - ')[0]}?`,
+                  choices: [
+                    { id: 'a', text: 'The scientific principles behind it' },
+                    { id: 'b', text: 'How it affects our daily lives' }
+                  ],
+                  correct: 'a',
+                  teachingMoments: {
+                    a: `Great choice! Understanding the science helps us make better decisions.`,
+                    b: `Excellent thinking! Real-world applications make learning meaningful.`
+                  }
+                },
+                timing: { min_seconds: 15, max_seconds: 45 }
+              },
+              {
+                id: 'middle',
+                question: {
+                  text: `How do you think ${curriculumData.title.split(' - ')[0]} connects to other subjects?`,
+                  choices: [
+                    { id: 'a', text: 'Through mathematics and patterns' },
+                    { id: 'b', text: 'Through history and human stories' }
+                  ],
+                  correct: 'a',
+                  teachingMoments: {
+                    a: `Perfect! Math is the language that connects all sciences.`,
+                    b: `Wonderful insight! Everything has a human story behind it.`
+                  }
+                },
+                timing: { min_seconds: 15, max_seconds: 45 }
+              },
+              {
+                id: 'end',
+                question: {
+                  text: `What would you like to explore next about ${curriculumData.title.split(' - ')[0]}?`,
+                  choices: [
+                    { id: 'a', text: 'Dive deeper into the technical details' },
+                    { id: 'b', text: 'See how it applies to current events' }
+                  ],
+                  correct: 'a',
+                  teachingMoments: {
+                    a: `Excellent! Deep understanding builds strong foundations.`,
+                    b: `Great choice! Real-world context makes learning stick.`
+                  }
+                },
+                timing: { min_seconds: 15, max_seconds: 45 }
+              },
+              {
+                id: 'wisdom',
+                narration: { 
+                  voiceOver: `Today you've learned that ${curriculumData.learning_objective}. Keep exploring and asking questions!` 
+                },
+                screen: { 
+                  steps: [{ 
+                    show: [{ 
+                      type: 'fortune', 
+                      text: `Your curiosity about ${curriculumData.title.split(' - ')[0]} will lead you to amazing discoveries!` 
+                    }] 
+                  }] 
+                },
+                timing: { min_seconds: 10, max_seconds: 25 }
+              }
+            ];
+            
+            return { 
+              metadata: { 
+                version: 'phase_v1', 
+                day: day, 
+                title: curriculumData.title,
+                age: age,
+                tone: tone,
+                language: language
+              }, 
+              phases 
+            };
+            
+          } catch (fallbackError) {
+            console.error('Curriculum fallback also failed:', fallbackError);
+            return null;
+          }
         }
       };
       // Toast + highlight helpers
@@ -1870,12 +1977,122 @@
                 const btn = e.target.closest('.rail-btn');
                 if (!btn) return;
                 const modalId = btn.getAttribute('data-modal');
-                if (modalId) openModal(modalId);
+                if (modalId) {
+                    openModal(modalId);
+                    // Special handling for calendar modal
+                    if (modalId === 'calendar-modal') {
+                        populateCalendarModal();
+                    }
+                }
             });
             rail.addEventListener('dblclick', (e)=>{
                 const btn = e.target.closest('#icon-live');
                 if (btn) window.lessonPlayer?.togglePlayback();
             });
+        }
+        
+        // Populate calendar modal with lesson data
+        function populateCalendarModal() {
+            const calendarResults = document.getElementById('calendar-results');
+            if (!calendarResults) return;
+            
+            try {
+                // Get current day
+                const currentDay = window.lessonPlayer?.currentDay || 1;
+                const selectedDay = window.lessonPlayer?.selectedDay || currentDay;
+                
+                // Get curriculum data for the next 7 days
+                let calendarHTML = '<div style="margin-bottom: 20px;">';
+                calendarHTML += '<h3 style="margin: 0 0 15px 0; color: #333;">Upcoming Lessons</h3>';
+                
+                for (let i = 0; i < 7; i++) {
+                    const day = selectedDay + i;
+                    if (day > 366) break;
+                    
+                    const lessonData = window.COMPLETE_CURRICULUM?.[day];
+                    if (lessonData) {
+                        const isToday = day === currentDay;
+                        const isSelected = day === selectedDay;
+                        
+                        calendarHTML += `
+                            <div class="calendar-lesson" style="
+                                padding: 12px; 
+                                margin: 8px 0; 
+                                border-radius: 8px; 
+                                border: 1px solid #e0e0e0;
+                                background: ${isToday ? '#e3f2fd' : isSelected ? '#f3e5f5' : '#fafafa'};
+                                cursor: pointer;
+                                transition: all 0.2s ease;
+                            " onclick="selectCalendarDay(${day})">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 4px;">
+                                    Day ${day}${isToday ? ' (Today)' : ''}${isSelected ? ' (Selected)' : ''}
+                                </div>
+                                <div style="font-size: 14px; color: #666; margin-bottom: 6px;">
+                                    ${lessonData.title}
+                                </div>
+                                <div style="font-size: 12px; color: #888; line-height: 1.4;">
+                                    ${lessonData.learning_objective.substring(0, 100)}${lessonData.learning_objective.length > 100 ? '...' : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                calendarHTML += '</div>';
+                
+                // Add month navigation
+                calendarHTML += `
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="navigateCalendarMonth(-1)" style="margin-right: 10px; padding: 8px 16px; border: 1px solid #007AFF; background: white; color: #007AFF; border-radius: 6px; cursor: pointer;">← Previous</button>
+                        <span id="calendar-month-display" style="font-weight: 600; color: #333;">January 2025</span>
+                        <button onclick="navigateCalendarMonth(1)" style="margin-left: 10px; padding: 8px 16px; border: 1px solid #007AFF; background: white; color: #007AFF; border-radius: 6px; cursor: pointer;">Next →</button>
+                    </div>
+                `;
+                
+                calendarResults.innerHTML = calendarHTML;
+                
+                // Update month display
+                updateCalendarMonthDisplay();
+                
+            } catch (error) {
+                console.error('Error populating calendar:', error);
+                calendarResults.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">Error loading calendar data</div>';
+            }
+        }
+        
+        // Calendar navigation functions
+        window.selectCalendarDay = function(day) {
+            if (window.lessonPlayer) {
+                window.lessonPlayer.selectedDay = day;
+                window.lessonPlayer.currentDay = day;
+                // Update the calendar control display
+                const calendarControl = document.getElementById('calendar-control');
+                if (calendarControl) {
+                    calendarControl.textContent = day;
+                    calendarControl.setAttribute('data-current', `Day ${day}`);
+                    calendarControl.title = `Calendar: Day ${day}`;
+                }
+                // Close modal
+                closeById('calendar-modal');
+                // Show toast
+                window.__ml_toast?.(`Selected Day ${day}`);
+            }
+        };
+        
+        window.navigateCalendarMonth = function(direction) {
+            // This would navigate through months - for now just show current month
+            updateCalendarMonthDisplay();
+        };
+        
+        function updateCalendarMonthDisplay() {
+            const monthDisplay = document.getElementById('calendar-month-display');
+            if (monthDisplay) {
+                const currentDay = window.lessonPlayer?.currentDay || 1;
+                const month = Math.ceil(currentDay / 30.44); // Approximate month calculation
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                  'July', 'August', 'September', 'October', 'November', 'December'];
+                monthDisplay.textContent = `${monthNames[month - 1] || 'January'} 2025`;
+            }
         }
 
         // Toast helper
