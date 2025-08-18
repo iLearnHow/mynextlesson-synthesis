@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Animation Test - iLearn How</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .avatar-display { width: 300px; height: 300px; border: 3px solid #333; margin: 20px auto; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .controls { text-align: center; margin: 20px 0; }
+        button { padding: 15px 30px; margin: 10px; font-size: 18px; cursor: pointer; border-radius: 8px; }
+        .primary { background: #007bff; color: white; border: none; }
+        .secondary { background: #6c757d; color: white; border: none; }
+        .success { background: #28a745; color: white; border: none; }
+        .log { font-family: monospace; font-size: 14px; background: #f8f9fa; padding: 15px; border-radius: 4px; max-height: 300px; overflow-y: auto; margin: 20px 0; }
+        .viseme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
+        .viseme-item { text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
+        .viseme-item:hover { background: #f0f0f0; }
+        .viseme-item img { width: 60px; height: 60px; object-fit: contain; }
+    </style>
+</head>
+<body>
+    <h1>🎭 Local Animation Test</h1>
+    
+    <div class="avatar-display" id="avatar-display"></div>
+    
+    <div class="controls">
+        <button class="primary" onclick="testKellyAnimation()">Test Kelly Animation</button>
+        <button class="secondary" onclick="testKenAnimation()">Test Ken Animation</button>
+        <button class="success" onclick="testFrameSwitching()">Test Frame Switching</button>
+        <button onclick="showAllVisemes()">Show All Visemes</button>
+    </div>
+    
+    <div class="viseme-grid" id="viseme-grid"></div>
+    
+    <div class="log" id="log"></div>
+
+    <script>
+        // Local viseme frame paths
+        const localVisemes = {
+            kelly: {
+                REST: '/r2-upload-ready/kelly/full/REST.png',
+                MBP: '/r2-upload-ready/kelly/full/MBP.png',
+                A: '/r2-upload-ready/kelly/full/A.png',
+                E: '/r2-upload-ready/kelly/full/E.png',
+                I: '/r2-upload-ready/kelly/full/I.png',
+                FV: '/r2-upload-ready/kelly/full/FV.png',
+                TH: '/r2-upload-ready/kelly/full/TH.png',
+                DNTL: '/r2-upload-ready/kelly/full/DNTL.png',
+                KG: '/r2-upload-ready/kelly/full/KG.png',
+                S: '/r2-upload-ready/kelly/full/S.png',
+                WQ: '/r2-upload-ready/kelly/full/WQ.png',
+                R: '/r2-upload-ready/kelly/full/R.png'
+            },
+            ken: {
+                REST: '/r2-upload-ready/ken/full/REST.png',
+                MBP: '/r2-upload-ready/ken/full/MBP.png',
+                A: '/r2-upload-ready/ken/full/A.png',
+                E: '/r2-upload-ready/ken/full/E.png',
+                I: '/r2-upload-ready/ken/full/I.png',
+                FV: '/r2-upload-ready/ken/full/FV.png',
+                TH: '/r2-upload-ready/ken/full/TH.png',
+                DNTL: '/r2-upload-ready/ken/full/DNTL.png',
+                KG: '/r2-upload-ready/ken/full/KG.png',
+                S: '/r2-upload-ready/ken/full/S.png',
+                WQ: '/r2-upload-ready/ken/full/WQ.png',
+                R: '/r2-upload-ready/ken/full/R.png'
+            }
+        };
+
+        const avatarDisplay = document.getElementById('avatar-display');
+        const log = document.getElementById('log');
+
+        function logMessage(message, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+            log.innerHTML += `<div class="${className}">[${time}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function showViseme(avatar, viseme) {
+            const path = localVisemes[avatar][viseme];
+            if (path) {
+                avatarDisplay.style.backgroundImage = `url(${path})`;
+                logMessage(`Showing ${avatar} ${viseme}`, 'success');
+            } else {
+                logMessage(`Viseme ${viseme} not found for ${avatar}`, 'error');
+            }
+        }
+
+        async function testKellyAnimation() {
+            logMessage('🎤 Testing Kelly animation with local TTS...');
+            
+            try {
+                // Test with local mock TTS
+                const response = await fetch('http://localhost:5002/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: "Hello! I'm Kelly and you should see my mouth moving as I speak this sentence.",
+                        speaker: 'kelly',
+                        include_phonemes: true
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    logMessage('✅ TTS response received', 'success');
+                    
+                    if (data.phonemes && data.phonemes.length > 0) {
+                        logMessage(`📊 Got ${data.phonemes.length} phonemes`, 'success');
+                        await animatePhonemes('kelly', data.phonemes);
+                    } else {
+                        logMessage('⚠️ No phonemes in response, using heuristic', 'warning');
+                        await animateHeuristic('kelly', data.duration || 3);
+                    }
+                } else {
+                    logMessage(`❌ TTS failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                logMessage(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testKenAnimation() {
+            logMessage('🎤 Testing Ken animation with local TTS...');
+            
+            try {
+                const response = await fetch('http://localhost:5002/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: "Hi there! I'm Ken and my mouth should be moving while I speak.",
+                        speaker: 'ken',
+                        include_phonemes: true
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    logMessage('✅ TTS response received', 'success');
+                    
+                    if (data.phonemes && data.phonemes.length > 0) {
+                        logMessage(`📊 Got ${data.phonemes.length} phonemes`, 'success');
+                        await animatePhonemes('ken', data.phonemes);
+                    } else {
+                        logMessage('⚠️ No phonemes in response, using heuristic', 'warning');
+                        await animateHeuristic('ken', data.duration || 3);
+                    }
+                } else {
+                    logMessage(`❌ TTS failed: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                logMessage(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function animatePhonemes(avatar, phonemes) {
+            logMessage(`🎬 Animating ${avatar} with ${phonemes.length} phonemes...`);
+            
+            for (let i = 0; i < phonemes.length; i++) {
+                const phoneme = phonemes[i];
+                const viseme = phoneme.phoneme;
+                const duration = (phoneme.end - phoneme.start) * 1000;
+                
+                showViseme(avatar, viseme);
+                logMessage(`Frame ${i + 1}: ${viseme} for ${duration}ms`);
+                
+                await new Promise(resolve => setTimeout(resolve, duration));
+            }
+            
+            // Return to REST position
+            showViseme(avatar, 'REST');
+            logMessage('✅ Animation complete', 'success');
+        }
+
+        async function animateHeuristic(avatar, duration) {
+            logMessage(`🎬 Using heuristic animation for ${avatar} (${duration}s)...`);
+            
+            const visemes = ['REST', 'MBP', 'A', 'E', 'I', 'FV', 'TH', 'DNTL', 'KG', 'S', 'WQ', 'R'];
+            const frameDuration = (duration * 1000) / visemes.length;
+            
+            for (let i = 0; i < visemes.length; i++) {
+                const viseme = visemes[i];
+                showViseme(avatar, viseme);
+                logMessage(`Frame ${i + 1}: ${viseme}`);
+                
+                await new Promise(resolve => setTimeout(resolve, frameDuration));
+            }
+            
+            // Return to REST position
+            showViseme(avatar, 'REST');
+            logMessage('✅ Heuristic animation complete', 'success');
+        }
+
+        function testFrameSwitching() {
+            logMessage('🔄 Testing frame switching...');
+            
+            const visemes = ['REST', 'MBP', 'A', 'E', 'I', 'FV', 'TH', 'DNTL', 'KG', 'S', 'WQ', 'R'];
+            let currentIndex = 0;
+            
+            const interval = setInterval(() => {
+                const viseme = visemes[currentIndex];
+                showViseme('kelly', viseme);
+                logMessage(`Frame ${currentIndex + 1}: ${viseme}`);
+                
+                currentIndex++;
+                if (currentIndex >= visemes.length) {
+                    clearInterval(interval);
+                    showViseme('kelly', 'REST');
+                    logMessage('✅ Frame switching test complete', 'success');
+                }
+            }, 200);
+        }
+
+        function showAllVisemes() {
+            logMessage('🖼️ Showing all viseme frames...');
+            const grid = document.getElementById('viseme-grid');
+            grid.innerHTML = '';
+            
+            Object.entries(localVisemes.kelly).forEach(([viseme, path]) => {
+                const item = document.createElement('div');
+                item.className = 'viseme-item';
+                item.innerHTML = `
+                    <div><strong>${viseme}</strong></div>
+                    <img src="${path}" alt="${viseme}" onclick="showViseme('kelly', '${viseme}')">
+                `;
+                grid.appendChild(item);
+            });
+            
+            logMessage('✅ All visemes displayed - click any to show in main display', 'success');
+        }
+
+        // Initialize with REST frame
+        window.addEventListener('load', () => {
+            showViseme('kelly', 'REST');
+            logMessage('🎭 Local animation test ready - Kelly REST frame loaded', 'success');
+        });
+    </script>
+</body>
+</html>

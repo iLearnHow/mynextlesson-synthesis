@@ -21,6 +21,12 @@ class AvatarSyncPlayer {
             ken: `${this.cdnBase}/avatars/ken/full/REST/frame_01.webp`
         };
         
+        // Local fallback frames
+        this.localFrames = {
+            kelly: '/r2-upload-ready/kelly/full/REST.png',
+            ken: '/r2-upload-ready/ken/full/REST.png'
+        };
+        
         // TTS server URL
         this.ttsUrl = this.detectTTSUrl();
         
@@ -162,30 +168,44 @@ class AvatarSyncPlayer {
         const promises = [];
         
         for (const viseme of visemes) {
-            const pngUrl = `${this.cdnBase}/avatars/${speaker}/full/${viseme}.png`;
-            const webpUrl = `${this.cdnBase}/avatars/${speaker}/full/${viseme}/frame_01.webp`;
+            // Try multiple path formats
+            const urls = [
+                `${this.cdnBase}/avatars/${speaker}/full/${viseme}.png`,
+                `${this.cdnBase}/avatars/${speaker}/full/${viseme}/frame_01.webp`,
+                `/r2-upload-ready/${speaker}/full/${viseme}.png`,  // Local fallback
+                `/r2-upload-ready/${speaker}/full/${viseme}.png`   // Direct local
+            ];
             const key = `${speaker}_${viseme}`;
             
             if (!this.visemeFrames.has(key)) {
                 const promise = new Promise((resolve) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        this.visemeFrames.set(key, pngUrl);
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        const img2 = new Image();
-                        img2.onload = () => {
-                            this.visemeFrames.set(key, webpUrl);
+                    let urlIndex = 0;
+                    
+                    const tryNextUrl = () => {
+                        if (urlIndex >= urls.length) {
+                            console.warn(`Failed to load viseme: ${viseme} from all sources`);
+                            resolve();
+                            return;
+                        }
+                        
+                        const url = urls[urlIndex];
+                        const img = new Image();
+                        
+                        img.onload = () => {
+                            this.visemeFrames.set(key, url);
+                            console.log(`✅ Loaded viseme: ${speaker}-${viseme} from ${url}`);
                             resolve();
                         };
-                        img2.onerror = () => {
-                            console.warn(`Failed to load viseme: ${pngUrl} and ${webpUrl}`);
-                            resolve();
+                        
+                        img.onerror = () => {
+                            urlIndex++;
+                            tryNextUrl();
                         };
-                        img2.src = webpUrl;
+                        
+                        img.src = url;
                     };
-                    img.src = pngUrl;
+                    
+                    tryNextUrl();
                 });
                 promises.push(promise);
             }
@@ -231,11 +251,20 @@ class AvatarSyncPlayer {
     
     updateAvatarFrame(viseme, speaker) {
         const key = `${speaker}_${viseme}`;
-        const url = this.visemeFrames.get(key) || this.defaultFrames[speaker];
+        let url = this.visemeFrames.get(key);
+        
+        if (!url) {
+            // Try local fallback
+            url = `/r2-upload-ready/${speaker}/full/${viseme}.png`;
+            console.log(`🎭 Using local fallback for ${viseme}: ${url}`);
+        }
         
         if (this.avatarBg && url) {
             // Use CSS background-image for smoother transitions
             this.avatarBg.style.backgroundImage = `url('${url}')`;
+            console.log(`🎭 Frame updated: ${speaker} ${viseme} -> ${url}`);
+        } else {
+            console.warn(`No frame found for ${speaker} ${viseme}`);
         }
     }
     

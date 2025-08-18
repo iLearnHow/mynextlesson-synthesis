@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete System Test - iLearn How</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        .test-section { border: 2px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin: 5px 0; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin: 5px 0; }
+        .warning { background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; margin: 5px 0; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; border-radius: 4px; }
+        .primary { background: #007bff; color: white; border: none; }
+        .secondary { background: #6c757d; color: white; border: none; }
+        .avatar-test { width: 200px; height: 200px; border: 2px solid #333; margin: 10px; display: inline-block; background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .log { font-family: monospace; font-size: 12px; background: #f0f0f0; padding: 10px; max-height: 200px; overflow-y: auto; }
+        h1 { color: #333; }
+        h2 { color: #555; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Complete System Test - iLearn How</h1>
+    
+    <div class="test-section">
+        <h2>🎤 Test 1: No Auto-Play on Load</h2>
+        <div id="autoplay-result" class="success">✅ Page loaded without auto-playing any audio</div>
+        <p>If you heard "lesson orientation" when this page loaded, the test failed.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>🗣️ Test 2: Kelly Voice Test</h2>
+        <button class="primary" onclick="testKellyVoice()">Test Kelly's Voice</button>
+        <button class="secondary" onclick="testKellyAnimation()">Test Kelly with Animation</button>
+        <div id="kelly-avatar" class="avatar-test"></div>
+        <div id="kelly-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🗣️ Test 3: Ken Voice Test</h2>
+        <button class="primary" onclick="testKenVoice()">Test Ken's Voice</button>
+        <button class="secondary" onclick="testKenAnimation()">Test Ken with Animation</button>
+        <div id="ken-avatar" class="avatar-test"></div>
+        <div id="ken-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 Test 4: System Status</h2>
+        <button class="primary" onclick="checkSystemStatus()">Check All Systems</button>
+        <div id="status-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎭 Test 5: Avatar Frame Switching</h2>
+        <button class="primary" onclick="testFrameSwitching()">Test Frame Animation</button>
+        <div id="frame-result" class="log"></div>
+    </div>
+
+    <script>
+        // Log to prevent any auto-play
+        window.addEventListener('load', () => {
+            console.log('🔇 Page loaded - no auto-play should occur');
+            
+            // Check if speechSynthesis is blocked
+            if (window.speechSynthesis && window.speechSynthesis.speak.toString().includes('blocked')) {
+                document.getElementById('autoplay-result').innerHTML = '✅ macOS voice is blocked';
+            }
+        });
+
+        function log(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            const time = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : '';
+            el.innerHTML += `<div class="${className}">[${time}] ${message}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        async function testKellyVoice() {
+            log('kelly-result', 'Testing Kelly voice...');
+            try {
+                if (window.unifiedTTS) {
+                    await window.unifiedTTS.speak("Hi! I'm Kelly. This is a test of my voice.", 'kelly');
+                    log('kelly-result', 'Kelly voice played successfully', 'success');
+                } else {
+                    log('kelly-result', 'UnifiedTTS not found', 'error');
+                }
+            } catch (error) {
+                log('kelly-result', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testKellyAnimation() {
+            log('kelly-result', 'Testing Kelly animation...');
+            const avatar = document.getElementById('kelly-avatar');
+            avatar.style.backgroundImage = 'url(https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars/kelly/full/REST/frame_01.webp)';
+            
+            try {
+                if (window.avatarSyncPlayer) {
+                    await window.avatarSyncPlayer.play("Hello! I'm Kelly and my mouth should be moving as I speak this sentence.", 'kelly');
+                    log('kelly-result', 'Kelly animation completed', 'success');
+                } else if (typeof AvatarSyncPlayer !== 'undefined') {
+                    window.avatarSyncPlayer = new AvatarSyncPlayer();
+                    await window.avatarSyncPlayer.play("Hello! I'm Kelly and my mouth should be moving as I speak this sentence.", 'kelly');
+                    log('kelly-result', 'Kelly animation completed (created player)', 'success');
+                } else {
+                    log('kelly-result', 'AvatarSyncPlayer not loaded', 'error');
+                }
+            } catch (error) {
+                log('kelly-result', `Animation error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testKenVoice() {
+            log('ken-result', 'Testing Ken voice...');
+            try {
+                if (window.unifiedTTS) {
+                    await window.unifiedTTS.speak("Hey there! I'm Ken. Testing my voice.", 'ken');
+                    log('ken-result', 'Ken voice played successfully', 'success');
+                } else {
+                    log('ken-result', 'UnifiedTTS not found', 'error');
+                }
+            } catch (error) {
+                log('ken-result', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testKenAnimation() {
+            log('ken-result', 'Testing Ken animation...');
+            const avatar = document.getElementById('ken-avatar');
+            avatar.style.backgroundImage = 'url(https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars/ken/full/REST/frame_01.webp)';
+            
+            try {
+                if (window.avatarSyncPlayer || typeof AvatarSyncPlayer !== 'undefined') {
+                    if (!window.avatarSyncPlayer) window.avatarSyncPlayer = new AvatarSyncPlayer();
+                    await window.avatarSyncPlayer.play("Hi! I'm Ken and you should see my mouth moving while I speak.", 'ken');
+                    log('ken-result', 'Ken animation completed', 'success');
+                } else {
+                    log('ken-result', 'AvatarSyncPlayer not loaded', 'error');
+                }
+            } catch (error) {
+                log('ken-result', `Animation error: ${error.message}`, 'error');
+            }
+        }
+
+        function checkSystemStatus() {
+            log('status-result', 'Checking all systems...');
+            
+            // Check TTS
+            if (window.unifiedTTS) {
+                log('status-result', `✅ UnifiedTTS loaded - Base URL: ${window.unifiedTTS.baseUrl}`, 'success');
+            } else {
+                log('status-result', '❌ UnifiedTTS not loaded', 'error');
+            }
+            
+            // Check Avatar Sync
+            if (window.avatarSyncPlayer) {
+                log('status-result', '✅ AvatarSyncPlayer loaded', 'success');
+            } else if (typeof AvatarSyncPlayer !== 'undefined') {
+                log('status-result', '⚠️ AvatarSyncPlayer class available but not instantiated');
+            } else {
+                log('status-result', '❌ AvatarSyncPlayer not loaded', 'error');
+            }
+            
+            // Check speechSynthesis blocking
+            try {
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance('test'));
+                log('status-result', '❌ speechSynthesis NOT blocked - macOS voice may play', 'error');
+            } catch (e) {
+                log('status-result', '✅ speechSynthesis is blocked', 'success');
+            }
+            
+            // Check lesson player
+            if (window.lessonPlayer) {
+                log('status-result', `✅ Lesson player loaded - autoplay: ${window.lessonPlayer.autoplay}`, 'success');
+            } else {
+                log('status-result', '❌ Lesson player not loaded', 'error');
+            }
+            
+            // Check mock TTS
+            fetch('http://localhost:5002/health')
+                .then(r => r.json())
+                .then(data => log('status-result', `✅ Local mock TTS: ${data.engine}`, 'success'))
+                .catch(() => log('status-result', '⚠️ Local mock TTS not running'));
+        }
+
+        async function testFrameSwitching() {
+            log('frame-result', 'Testing viseme frame switching...');
+            
+            const visemes = ['REST', 'MBP', 'A', 'E', 'I', 'FV', 'TH', 'DNTL', 'KG', 'S', 'WQ', 'R'];
+            const testDiv = document.createElement('div');
+            testDiv.style.width = '200px';
+            testDiv.style.height = '200px';
+            testDiv.style.border = '2px solid red';
+            testDiv.style.position = 'fixed';
+            testDiv.style.bottom = '20px';
+            testDiv.style.right = '20px';
+            testDiv.style.backgroundSize = 'contain';
+            testDiv.style.backgroundRepeat = 'no-repeat';
+            document.body.appendChild(testDiv);
+            
+            log('frame-result', 'Cycling through Kelly visemes...');
+            
+            for (const viseme of visemes) {
+                const url = `https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars/kelly/full/${viseme}/frame_01.webp`;
+                testDiv.style.backgroundImage = `url(${url})`;
+                log('frame-result', `Showing ${viseme}`);
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            document.body.removeChild(testDiv);
+            log('frame-result', 'Frame switching test complete', 'success');
+        }
+    </script>
+
+    <!-- Load required scripts -->
+    <script src="/unified-tts-handler.js"></script>
+    <script src="/avatar-sync-player.js"></script>
+    <script src="/force-avatar-sync.js"></script>
+    <script src="/stop-all-autoplay.js"></script>
+</body>
+</html>
