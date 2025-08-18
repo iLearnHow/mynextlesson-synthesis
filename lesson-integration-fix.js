@@ -582,13 +582,8 @@ class LessonIntegrationFix {
         // Make slide dots clickable
         this.setupSlideDotNavigation(manifest, renderSlide);
         
-        // Play the first slide audio
-        if (window.studentAudioSystem) {
-            window.studentAudioSystem.playSlide(0);
-        } else {
-            // Fallback to speech
-            this.speakSlideContent(this.getSlideNarrationText(manifest.slides[0]), variant.avatar);
-        }
+        // DO NOT auto-play on load - wait for user interaction
+        console.log('✅ Lesson loaded, waiting for user to start');
     }
     
     setupSlideDotNavigation(manifest, renderSlideCallback) {
