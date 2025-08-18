@@ -1,4 +1,5 @@
-FROM python:3.9-slim
+# FORCE RAILWAY REBUILD - COMPLETELY NEW DOCKERFILE
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -13,10 +14,10 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy ONLY the production server - force Railway to use it
+# Copy ONLY the production server - nothing else
 COPY production-tts-server.py .
 
-# Environment
+# Environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PORT=5002
 ENV COQUI_TOS_AGREED=1
@@ -25,5 +26,5 @@ ENV FLASK_ENV=production
 # Expose port
 EXPOSE 5002
 
-# Force Railway to use our new production server
+# Force Railway to use our new server
 CMD ["python", "production-tts-server.py"]
