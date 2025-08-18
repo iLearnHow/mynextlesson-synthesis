@@ -37,4 +37,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD python -c "import requests; exit(0 if requests.get('http://localhost:5002/health').status_code == 200 else 1)"
 
 # Run server
-CMD ["python", "simple_tts_server.py"]
+CMD ["python", "hybrid_tts_server_with_phonemes.py"]
