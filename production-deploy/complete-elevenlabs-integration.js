@@ -1,163 +1,119 @@
 /**
- * Complete ElevenLabs Integration for iLearnHow
- * Real voice synthesis for Kelly and Ken avatars
+ * Complete TTS Integration for iLearnHow
+ * Using local Coqui TTS server for Kelly and Ken avatars
  * Browser-safe implementation with fallback mechanisms
  */
 
-class ElevenLabsIntegration {
+class TTSService {
     constructor() {
         // Environment detection
         this.isBrowser = typeof window !== 'undefined';
         this.isNode = typeof process !== 'undefined' && process.versions && process.versions.node;
         
-        // API configuration
-        this.apiKey = this.getApiKey();
-        this.baseUrl = 'https://api.elevenlabs.io/v1';
+        // Server configuration
+        this.baseUrl = 'http://localhost:5002';
+        this.maxRetries = 3;
+        this.retryDelay = 1000; // ms
         
-        // Voice IDs for Kelly and Ken (actual voice IDs from ElevenLabs)
+        // Voice settings
         this.voices = {
-            kelly: 'wAdymQH5YucAkXwmrdL0', // Kelly voice ID
-            ken: 'fwrgq8CiDS7IPcDlFxgd'     // Ken voice ID
+            kelly: 'kelly',
+            ken: 'ken'
         };
         
-        this.voiceSettings = {
-            stability: 0.5,
-            similarity_boost: 0.75,
-            style: 0.0,
-            use_speaker_boost: true
-        };
+        // Audio cache (simple in-memory cache for browser)
+        this.audioCache = new Map();
         
-        // Fallback audio system
-        this.fallbackAudio = this.createFallbackAudio();
+        // Health check tracking
+        this.serverHealthy = true;
+        this.lastHealthCheck = 0;
         
-        console.log(`🎵 ElevenLabs Integration initialized (${this.isBrowser ? 'Browser' : 'Node.js'} environment)`);
+        console.log(`🎵 TTS Service initialized (${this.isBrowser ? 'Browser' : 'Node.js'} environment)`);
     }
 
     /**
-     * Get API key from environment or localStorage
+     * Health check for TTS server
      */
-    getApiKey() {
-        if (this.isBrowser) {
-            // Try to get from localStorage first
-            const storedKey = localStorage.getItem('elevenlabs_api_key');
-            if (storedKey) {
-                return storedKey;
-            }
-            
-            // Fallback to environment variable (if available)
-            return process?.env?.ELEVENLABS_API_KEY || 'your-elevenlabs-api-key';
-        } else {
-            // Node.js environment
-            return process.env.ELEVENLABS_API_KEY || 'your-elevenlabs-api-key';
-        }
-    }
-
-    /**
-     * Create fallback audio system for when API is not available
-     */
-    createFallbackAudio() {
-        if (!this.isBrowser) {
-            return null; // No fallback in Node.js
+    async checkServerHealth() {
+        const now = Date.now();
+        if (now - this.lastHealthCheck < 30000) { // 30s cache
+            return this.serverHealthy;
         }
         
-        // Create a simple text-to-speech fallback using browser's built-in TTS
-        return {
-            speak: (text, avatar = 'kelly') => {
-                return new Promise((resolve) => {
-                    try {
-                        const utterance = new SpeechSynthesisUtterance(text);
-                        utterance.voice = this.getFallbackVoice(avatar);
-                        utterance.rate = 0.9;
-                        utterance.pitch = 1.0;
-                        utterance.volume = 0.8;
-                        
-                        utterance.onend = () => {
-                            console.log('✅ Fallback TTS completed');
-                            resolve('fallback_audio_completed');
-                        };
-                        
-                        utterance.onerror = (error) => {
-                            console.warn('⚠️ Fallback TTS error:', error);
-                            resolve('fallback_audio_error');
-                        };
-                        
-                        speechSynthesis.speak(utterance);
-                        
-                    } catch (error) {
-                        console.warn('⚠️ Fallback TTS not available:', error);
-                        resolve('fallback_audio_unavailable');
-                    }
-                });
-            },
-            
-            getFallbackVoice: (avatar) => {
-                const voices = speechSynthesis.getVoices();
-                if (avatar === 'kelly') {
-                    // Try to find a female voice
-                    return voices.find(voice => voice.name.includes('female') || voice.name.includes('woman')) || voices[0];
-                } else {
-                    // Try to find a male voice
-                    return voices.find(voice => voice.name.includes('male') || voice.name.includes('man')) || voices[0];
-                }
-            }
-        };
-    }
-
-    /**
-     * Generate audio for lesson content
-     */
-    async generateAudio(text, avatar = 'kelly') {
         try {
-            console.log(`🎵 Generating audio for ${avatar}...`);
+            const response = await fetch(`${this.baseUrl}/health`, {
+                method: 'GET',
+                timeout: 2000
+            });
             
-            // Check if we're in a browser environment
-            if (!this.isBrowser) {
-                console.warn('⚠️ Audio generation not available in Node.js environment');
-                return this.generatePlaceholderAudio(text, avatar);
-            }
-            
-            // Check if API key is valid
-            if (this.apiKey === 'your-elevenlabs-api-key') {
-                console.warn('⚠️ Using fallback audio (no valid API key)');
-                return this.fallbackAudio?.speak(text, avatar) || this.generatePlaceholderAudio(text, avatar);
-            }
-            
+            this.serverHealthy = response.ok;
+            this.lastHealthCheck = now;
+            return this.serverHealthy;
+        } catch (error) {
+            this.serverHealthy = false;
+            this.lastHealthCheck = now;
+            return false;
+        }
+    }
+
+    /**
+     * Generate audio with retry logic
+     */
+    async generateAudio(text, avatar = 'kelly', retryCount = 0) {
+        // Check cache first
+        const cacheKey = `${avatar}:${text.substring(0, 100)}`;
+        if (this.audioCache.has(cacheKey)) {
+            return this.audioCache.get(cacheKey);
+        }
+        
+        // Check server health
+        const isHealthy = await this.checkServerHealth();
+        if (!isHealthy) {
+            return this.generatePlaceholderAudio(text, avatar);
+        }
+        
+        try {
             const voiceId = this.voices[avatar];
             if (!voiceId) {
-                throw new Error(`Voice ID not found for avatar: ${avatar}`);
+                throw new Error(`Voice not found for avatar: ${avatar}`);
             }
-
-            const response = await fetch(`${this.baseUrl}/text-to-speech/${voiceId}`, {
+            
+            const response = await fetch(`${this.baseUrl}/api/tts`, {
                 method: 'POST',
                 headers: {
-                    'Accept': 'audio/mpeg',
                     'Content-Type': 'application/json',
-                    'xi-api-key': this.apiKey
                 },
                 body: JSON.stringify({
                     text: text,
-                    model_id: 'eleven_monolingual_v1',
-                    voice_settings: this.voiceSettings
+                    speaker_id: voiceId,
+                    language_id: 'en'
                 })
             });
-
+            
             if (!response.ok) {
-                const error = await response.text();
-                console.warn(`⚠️ ElevenLabs API error: ${response.status} - ${error}`);
-                console.warn('⚠️ Falling back to browser TTS');
-                return this.fallbackAudio?.speak(text, avatar) || this.generatePlaceholderAudio(text, avatar);
+                throw new Error(`TTS request failed: ${response.status}`);
             }
-
+            
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // Cache the result
+            this.audioCache.set(cacheKey, audioUrl);
             
             console.log(`✅ Audio generated successfully for ${avatar}`);
             return audioUrl;
             
         } catch (error) {
-            console.error('❌ ElevenLabs audio generation failed:', error);
-            console.warn('⚠️ Using fallback audio system');
-            return this.fallbackAudio?.speak(text, avatar) || this.generatePlaceholderAudio(text, avatar);
+            console.error(`❌ TTS generation failed (attempt ${retryCount + 1}):`, error);
+            
+            if (retryCount < this.maxRetries) {
+                const delay = this.retryDelay * Math.pow(2, retryCount);
+                console.log(`⏳ Retrying in ${delay}ms...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return this.generateAudio(text, avatar, retryCount + 1);
+            }
+            
+            return this.generatePlaceholderAudio(text, avatar);
         }
     }
 
@@ -430,7 +386,118 @@ class ElevenLabsIntegration {
 
 // Export for different environments
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ElevenLabsIntegration;
+    module.exports = TTSService;
 } else if (typeof window !== 'undefined') {
-    window.ElevenLabsIntegration = ElevenLabsIntegration;
+    window.TTSService = TTSService;
+}
+
+// Dev/production shared buffered Opus player (minimal)
+if (typeof window !== 'undefined') {
+  window.BufferedOpusPlayer = (function(){
+    class BufferedOpusPlayer {
+      constructor() {
+        this.ctx = null;
+        this.queue = [];
+        this.playHead = 0;
+        this.minBufferSec = 2.0;
+        this.crossfadeMs = 200;
+        this.gain = null;
+        this.isPlaying = false;
+        this._lastStartAt = 0;
+        this._lastDuration = 0;
+      }
+      ensureCtx(){
+        if (!this.ctx) {
+          const C = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new C();
+          this.gain = this.ctx.createGain();
+          // Attach an analyser for RMS/onset detection and route audio through it
+          this.analyser = this.ctx.createAnalyser();
+          this.analyser.fftSize = 2048;
+          this.analyser.smoothingTimeConstant = 0.05;
+          this.gain.connect(this.analyser);
+          this.analyser.connect(this.ctx.destination);
+        }
+      }
+      async decodeOpus(arrayBuffer){
+        this.ensureCtx();
+        return await this.ctx.decodeAudioData(arrayBuffer.slice(0));
+      }
+      getBufferedSeconds(){
+        const now = this.ctx ? this.ctx.currentTime : 0;
+        return Math.max(0, this.playHead - now);
+      }
+      scheduleBuffer(audioBuffer){
+        this.ensureCtx();
+        const src = this.ctx.createBufferSource();
+        src.buffer = audioBuffer;
+        const node = this.ctx.createGain();
+        node.gain.value = 1;
+        src.connect(node).connect(this.gain);
+        const startAt = Math.max(this.ctx.currentTime + 0.01, this.playHead || this.ctx.currentTime + 0.01);
+        src.start(startAt);
+        this.playHead = startAt + audioBuffer.duration;
+        this.queue.push({ src, node, startAt, duration: audioBuffer.duration });
+        this._lastStartAt = startAt;
+        this._lastDuration = audioBuffer.duration;
+        return startAt;
+      }
+      async appendChunk(opusArrayBuffer){
+        const ab = await this.decodeOpus(opusArrayBuffer);
+        this.scheduleBuffer(ab);
+        return this.getBufferedSeconds();
+      }
+      getLastStartAt(){ return this._lastStartAt || (this.ctx ? this.ctx.currentTime : 0); }
+      getRms(){
+        try {
+          if (!this.analyser) return 0;
+          const len = this.analyser.fftSize;
+          const buf = new Float32Array(len);
+          this.analyser.getFloatTimeDomainData(buf);
+          let sum = 0;
+          for (let i=0;i<len;i++){ const v = buf[i]; sum += v*v; }
+          const rms = Math.sqrt(sum/len);
+          return rms;
+        } catch { return 0; }
+      }
+      async crossfadeTo(newBuffers){
+        // Simple crossfade: ramp down current, ramp up new first buffer
+        const now = this.ctx.currentTime;
+        const fade = this.crossfadeMs / 1000;
+        if (this.queue.length) {
+          try {
+            const last = this.queue[this.queue.length - 1];
+            last.node.gain.cancelScheduledValues(now);
+            last.node.gain.setValueAtTime(last.node.gain.value, now);
+            last.node.gain.linearRampToValueAtTime(0.0001, now + fade);
+          } catch {}
+        }
+        for (const buf of newBuffers) {
+          this.scheduleBuffer(buf);
+        }
+        // ramp in the first of new buffers
+        try {
+          const first = this.queue[this.queue.length - newBuffers.length];
+          first.node.gain.setValueAtTime(0.0001, now);
+          first.node.gain.linearRampToValueAtTime(1.0, now + fade);
+        } catch {}
+      }
+      pause(){ try { this.ctx && this.ctx.suspend(); this.isPlaying = false; } catch {}
+      }
+      resume(){ try { this.ctx && this.ctx.resume(); this.isPlaying = true; } catch {}
+      }
+      setVolume(vol){
+        try { if (this.gain) { const v = Math.max(0, Math.min(1, vol)); this.gain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.01); } } catch {}
+      }
+      stop(){
+        try {
+          this.queue.forEach(q => { try { q.src.stop(); } catch {} });
+        } catch {}
+        this.queue = [];
+        this.playHead = this.ctx ? this.ctx.currentTime : 0;
+        this.isPlaying = false;
+      }
+    }
+    return BufferedOpusPlayer;
+  })();
 }

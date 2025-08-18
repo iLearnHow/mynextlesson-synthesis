@@ -1,8 +1,8 @@
 {
   "metadata": {
     "version": "phase_v1",
-    "lessonId": "the-sun",
-    "title": "The Sun — Energy, Motion, and Shared Reality"
+    "lessonId": "the-moon",
+    "title": "AI-synthesized concept for the-moon"
   },
   "phases": [
     {
@@ -10,9 +10,7 @@
       "timing": {
         "minListen": 6
       },
-      "narration": {
-        "voiceOver": "Welcome. Today, the Sun is our guide to how the world really works: where energy comes from, how motion creates patterns we live by, and how a simple idea can connect everyone on Earth. I’ll walk with you through three short choices. No rush, and if you want a nudge, I’ll give one."
-      },
+      "narration": { "voiceOver": "Bienvenido. Esta noche pensaremos como exploradores: cómo la Luna mueve el agua, marca los meses e inspira historias. Te guiaré con tres preguntas cortas; incluiré pistas si hace falta." },
       "screen": {
         "steps": [
           {
@@ -22,7 +20,7 @@
                 "type": "text",
                 "region": "right_shoulder",
                 "id": "intro",
-                "text": "The Sun — energy for life, patterns in motion, and a shared sky for us all."
+                "text": "AI-synthesized concept for the-moon"
               }
             ]
           }
@@ -44,10 +42,7 @@
         "maxWait": 16,
         "autoAdvanceAfterFeedback": 3
       },
-      "narration": {
-        "voiceOver": "Let’s start simple. What actually makes day and night—does the Sun circle us, or are we the ones spinning? Picture a globe on your desk and a lamp across the room.",
-        "onNoChoice": "A gentle nudge: the Earth spins. Imagine a lamp and a rotating ball—half lit, half dark. Let’s pick that and I’ll connect the dots."
-      },
+      "narration": { "voiceOver": "Pregunta uno. ¿Qué hace subir y bajar al océano—el viento, o la gravedad de la Luna? Elige cuando estés listo/a.", "onNoChoice": "Pista: el viento hace olas, pero las mareas necesitan un tirón: la gravedad de la Luna. Elijamos eso." },
       "screen": {
         "steps": [
           {
@@ -57,7 +52,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "beginning_q",
-                "text": "What actually creates day and night on Earth?"
+                "text": "What causes the ocean tides to rise and fall?"
               }
             ]
           },
@@ -70,8 +65,8 @@
                 "id": "beginning_choices",
                 "text": "",
                 "extra": {
-                  "a": "The Sun moves around the Earth",
-                  "b": "The Earth spins on its axis"
+                  "a": "The wind",
+                  "b": "The Moon's gravity"
                 }
               }
             ]
@@ -83,7 +78,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "beginning_tm_b",
-                "text": "Exactly: as Earth rotates, the lit side changes. One simple motion explains sunrise and sunset."
+                "text": "Exactly! The Moon's gravity gently pulls on the Earth's oceans, creating tides."
               }
             ]
           },
@@ -94,22 +89,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "beginning_tm_a",
-                "text": "It feels that way from the ground, but it’s our planet that spins. A desk‑lamp and a rotating ball show the same pattern."
+                "text": "Wind makes waves, but the Moon's pull is strong enough to move the whole ocean!"
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What actually creates day and night on Earth?",
+        "text": "What causes the ocean tides to rise and fall?",
         "choices": [
-          { "id": "a", "text": "The Sun moves around the Earth" },
-          { "id": "b", "text": "The Earth spins on its axis" }
+          {
+            "id": "a",
+            "text": "The wind"
+          },
+          {
+            "id": "b",
+            "text": "The Moon's gravity"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "From the ground, the Sun looks like it’s moving. In reality, Earth’s rotation gives us day and night.",
-          "b": "Right. One steady spin—about once every 24 hours—changes which places are lit."
+          "a": "Wind makes waves, but the Moon's pull is strong enough to move the whole ocean!",
+          "b": "Exactly! The Moon's gravity gently pulls on the Earth's oceans, creating tides."
         }
       },
       "avatar": {
@@ -136,10 +137,7 @@
         "maxWait": 16,
         "autoAdvanceAfterFeedback": 3
       },
-      "narration": {
-        "voiceOver": "Now imagine a plant by a window. Over a few days, does it grow evenly in every direction, or lean toward the sunlight? Picture it for a second before deciding.",
-        "onNoChoice": "Here’s a nudge: plants turn toward light. Let’s pick that and talk about why."
-      },
+      "narration": { "voiceOver": "Pregunta dos. ¿Cuánto dura un viaje de la Luna alrededor de la Tierra—un día o un mes? Elige cuando estés listo/a.", "onNoChoice": "Pista del propio idioma: ‘mes’ viene de ‘luna’. Aproximadamente un mes." },
       "screen": {
         "steps": [
           {
@@ -149,7 +147,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "middle_q",
-                "text": "What do most plants do when light comes from one direction?"
+                "text": "How long does it take for the moon to orbit the Earth?"
               }
             ]
           },
@@ -162,8 +160,8 @@
                 "id": "middle_choices",
                 "text": "",
                 "extra": {
-                  "a": "Grow evenly in all directions",
-                  "b": "Lean toward the window"
+                  "a": "About a day",
+                  "b": "About a month"
                 }
               }
             ]
@@ -175,7 +173,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "middle_tm_b",
-                "text": "Yes. Light is energy, and plants track it. This turning behavior is called phototropism."
+                "text": "That's right! The word \"month\" even comes from the word \"moon\"!"
               }
             ]
           },
@@ -186,22 +184,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "middle_tm_a",
-                "text": "Not quite. With light on one side, many plants bend toward it to maximize energy capture."
+                "text": "It takes about a day for the Earth to spin around once, but the moon takes longer to travel around us."
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What do most plants do when light comes from one direction?",
+        "text": "How long does it take for the moon to orbit the Earth?",
         "choices": [
-          { "id": "a", "text": "Grow evenly in all directions" },
-          { "id": "b", "text": "Lean toward the window" }
+          {
+            "id": "a",
+            "text": "About a day"
+          },
+          {
+            "id": "b",
+            "text": "About a month"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "If light is even, growth can be balanced. With a single bright source, plants often lean toward it.",
-          "b": "That leaning is phototropism—seeking light, the fuel for photosynthesis."
+          "a": "It takes about a day for the Earth to spin around once, but the moon takes longer to travel around us.",
+          "b": "That's right! The word \"month\" even comes from the word \"moon\"!"
         }
       },
       "avatar": {
@@ -228,10 +232,7 @@
         "maxWait": 16,
         "autoAdvanceAfterFeedback": 3
       },
-      "narration": {
-        "voiceOver": "Last one. Why do we have seasons—because Earth gets much farther from the Sun, or because we’re slightly tilted as we go around it? Picture a tilted globe moving around a lamp.",
-        "onNoChoice": "Here’s the clue: it’s the tilt. Distance changes a little; angle changes how sunlight spreads and warms. Let’s pick tilt and I’ll explain."
-      },
+      "narration": { "voiceOver": "Pregunta tres. ¿Los humanos han dejado huellas en la Luna—no, está demasiado lejos, o sí, los astronautas caminaron allí? Elige cuando estés listo/a.", "onNoChoice": "Recuerda el programa Apolo—sí, fuimos. Elijamos eso y celebremos lo posible." },
       "screen": {
         "steps": [
           {
@@ -241,7 +242,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "end_q",
-                "text": "What mainly causes seasons on Earth?"
+                "text": "Have people ever walked on the moon?"
               }
             ]
           },
@@ -254,8 +255,8 @@
                 "id": "end_choices",
                 "text": "",
                 "extra": {
-                  "a": "Earth is much farther from the Sun in winter",
-                  "b": "Earth’s axis is tilted during its orbit"
+                  "a": "No, it is too far away",
+                  "b": "Yes, astronauts have walked on it"
                 }
               }
             ]
@@ -267,7 +268,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "end_tm_b",
-                "text": "Yes. Tilt changes how direct the sunlight is and how long days are—more direct and longer days feel warmer."
+                "text": "Correct! The Apollo missions took astronauts to the moon and they even brought back moon rocks!"
               }
             ]
           },
@@ -278,22 +279,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "end_tm_a",
-                "text": "Distance changes a bit over the year, but not enough to explain seasons. Angle and day length do the heavy lifting."
+                "text": "It is very far, but brave astronauts have traveled there and back!"
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What mainly causes seasons on Earth?",
+        "text": "Have people ever walked on the moon?",
         "choices": [
-          { "id": "a", "text": "Earth is much farther from the Sun in winter" },
-          { "id": "b", "text": "Earth’s axis is tilted during its orbit" }
+          {
+            "id": "a",
+            "text": "No, it is too far away"
+          },
+          {
+            "id": "b",
+            "text": "Yes, astronauts have walked on it"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "If distance were the cause, both hemispheres would share seasons. Instead, they’re opposite—evidence for tilt.",
-          "b": "Tilt changes sunlight angle and day length. That shift in energy explains seasonal patterns."
+          "a": "It is very far, but brave astronauts have traveled there and back!",
+          "b": "Correct! The Apollo missions took astronauts to the moon and they even brought back moon rocks!"
         }
       },
       "avatar": {
@@ -318,9 +325,7 @@
       "timing": {
         "minListen": 6
       },
-      "narration": {
-        "voiceOver": "Wisdom to carry: one steady source, many patterns. The Sun’s light is constant; rotation and tilt turn it into day, night, and seasons. Notice one pattern today, and let it change how you see the world."
-      },
+      "narration": { "voiceOver": "Para llevar: como la Luna, tú también tienes fases. Sé amable contigo en las más oscuras; la luz vuelve." },
       "screen": {
         "steps": [
           {
@@ -330,7 +335,7 @@
                 "type": "fortune",
                 "region": "right_shoulder",
                 "id": "fortune",
-                "text": "Today, watch a shadow move or a room brighten, and remember: simple motions build the rhythms of life."
+                "text": "The moon reminds us that even in darkness, there is light."
               }
             ]
           }

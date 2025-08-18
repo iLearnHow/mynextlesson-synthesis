@@ -67,11 +67,11 @@
         .immersive-container { position: relative; width: 100vw; height: 100vh; }
         .avatar-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; transition: background-image 0.5s ease-in-out; background-color: #e0e0e0; }
         .avatar-background.kelly { 
-            background-image: url('/production-deploy/assets/avatars/kelly/kelly_neutral_default.png');
+            background-image: url('https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars/kelly/full/REST/frame_01.webp');
             background-color: #FFE4E1; /* Light pink fallback */
         }
         .avatar-background.ken { 
-            background-image: url('/production-deploy/assets/avatars/ken/ken_neutral_default.png');
+            background-image: url('https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars/ken/full/REST/frame_01.webp');
             background-color: #E0E8FF; /* Light blue fallback */
         }
         .main-content-area, .ui-overlays { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -534,6 +534,12 @@
         .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .modal-title { font-weight: 700; font-size: 18px; }
         .modal-close { border: none; background: rgba(0,0,0,0.08); border-radius: 10px; padding: 6px 10px; cursor: pointer; }
+        /* QA modal styles */
+        .qa-log { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; background: rgba(0,0,0,0.04); padding: 8px; border-radius: 8px; max-height: 40vh; overflow: auto; }
+        .qa-row { display:flex; justify-content: space-between; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid rgba(0,0,0,0.06); }
+        .qa-row:last-child { border-bottom:none; }
+        .qa-pass { color: #0a7d16; font-weight:600; }
+        .qa-fail { color: #b00020; font-weight:600; }
         .search-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-size: 16px; }
         .result-item { padding: 10px 12px; border-radius: 12px; cursor: pointer; transition: background 0.15s; }
         .result-item:hover { background: rgba(255,255,255,0.8); }
@@ -836,6 +842,25 @@
         </div>
     </div>
 
+    <!-- QA Modal -->
+    <div class="modal-overlay" id="qa-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Gold-Standard Lesson — QA Suite</div><button class="modal-close" data-close="qa-modal">Close</button></div>
+            <div class="row" style="gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+                <button class="pill" id="qa-run-all">Run GSL Tests</button>
+                <button class="pill" id="qa-load-day1">Load Day 1</button>
+                <button class="pill" id="qa-toggle-lang-es">Lang: ES</button>
+                <button class="pill" id="qa-toggle-lang-en">Lang: EN</button>
+                <button class="pill" id="qa-tone-fun">Tone: Fun</button>
+                <button class="pill" id="qa-tone-neutral">Tone: Neutral</button>
+                <button class="pill" id="qa-avatar-ken">Avatar: Ken</button>
+                <button class="pill" id="qa-avatar-kelly">Avatar: Kelly</button>
+                <button class="pill" id="qa-age-25">Age: 25</button>
+            </div>
+            <div id="qa-log" class="qa-log"></div>
+        </div>
+    </div>
+
     <!-- Avatar Modal -->
     <div class="modal-overlay" id="avatar-modal">
         <div class="modal-card">
@@ -1111,7 +1136,7 @@
             const makeBtn = (id, label) => { const b=document.createElement('button'); b.id=id; b.textContent=label; b.title=label; b.setAttribute('data-modal-anchor','1'); b.style.cssText='width:44px;height:44px;border-radius:14px;border:none;background:rgba(255,255,255,0.8);box-shadow:0 10px 40px rgba(0,0,0,0.2);cursor:pointer'; return b; };
             const map = [
               ['icon-live','🟢','live-modal'], ['icon-find','🔎','find-modal'], ['icon-settings','⚙️','settings-modal'], ['icon-calendar','📅','calendar-modal'],
-              ['icon-model','🧑‍🏫','avatar-modal'], ['icon-tone','🎚️','tone-modal'], ['icon-language','🌍','language-modal'], ['icon-age','🎯','age-modal'], ['icon-speed','⏩','speed-modal'], ['icon-controls','🎛️','controls-modal']
+              ['icon-model','🧑‍🏫','avatar-modal'], ['icon-tone','🎚️','tone-modal'], ['icon-language','🌍','language-modal'], ['icon-age','🎯','age-modal'], ['icon-speed','⏩','speed-modal'], ['icon-controls','🎛️','controls-modal'], ['icon-qa','✅','qa-modal']
             ];
             map.forEach(([id,emoji,modal])=>{ const btn=makeBtn(id,emoji); btn.dataset.modal=modal; root.appendChild(btn); });
             this._s.appendChild(root);
@@ -1877,7 +1902,8 @@
             'calendar-modal': 'icon-calendar',
             'language-modal': 'icon-language',
             'speed-modal': 'icon-speed',
-            'controls-modal': 'icon-controls'
+            'controls-modal': 'icon-controls',
+            'qa-modal': 'icon-qa'
         };
         function setActiveIconForModal(id){
             document.querySelectorAll('.right-icon-rail .rail-btn').forEach(b=>b.classList.remove('active'));
@@ -1947,6 +1973,73 @@
         }
         setInterval(updateCountdown, 1000); updateCountdown();
         document.getElementById('start-live-now')?.addEventListener('click', ()=>{ closeById('live-modal'); window.lessonPlayer?.startUniversalLesson(); });
+
+        // QA Suite Handlers
+        (function initQASuite(){
+          const log = (msg, pass=null) => {
+            const el = document.getElementById('qa-log'); if (!el) return;
+            const row = document.createElement('div'); row.className='qa-row';
+            const left = document.createElement('div'); left.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            const right = document.createElement('div');
+            if (pass === true) { right.textContent='PASS'; right.className='qa-pass'; }
+            else if (pass === false) { right.textContent='FAIL'; right.className='qa-fail'; }
+            row.appendChild(left); row.appendChild(right); el.prepend(row);
+          };
+
+          const safe = async (name, fn) => { try { await fn(); log(name, true); } catch(e){ console.warn(name, e); log(name+': '+(e?.message||'error'), false); } };
+          const lp = () => window.lessonPlayer;
+
+          document.getElementById('qa-load-day1')?.addEventListener('click', ()=> safe('Load Day 1', async()=>{ await lp()?.loadLessonByDay?.(1); }));
+          document.getElementById('qa-toggle-lang-es')?.addEventListener('click', ()=> safe('Language ES', async()=>{
+            const v = lp()?.currentVariant || { age:'age_25', tone:'neutral', language:'english', avatar:'kelly' };
+            v.language='spanish'; window.__saveVariantPrefs?.(v);
+            const dna = await window.__mlFetchApiLessonPhases?.(lp()?.currentDay||1, v); if (dna) { lp().currentDNA = dna; lp().startUniversalLesson?.(); }
+          }));
+          document.getElementById('qa-toggle-lang-en')?.addEventListener('click', ()=> safe('Language EN', async()=>{
+            const v = lp()?.currentVariant || { age:'age_25', tone:'neutral', language:'english', avatar:'kelly' };
+            v.language='english'; window.__saveVariantPrefs?.(v);
+            const dna = await window.__mlFetchApiLessonPhases?.(lp()?.currentDay||1, v); if (dna) { lp().currentDNA = dna; lp().startUniversalLesson?.(); }
+          }));
+          document.getElementById('qa-tone-fun')?.addEventListener('click', ()=> safe('Tone Fun', async()=>{
+            const v = lp()?.currentVariant || { age:'age_25', tone:'neutral', language:'english', avatar:'kelly' };
+            v.tone='fun'; window.__saveVariantPrefs?.(v);
+            const dna = await window.__mlFetchApiLessonPhases?.(lp()?.currentDay||1, v); if (dna) { lp().currentDNA = dna; lp().startUniversalLesson?.(); }
+          }));
+          document.getElementById('qa-tone-neutral')?.addEventListener('click', ()=> safe('Tone Neutral', async()=>{
+            const v = lp()?.currentVariant || { age:'age_25', tone:'neutral', language:'english', avatar:'kelly' };
+            v.tone='neutral'; window.__saveVariantPrefs?.(v);
+            const dna = await window.__mlFetchApiLessonPhases?.(lp()?.currentDay||1, v); if (dna) { lp().currentDNA = dna; lp().startUniversalLesson?.(); }
+          }));
+          document.getElementById('qa-avatar-ken')?.addEventListener('click', ()=> safe('Avatar Ken', async()=>{
+            const v = lp()?.currentVariant || { age:'age_25', tone:'neutral', language:'english', avatar:'kelly' };
+            v.avatar='ken'; window.__saveVariantPrefs?.(v);
+            const dna = await window.__mlFetchApiLessonPhases?.(lp()?.currentDay||1, v); if (dna) { lp().currentDNA = dna; lp().startUniversalLesson?.(); }
+          }));
+          document.getElementById('qa-avatar-kelly')?.addEventListener('click', ()=> safe('Avatar Kelly', async()=>{
+            const v = lp()?.currentVariant || { age:'age_25', tone:'neutral', language:'english', avatar:'kelly' };
+            v.avatar='kelly'; window.__saveVariantPrefs?.(v);
+            const dna = await window.__mlFetchApiLessonPhases?.(lp()?.currentDay||1, v); if (dna) { lp().currentDNA = dna; lp().startUniversalLesson?.(); }
+          }));
+          document.getElementById('qa-age-25')?.addEventListener('click', ()=> safe('Age 25', async()=>{
+            const v = lp()?.currentVariant || { age:'age_25', tone:'neutral', language:'english', avatar:'kelly' };
+            v.age='age_25'; window.__saveVariantPrefs?.(v);
+            const dna = await window.__mlFetchApiLessonPhases?.(lp()?.currentDay||1, v); if (dna) { lp().currentDNA = dna; lp().startUniversalLesson?.(); }
+          }));
+
+          document.getElementById('qa-run-all')?.addEventListener('click', async ()=>{
+            await safe('Load Day 1', async()=>{ await lp()?.loadLessonByDay?.(1); });
+            await safe('Open Language modal', async()=>{ openModal('language-modal'); });
+            await safe('Switch ES', async()=>{ document.getElementById('qa-toggle-lang-es')?.click(); });
+            await safe('Switch EN', async()=>{ document.getElementById('qa-toggle-lang-en')?.click(); });
+            await safe('Open Tone modal', async()=>{ openModal('tone-modal'); });
+            await safe('Tone Fun', async()=>{ document.getElementById('qa-tone-fun')?.click(); });
+            await safe('Open Avatar modal', async()=>{ openModal('avatar-modal'); });
+            await safe('Avatar Ken', async()=>{ document.getElementById('qa-avatar-ken')?.click(); });
+            await safe('Age 25', async()=>{ document.getElementById('qa-age-25')?.click(); });
+            log('Completed GSL smoke suite');
+          });
+        })();
+
 
         // Master menu toggle
         document.getElementById('master-trigger')?.addEventListener('click', () => {

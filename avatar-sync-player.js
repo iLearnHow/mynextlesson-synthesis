@@ -8,7 +8,7 @@ class AvatarSyncPlayer {
         this.audio = document.getElementById('tts-audio') || this.createAudioElement();
         this.avatarBg = document.getElementById('avatar-background');
         // Expect base to include /avatars; add if missing
-        this.cdnBase = (window.VISEME_CDN_BASE || 'https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars').replace(/\/$/, '');
+        this.cdnBase = (window.VISEME_CDN_BASE || 'https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev').replace(/\/$/, '');
         this.visemeFrames = new Map(); // Cache loaded images
         this.phonemeTimeline = [];
         this.currentVisemeIndex = -1;
@@ -17,8 +17,8 @@ class AvatarSyncPlayer {
         
         // Preload REST frame for each avatar
         this.defaultFrames = {
-            kelly: `${this.cdnBase}/kelly/full/REST.png`,
-            ken: `${this.cdnBase}/ken/full/REST.png`
+            kelly: `${this.cdnBase}/avatars/kelly/full/REST/frame_01.webp`,
+            ken: `${this.cdnBase}/avatars/ken/full/REST/frame_01.webp`
         };
         
         // TTS server URL
@@ -142,7 +142,7 @@ class AvatarSyncPlayer {
             img.src = url;
         });
         try {
-            await tryLoad(`${this.cdnBase}/kelly/full/REST.png`);
+            await tryLoad(`${this.cdnBase}/avatars/kelly/full/REST/frame_01.webp`);
             return;
         } catch {}
         try {
@@ -162,8 +162,8 @@ class AvatarSyncPlayer {
         const promises = [];
         
         for (const viseme of visemes) {
-            const pngUrl = `${this.cdnBase}/${speaker}/full/${viseme}.png`;
-            const webpUrl = `${this.cdnBase}/${speaker}/full/${viseme}/frame_01.webp`;
+            const pngUrl = `${this.cdnBase}/avatars/${speaker}/full/${viseme}.png`;
+            const webpUrl = `${this.cdnBase}/avatars/${speaker}/full/${viseme}/frame_01.webp`;
             const key = `${speaker}_${viseme}`;
             
             if (!this.visemeFrames.has(key)) {

@@ -1,8 +1,8 @@
 {
   "metadata": {
     "version": "phase_v1",
-    "lessonId": "the-sun",
-    "title": "The Sun — Energy, Motion, and Shared Reality"
+    "lessonId": "earths-magnificent-oceans",
+    "title": "Earth's Magnificent Oceans - The Blue Heart of Our Living Planet"
   },
   "phases": [
     {
@@ -11,7 +11,7 @@
         "minListen": 6
       },
       "narration": {
-        "voiceOver": "Welcome. Today, the Sun is our guide to how the world really works: where energy comes from, how motion creates patterns we live by, and how a simple idea can connect everyone on Earth. I’ll walk with you through three short choices. No rush, and if you want a nudge, I’ll give one."
+        "voiceOver": "Welcome. Think of the ocean not as pieces with names, but as one moving body—currents linking every shore. I’ll guide you and offer hints when needed."
       },
       "screen": {
         "steps": [
@@ -22,7 +22,7 @@
                 "type": "text",
                 "region": "right_shoulder",
                 "id": "intro",
-                "text": "The Sun — energy for life, patterns in motion, and a shared sky for us all."
+                "text": "Earth's Magnificent Oceans - The Blue Heart of Our Living Planet"
               }
             ]
           }
@@ -45,8 +45,8 @@
         "autoAdvanceAfterFeedback": 3
       },
       "narration": {
-        "voiceOver": "Let’s start simple. What actually makes day and night—does the Sun circle us, or are we the ones spinning? Picture a globe on your desk and a lamp across the room.",
-        "onNoChoice": "A gentle nudge: the Earth spins. Imagine a lamp and a rotating ball—half lit, half dark. Let’s pick that and I’ll connect the dots."
+        "voiceOver": "Question one. Which description fits best—separate oceans that don’t affect each other, or one global ocean connected by currents? Choose when you're ready.",
+        "onNoChoice": "Hint: energy and life travel on currents around the world—one connected ocean."
       },
       "screen": {
         "steps": [
@@ -57,7 +57,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "beginning_q",
-                "text": "What actually creates day and night on Earth?"
+                "text": "What best describes Earth's oceans?"
               }
             ]
           },
@@ -70,8 +70,8 @@
                 "id": "beginning_choices",
                 "text": "",
                 "extra": {
-                  "a": "The Sun moves around the Earth",
-                  "b": "The Earth spins on its axis"
+                  "a": "Separate oceans that don't affect each other",
+                  "b": "One global ocean connected by currents"
                 }
               }
             ]
@@ -83,7 +83,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "beginning_tm_b",
-                "text": "Exactly: as Earth rotates, the lit side changes. One simple motion explains sunrise and sunset."
+                "text": "Exactly. We name parts, but currents link them into one body—energy and life flow around the world."
               }
             ]
           },
@@ -94,22 +94,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "beginning_tm_a",
-                "text": "It feels that way from the ground, but it’s our planet that spins. A desk‑lamp and a rotating ball show the same pattern."
+                "text": "They have names, yes—but water, heat, salt, and life constantly mix. The ocean acts as one connected system."
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What actually creates day and night on Earth?",
+        "text": "What best describes Earth's oceans?",
         "choices": [
-          { "id": "a", "text": "The Sun moves around the Earth" },
-          { "id": "b", "text": "The Earth spins on its axis" }
+          {
+            "id": "a",
+            "text": "Separate oceans that don't affect each other"
+          },
+          {
+            "id": "b",
+            "text": "One global ocean connected by currents"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "From the ground, the Sun looks like it’s moving. In reality, Earth’s rotation gives us day and night.",
-          "b": "Right. One steady spin—about once every 24 hours—changes which places are lit."
+          "a": "They have names, yes—but water, heat, salt, and life constantly mix. The ocean acts as one connected system.",
+          "b": "Exactly. We name parts, but currents link them into one body—energy and life flow around the world."
         }
       },
       "avatar": {
@@ -137,8 +143,8 @@
         "autoAdvanceAfterFeedback": 3
       },
       "narration": {
-        "voiceOver": "Now imagine a plant by a window. Over a few days, does it grow evenly in every direction, or lean toward the sunlight? Picture it for a second before deciding.",
-        "onNoChoice": "Here’s a nudge: plants turn toward light. Let’s pick that and talk about why."
+        "voiceOver": "Question two. What mainly drives the ocean’s great conveyors—only tides from the Moon, or wind with temperature and salt (density) differences? Choose when you're ready.",
+        "onNoChoice": "Notice wind pushes the surface, heat and salt change density—together they move water."
       },
       "screen": {
         "steps": [
@@ -149,7 +155,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "middle_q",
-                "text": "What do most plants do when light comes from one direction?"
+                "text": "What mainly drives ocean currents?"
               }
             ]
           },
@@ -162,8 +168,8 @@
                 "id": "middle_choices",
                 "text": "",
                 "extra": {
-                  "a": "Grow evenly in all directions",
-                  "b": "Lean toward the window"
+                  "a": "Only the tides from the Moon",
+                  "b": "Wind, heat differences, and salt (density)"
                 }
               }
             ]
@@ -175,7 +181,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "middle_tm_b",
-                "text": "Yes. Light is energy, and plants track it. This turning behavior is called phototropism."
+                "text": "Right. Wind pushes the surface, the Sun makes temperature differences, and salt changes density—together they steer great conveyors."
               }
             ]
           },
@@ -186,22 +192,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "middle_tm_a",
-                "text": "Not quite. With light on one side, many plants bend toward it to maximize energy capture."
+                "text": "Tides matter near coasts, but big global flows need more than a gentle tug—temperature and salt make water sink and rise."
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What do most plants do when light comes from one direction?",
+        "text": "What mainly drives ocean currents?",
         "choices": [
-          { "id": "a", "text": "Grow evenly in all directions" },
-          { "id": "b", "text": "Lean toward the window" }
+          {
+            "id": "a",
+            "text": "Only the tides from the Moon"
+          },
+          {
+            "id": "b",
+            "text": "Wind, heat differences, and salt (density)"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "If light is even, growth can be balanced. With a single bright source, plants often lean toward it.",
-          "b": "That leaning is phototropism—seeking light, the fuel for photosynthesis."
+          "a": "Tides matter near coasts, but big global flows need more than a gentle tug—temperature and salt make water sink and rise.",
+          "b": "Right. Wind pushes the surface, the Sun makes temperature differences, and salt changes density—together they steer great conveyors."
         }
       },
       "avatar": {
@@ -229,8 +241,8 @@
         "autoAdvanceAfterFeedback": 3
       },
       "narration": {
-        "voiceOver": "Last one. Why do we have seasons—because Earth gets much farther from the Sun, or because we’re slightly tilted as we go around it? Picture a tilted globe moving around a lamp.",
-        "onNoChoice": "Here’s the clue: it’s the tilt. Distance changes a little; angle changes how sunlight spreads and warms. Let’s pick tilt and I’ll explain."
+        "voiceOver": "Question three. Why do healthy oceans matter to you and me—is it mainly about fish and beaches, or about oxygen, climate balance, food, and livelihoods? Choose when you're ready.",
+        "onNoChoice": "Breathe in—half your oxygen comes from the ocean. It feeds and steadies us—let’s choose B."
       },
       "screen": {
         "steps": [
@@ -241,7 +253,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "end_q",
-                "text": "What mainly causes seasons on Earth?"
+                "text": "Why are healthy oceans essential for people?"
               }
             ]
           },
@@ -254,8 +266,8 @@
                 "id": "end_choices",
                 "text": "",
                 "extra": {
-                  "a": "Earth is much farther from the Sun in winter",
-                  "b": "Earth’s axis is tilted during its orbit"
+                  "a": "It's mainly about fish and beaches",
+                  "b": "Oxygen, climate balance, food, and livelihoods"
                 }
               }
             ]
@@ -267,7 +279,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "end_tm_b",
-                "text": "Yes. Tilt changes how direct the sunlight is and how long days are—more direct and longer days feel warmer."
+                "text": "Exactly. The ocean breathes with us, feeds us, carries ships and stories—our daily life depends on it."
               }
             ]
           },
@@ -278,22 +290,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "end_tm_a",
-                "text": "Distance changes a bit over the year, but not enough to explain seasons. Angle and day length do the heavy lifting."
+                "text": "Yes, and so much more—the ocean makes oxygen, feeds families, and keeps our climate steady."
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What mainly causes seasons on Earth?",
+        "text": "Why are healthy oceans essential for people?",
         "choices": [
-          { "id": "a", "text": "Earth is much farther from the Sun in winter" },
-          { "id": "b", "text": "Earth’s axis is tilted during its orbit" }
+          {
+            "id": "a",
+            "text": "It's mainly about fish and beaches"
+          },
+          {
+            "id": "b",
+            "text": "Oxygen, climate balance, food, and livelihoods"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "If distance were the cause, both hemispheres would share seasons. Instead, they’re opposite—evidence for tilt.",
-          "b": "Tilt changes sunlight angle and day length. That shift in energy explains seasonal patterns."
+          "a": "Yes, and so much more—the ocean makes oxygen, feeds families, and keeps our climate steady.",
+          "b": "Exactly. The ocean breathes with us, feeds us, carries ships and stories—our daily life depends on it."
         }
       },
       "avatar": {
@@ -319,7 +337,7 @@
         "minListen": 6
       },
       "narration": {
-        "voiceOver": "Wisdom to carry: one steady source, many patterns. The Sun’s light is constant; rotation and tilt turn it into day, night, and seasons. Notice one pattern today, and let it change how you see the world."
+        "voiceOver": "Wisdom to carry: care for the ocean and it cares for you—each breath, each meal, each calm day. Do one small protective act today."
       },
       "screen": {
         "steps": [
@@ -330,7 +348,7 @@
                 "type": "fortune",
                 "region": "right_shoulder",
                 "id": "fortune",
-                "text": "Today, watch a shadow move or a room brighten, and remember: simple motions build the rhythms of life."
+                "text": "Care for the ocean, and it will keep caring for you—every breath, every meal, every calm day."
               }
             ]
           }

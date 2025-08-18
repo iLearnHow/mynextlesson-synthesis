@@ -1,0 +1,123 @@
+/* Student-Ready Polish - Clean UI for Learning */
+
+/* Hide all development/debugging elements */
+.inspector-panel { display: none !important; }
+#state-inspector { display: none !important; }
+#content-inspector { display: none !important; }
+#code-inspector { display: none !important; }
+.debug-controls { display: none !important; }
+.developer-tools { display: none !important; }
+
+/* Hide overlapping content systems */
+#lesson-content-overlay { display: none !important; }
+#lesson-content { display: none !important; }
+.phase { display: none !important; }
+.phase-content { display: none !important; }
+#persistent-question-container { display: none !important; }
+
+/* Clean up start overlay */
+#start-overlay {
+    display: none !important;
+}
+
+/* Professional lesson viewer styling */
+#manifest-slide-viewer {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif !important;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Better question styling */
+#manifest-slide-viewer .question-box {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Smooth avatar transitions */
+.avatar-background {
+    transition: all 0.5s ease-in-out !important;
+}
+
+/* Clean control buttons */
+.control-btn {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+/* Volume slider improvements */
+.vertical-slider {
+    background: rgba(255,255,255,0.9) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Slide dots improvements */
+#slide-dots .sd-dot {
+    transition: all 0.3s ease !important;
+}
+
+#slide-dots .sd-dot:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Variant selector improvements */
+#lesson-variant-selector {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif !important;
+}
+
+/* Hide console errors from view */
+.console-error-indicator { display: none !important; }
+
+/* Loading spinner improvements */
+.loading-spinner {
+    background: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+/* Feedback display improvements */
+#feedback-display {
+    font-size: 16px;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Clean up any remaining dev elements */
+[class*="debug-"] { display: none !important; }
+[class*="dev-"] { display: none !important; }
+[id*="debug-"] { display: none !important; }
+[id*="dev-"] { display: none !important; }
+
+/* Professional error messages */
+.error-message {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif !important;
+    background: #FF3B30;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 16px;
+    box-shadow: 0 8px 24px rgba(255,59,48,0.3);
+}
+
+/* Hide empty UI containers */
+:empty:not(input):not(textarea):not(img) {
+    display: none !important;
+}
+
+/* Final polish for student experience */
+body {
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+button, .choice-btn, .sd-dot, .variant-btn {
+    cursor: pointer !important;
+    user-select: none;
+    -webkit-user-select: none;
+}

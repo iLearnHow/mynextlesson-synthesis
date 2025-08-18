@@ -2,7 +2,7 @@
   "metadata": {
     "version": "phase_v1",
     "lessonId": "the-sun",
-    "title": "The Sun — Energy, Motion, and Shared Reality"
+    "title": "The sun as a universal source of energy, life, and connection."
   },
   "phases": [
     {
@@ -10,9 +10,7 @@
       "timing": {
         "minListen": 6
       },
-      "narration": {
-        "voiceOver": "Welcome. Today, the Sun is our guide to how the world really works: where energy comes from, how motion creates patterns we live by, and how a simple idea can connect everyone on Earth. I’ll walk with you through three short choices. No rush, and if you want a nudge, I’ll give one."
-      },
+      "narration": { "voiceOver": "Bienvenido. Hoy veremos cómo el Sol nos ayuda cada día y cómo notarlo. Te guiaré con tres preguntas cortas; si lo necesitas, daré una pista." },
       "screen": {
         "steps": [
           {
@@ -22,7 +20,7 @@
                 "type": "text",
                 "region": "right_shoulder",
                 "id": "intro",
-                "text": "The Sun — energy for life, patterns in motion, and a shared sky for us all."
+                "text": "The sun as a universal source of energy, life, and connection."
               }
             ]
           }
@@ -44,10 +42,7 @@
         "maxWait": 16,
         "autoAdvanceAfterFeedback": 3
       },
-      "narration": {
-        "voiceOver": "Let’s start simple. What actually makes day and night—does the Sun circle us, or are we the ones spinning? Picture a globe on your desk and a lamp across the room.",
-        "onNoChoice": "A gentle nudge: the Earth spins. Imagine a lamp and a rotating ball—half lit, half dark. Let’s pick that and I’ll connect the dots."
-      },
+      "narration": { "voiceOver": "Pregunta uno. ¿Qué tecnología usa directamente la energía del Sol—la geotérmica o la solar? Elige cuando estés listo/a.", "onNoChoice": "Pista: la energía solar capta la luz directamente. Elijamos esa y te explico." },
       "screen": {
         "steps": [
           {
@@ -57,7 +52,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "beginning_q",
-                "text": "What actually creates day and night on Earth?"
+                "text": "The sun's energy is a key part of which sustainable technology?"
               }
             ]
           },
@@ -70,8 +65,8 @@
                 "id": "beginning_choices",
                 "text": "",
                 "extra": {
-                  "a": "The Sun moves around the Earth",
-                  "b": "The Earth spins on its axis"
+                  "a": "Geothermal power",
+                  "b": "Solar power"
                 }
               }
             ]
@@ -83,7 +78,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "beginning_tm_b",
-                "text": "Exactly: as Earth rotates, the lit side changes. One simple motion explains sunrise and sunset."
+                "text": "Yes! Solar panels are a brilliant way to harness the sun's clean energy."
               }
             ]
           },
@@ -94,22 +89,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "beginning_tm_a",
-                "text": "It feels that way from the ground, but it’s our planet that spins. A desk‑lamp and a rotating ball show the same pattern."
+                "text": "Geothermal power comes from the Earth's heat. Solar power comes directly from the sun."
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What actually creates day and night on Earth?",
+        "text": "The sun's energy is a key part of which sustainable technology?",
         "choices": [
-          { "id": "a", "text": "The Sun moves around the Earth" },
-          { "id": "b", "text": "The Earth spins on its axis" }
+          {
+            "id": "a",
+            "text": "Geothermal power"
+          },
+          {
+            "id": "b",
+            "text": "Solar power"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "From the ground, the Sun looks like it’s moving. In reality, Earth’s rotation gives us day and night.",
-          "b": "Right. One steady spin—about once every 24 hours—changes which places are lit."
+          "a": "Geothermal power comes from the Earth's heat. Solar power comes directly from the sun.",
+          "b": "Yes! Solar panels are a brilliant way to harness the sun's clean energy."
         }
       },
       "avatar": {
@@ -136,10 +137,7 @@
         "maxWait": 16,
         "autoAdvanceAfterFeedback": 3
       },
-      "narration": {
-        "voiceOver": "Now imagine a plant by a window. Over a few days, does it grow evenly in every direction, or lean toward the sunlight? Picture it for a second before deciding.",
-        "onNoChoice": "Here’s a nudge: plants turn toward light. Let’s pick that and talk about why."
-      },
+      "narration": { "voiceOver": "Pregunta dos. ¿La luz del Sol ayuda a producir qué vitamina—la C o la D? Respira y elige cuando estés listo/a.", "onNoChoice": "Pista rápida: es la vitamina del Sol—la vitamina D. Elijámosla y verás por qué." },
       "screen": {
         "steps": [
           {
@@ -149,7 +147,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "middle_q",
-                "text": "What do most plants do when light comes from one direction?"
+                "text": "Our body produces which essential vitamin from sunlight?"
               }
             ]
           },
@@ -162,8 +160,8 @@
                 "id": "middle_choices",
                 "text": "",
                 "extra": {
-                  "a": "Grow evenly in all directions",
-                  "b": "Lean toward the window"
+                  "a": "Vitamin C",
+                  "b": "Vitamin D"
                 }
               }
             ]
@@ -175,7 +173,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "middle_tm_b",
-                "text": "Yes. Light is energy, and plants track it. This turning behavior is called phototropism."
+                "text": "Yes! Vitamin D is important for strong bones."
               }
             ]
           },
@@ -186,22 +184,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "middle_tm_a",
-                "text": "Not quite. With light on one side, many plants bend toward it to maximize energy capture."
+                "text": "We get Vitamin C from fruits like oranges. The sun helps us make Vitamin D."
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What do most plants do when light comes from one direction?",
+        "text": "Our body produces which essential vitamin from sunlight?",
         "choices": [
-          { "id": "a", "text": "Grow evenly in all directions" },
-          { "id": "b", "text": "Lean toward the window" }
+          {
+            "id": "a",
+            "text": "Vitamin C"
+          },
+          {
+            "id": "b",
+            "text": "Vitamin D"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "If light is even, growth can be balanced. With a single bright source, plants often lean toward it.",
-          "b": "That leaning is phototropism—seeking light, the fuel for photosynthesis."
+          "a": "We get Vitamin C from fruits like oranges. The sun helps us make Vitamin D.",
+          "b": "Yes! Vitamin D is important for strong bones."
         }
       },
       "avatar": {
@@ -228,10 +232,7 @@
         "maxWait": 16,
         "autoAdvanceAfterFeedback": 3
       },
-      "narration": {
-        "voiceOver": "Last one. Why do we have seasons—because Earth gets much farther from the Sun, or because we’re slightly tilted as we go around it? Picture a tilted globe moving around a lamp.",
-        "onNoChoice": "Here’s the clue: it’s the tilt. Distance changes a little; angle changes how sunlight spreads and warms. Let’s pick tilt and I’ll explain."
-      },
+      "narration": { "voiceOver": "Pregunta tres. El Sol ilumina a todos sin preferidos. ¿De qué es metáfora—competencia, o equidad e imparcialidad? Elige cuando estés listo/a.", "onNoChoice": "Imagina la luz tocando cada rostro—equidad e imparcialidad. Elijamos eso juntos." },
       "screen": {
         "steps": [
           {
@@ -241,7 +242,7 @@
                 "type": "text",
                 "region": "question_deck",
                 "id": "end_q",
-                "text": "What mainly causes seasons on Earth?"
+                "text": "The sun's light illuminates everything equally, a metaphor for..."
               }
             ]
           },
@@ -254,8 +255,8 @@
                 "id": "end_choices",
                 "text": "",
                 "extra": {
-                  "a": "Earth is much farther from the Sun in winter",
-                  "b": "Earth’s axis is tilted during its orbit"
+                  "a": "Competition",
+                  "b": "Fairness and impartiality"
                 }
               }
             ]
@@ -267,7 +268,7 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "end_tm_b",
-                "text": "Yes. Tilt changes how direct the sunlight is and how long days are—more direct and longer days feel warmer."
+                "text": "Perfect. It treats everyone the same, a powerful metaphor for impartiality."
               }
             ]
           },
@@ -278,22 +279,28 @@
                 "type": "hint",
                 "region": "right_shoulder",
                 "id": "end_tm_a",
-                "text": "Distance changes a bit over the year, but not enough to explain seasons. Angle and day length do the heavy lifting."
+                "text": "The sun's equal light is a symbol of fairness, not competition."
               }
             ]
           }
         ]
       },
       "question": {
-        "text": "What mainly causes seasons on Earth?",
+        "text": "The sun's light illuminates everything equally, a metaphor for...",
         "choices": [
-          { "id": "a", "text": "Earth is much farther from the Sun in winter" },
-          { "id": "b", "text": "Earth’s axis is tilted during its orbit" }
+          {
+            "id": "a",
+            "text": "Competition"
+          },
+          {
+            "id": "b",
+            "text": "Fairness and impartiality"
+          }
         ],
         "correct": "b",
         "teachingMoments": {
-          "a": "If distance were the cause, both hemispheres would share seasons. Instead, they’re opposite—evidence for tilt.",
-          "b": "Tilt changes sunlight angle and day length. That shift in energy explains seasonal patterns."
+          "a": "The sun's equal light is a symbol of fairness, not competition.",
+          "b": "Perfect. It treats everyone the same, a powerful metaphor for impartiality."
         }
       },
       "avatar": {
@@ -319,7 +326,7 @@
         "minListen": 6
       },
       "narration": {
-        "voiceOver": "Wisdom to carry: one steady source, many patterns. The Sun’s light is constant; rotation and tilt turn it into day, night, and seasons. Notice one pattern today, and let it change how you see the world."
+        "voiceOver": "Wisdom to carry: the same light that warms you powers life all around you. Notice it today—then be a little sun for someone else."
       },
       "screen": {
         "steps": [
@@ -330,7 +337,7 @@
                 "type": "fortune",
                 "region": "right_shoulder",
                 "id": "fortune",
-                "text": "Today, watch a shadow move or a room brighten, and remember: simple motions build the rhythms of life."
+                "text": "Your understanding of the sun... connects you to the vast and powerful universe."
               }
             ]
           }

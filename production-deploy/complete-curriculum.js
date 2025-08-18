@@ -332,16 +332,27 @@ async function getLessonDataForDay(day) {
     };
 }
 
-// Function to get DNA data directly (for variant generation)
 async function getDNALessonData(day) {
-    if (dnaFileLoader) {
+    // This is a simplified loader for testing and development.
+    if (day == 1) { // Use loose equality to handle "1" == 1
+        const path = `data/the-sun-dna.json`;
+        console.log(`[DevLoader] Fetching DNA for day ${day} from ${path}`);
         try {
-            return await dnaFileLoader.loadDNAForDay(day);
+            const response = await fetch(path);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return await response.json();
         } catch (error) {
-            console.error(`Failed to load DNA data for day ${day}:`, error);
+            console.error(`[DevLoader] Failed to fetch or parse DNA from ${path}:`, error);
             return null;
         }
     }
+    
+    // Fallback for original loader logic if it exists
+    if (typeof DNAFileLoader !== 'undefined' && dnaFileLoader) {
+        return dnaFileLoader.loadDNAForDay(day);
+    }
+    
+    console.warn(`[DevLoader] No handler for day ${day} and DNAFileLoader not present.`);
     return null;
 }
 
@@ -374,4 +385,55 @@ if (typeof window !== 'undefined') {
     window.getDNALessonData = getDNALessonData;
     window.COMPLETE_CURRICULUM = COMPLETE_CURRICULUM;
     console.log('✅ Curriculum system loaded and available globally');
+
+    // Manifest/API integration (dev + production)
+    // GET /api/v1/manifest → { manifest_url, warm_hint? }
+    window.loadManifest = async function loadManifest(params) {
+        const { date, lang, ageBand, tone, avatarId } = params || {};
+        const base = 'https://api.ilearnhow.com';
+        const url = new URL('/api/v1/manifest', base);
+        if (date) url.searchParams.set('date', date);
+        if (lang) url.searchParams.set('lang', lang);
+        if (ageBand) url.searchParams.set('age', ageBand);
+        if (tone) url.searchParams.set('tone', tone);
+        if (avatarId) url.searchParams.set('avatar', avatarId);
+        const headers = { 'Accept': 'application/json' };
+        try {
+            const token = localStorage.getItem('ilearn_access_token');
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+        } catch {}
+        const res = await fetch(url.toString(), { headers });
+        if (!res.ok) throw new Error(`Manifest fetch failed: ${res.status}`);
+        return await res.json();
+    };
+
+    // Load manifest JSON directly from a URL (R2, local file, or example)
+    window.loadVariantByManifest = async function loadVariantByManifest(manifestUrl) {
+        const res = await fetch(manifestUrl, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`Manifest JSON not found: ${res.status}`);
+        const manifest = await res.json();
+        if (!manifest || !Array.isArray(manifest.slides) || manifest.slides.length !== 5) {
+            console.warn('Manifest shape unexpected; see api/schemas/manifest.schema.json');
+        }
+        return manifest;
+    };
+
+    // Helper resolver for variant switching in ManifestPlayer
+    window.resolveVariantFromPartial = async function resolveVariantFromPartial(current, partial){
+        try {
+            const base = new URL(window.location.href);
+            const fileSel = document.getElementById('sel-example');
+            // If example selector exists, swap tone in the filename as a simple local demo
+            if (fileSel && fileSel.value) {
+                const url = new URL(fileSel.value, base);
+                const tone = partial?.tone || 'neutral';
+                const changed = url.pathname.replace(/_(fun|neutral|warm)_/,'_'+tone+'_');
+                const localUrl = changed.startsWith('/') ? changed : '/'+changed;
+                const res = await fetch(localUrl);
+                return await res.json();
+            }
+        } catch {}
+        // Fallback: return current manifest unchanged
+        return current;
+    };
 } 

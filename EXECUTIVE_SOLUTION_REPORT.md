@@ -140,7 +140,7 @@ This proves your concept works end-to-end and provides a solid foundation for se
 
 ### Gold‑Standard Lesson (GSL) v1.0 — Acceptance Criteria
 Content
-- 5 phases fully authored: Welcome, Beginning, Middle, End, Wisdom; each with voice‑over script, on‑screen text, and explicit learning objective linkage.
+- 5 phases fully authored: Welcome, Beginning, Middle, End, Wisdom; each with voice‑over script, on‑screen text, and explicit learning objective linkage. Conversational tone only (no "Question one/two/three" scaffolding in narration).
 - Three interactive questions across phases with age‑appropriate scaffolding, natural language choices (no A/B labels), and tailored teaching moments for each choice.
 - Fortune/Wisdom segment that is reflective, non‑trivial, and aligned to the day’s concept; no generic platitudes.
 - Audio‑first clarity: comprehensible without images; evokes mental visualization.
@@ -164,6 +164,28 @@ Quality Bars
 Deliverables
 - GSL content JSON in canonical schema; transcripts per phase; glossary; examples; question bank with feedback; acceptance checklist signed.
 - Walkthrough script for QA to press every icon/modal and validate outcomes in the player.
+
+### GSL Icon/Modal Coverage Matrix (Player IDs → Expected Behavior)
+- live-modal: opens cleanly; no blocking state; close returns focus
+- find-modal: search returns Day 1 result; click loads lesson and updates captions
+- settings-modal: toggles do not break captions, audio, or variant state
+- calendar-modal: Yesterday/Today/Tomorrow buttons load and render Day 1 boundary correctly
+- language-modal: EN/ES/FR switch refetches PhaseDNA; captions update; narration text swaps
+- tone-modal: Grandmother/Fun/Neutral swap; on-screen text remains consistent; tone hint lines swap where provided
+- avatar-modal: Kelly/Ken swap; background/expressions update; content constant
+- age-modal: Age swap updates age label; content remains adult‑capable (no infantilization)
+- speed-modal: Playback speed applies to audio and is reflected in UI
+- controls-modal: Prev/Next/Restart operate across all five phases without state loss
+
+### QA Walkthrough (Pass/Fail Steps)
+1) Load Day 1; verify captions show welcome line; press Play → audio and captions advance.
+2) Open language-modal → switch ES → content reloads; open tone-modal → switch Fun → confirm tone microcopy where applicable.
+3) Beginning phase: choose each option in turn; confirm tailored teaching moments and auto‑advance timing.
+4) Middle phase: repeat A/B; confirm hint text and phase completion.
+5) End phase: repeat A/B; confirm tilt/season explanation and completion.
+6) Wisdom phase: confirm reflective close; Replay works.
+7) Variant changes (avatar/age/speed) mid‑lesson do not break state.
+8) Accessibility: focus trap within modals; Esc closes; keyboard navigation works on choices.
 
 ### Authoring Blueprint (GSL v1.0)
 - Welcome (30–45s): human hook; why this matters today; sets the tone lens (fun/neutral/grandmother) without gimmick.
