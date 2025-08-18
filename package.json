@@ -6,7 +6,11 @@
   "scripts": {
     "deploy": "wrangler pages deploy production-deploy --project-name=ilearnhow",
     "dev": "wrangler pages dev production-deploy",
-    "test": "echo 'Testing complete'"
+    "test": "echo 'Testing complete'",
+    "pregen:goldens": "node scripts/generate-phased-from-normalized.js --input data/sun_normalized.json --outbase data/the-sun --lang en --clone-es-fr && node scripts/generate-phased-from-normalized.js --input data/moon_normalized.json --outbase data/the-moon --lang en --clone-es-fr && node scripts/generate-phased-from-normalized.js --input data/ocean_normalized.json --outbase data/earths-magnificent-oceans --lang en --clone-es-fr",
+    "pregen:tts-jobs": "node scripts/extract-tts-jobs.js --slugs the-sun,the-moon,earths-magnificent-oceans,puppies --langs en,es,fr --in data --out data/tts_jobs",
+    "pregen:all": "npm run pregen:goldens && npm run pregen:tts-jobs",
+    "tasks:generate": "node scripts/generate-lesson-todo.js"
   },
   "keywords": [
     "education",
