@@ -7,7 +7,8 @@ class AvatarSyncPlayer {
     constructor() {
         this.audio = document.getElementById('tts-audio') || this.createAudioElement();
         this.avatarBg = document.getElementById('avatar-background');
-        this.cdnBase = window.VISEME_CDN_BASE || 'https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev';
+        // Expect base to include /avatars; add if missing
+        this.cdnBase = (window.VISEME_CDN_BASE || 'https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars').replace(/\/$/, '');
         this.visemeFrames = new Map(); // Cache loaded images
         this.phonemeTimeline = [];
         this.currentVisemeIndex = -1;
@@ -133,21 +134,25 @@ class AvatarSyncPlayer {
     }
     
     async ensureCDNBaseAccessible() {
-        // Verify CDN; if not reachable, fall back to local frames for dev
-        const testUrl = `${this.cdnBase}/kelly/full/REST.png`;
+        // Verify CDN; try PNG layout first, then WEBP directory layout, else fall back (dev only)
+        const tryLoad = (url) => new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = url;
+        });
         try {
-            await new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = resolve;
-                img.onerror = reject;
-                img.src = testUrl;
-            });
-        } catch {
-            const onLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-            if (onLocalhost) {
-                console.warn('R2 CDN not reachable, falling back to local viseme frames');
-                this.cdnBase = '/r2-upload-ready';
-            }
+            await tryLoad(`${this.cdnBase}/kelly/full/REST.png`);
+            return;
+        } catch {}
+        try {
+            await tryLoad(`${this.cdnBase}/kelly/full/REST/frame_01.webp`);
+            return;
+        } catch {}
+        const onLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+        if (onLocalhost) {
+            console.warn('R2 CDN not reachable, falling back to local viseme frames');
+            this.cdnBase = '/r2-upload-ready'.replace(/\/$/, '');
         }
     }
 
@@ -157,21 +162,30 @@ class AvatarSyncPlayer {
         const promises = [];
         
         for (const viseme of visemes) {
-            const url = `${this.cdnBase}/${speaker}/full/${viseme}.png`;
+            const pngUrl = `${this.cdnBase}/${speaker}/full/${viseme}.png`;
+            const webpUrl = `${this.cdnBase}/${speaker}/full/${viseme}/frame_01.webp`;
             const key = `${speaker}_${viseme}`;
             
             if (!this.visemeFrames.has(key)) {
                 const promise = new Promise((resolve) => {
                     const img = new Image();
                     img.onload = () => {
-                        this.visemeFrames.set(key, url);
+                        this.visemeFrames.set(key, pngUrl);
                         resolve();
                     };
                     img.onerror = () => {
-                        console.warn(`Failed to load viseme: ${url}`);
-                        resolve();
+                        const img2 = new Image();
+                        img2.onload = () => {
+                            this.visemeFrames.set(key, webpUrl);
+                            resolve();
+                        };
+                        img2.onerror = () => {
+                            console.warn(`Failed to load viseme: ${pngUrl} and ${webpUrl}`);
+                            resolve();
+                        };
+                        img2.src = webpUrl;
                     };
-                    img.src = url;
+                    img.src = pngUrl;
                 });
                 promises.push(promise);
             }

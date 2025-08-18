@@ -289,6 +289,10 @@
     
     <audio id="tts-audio" style="display: none;"></audio>
     
+    <!-- Define CDN base BEFORE loaders -->
+    <script>
+      window.VISEME_CDN_BASE = (window.VISEME_CDN_BASE || 'https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars');
+    </script>
     <!-- Load required scripts -->
     <script src="/unified-tts-handler.js"></script>
     <script src="/avatar-sync-player.js"></script>
