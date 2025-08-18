@@ -7,7 +7,7 @@ class AvatarSyncPlayer {
     constructor() {
         this.audio = document.getElementById('tts-audio') || this.createAudioElement();
         this.avatarBg = document.getElementById('avatar-background');
-        this.cdnBase = window.VISEME_CDN_BASE || 'https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars';
+        this.cdnBase = window.VISEME_CDN_BASE || 'https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev';
         this.visemeFrames = new Map(); // Cache loaded images
         this.phonemeTimeline = [];
         this.currentVisemeIndex = -1;
@@ -53,48 +53,61 @@ class AvatarSyncPlayer {
             return window.unifiedTTS.baseUrl;
         }
         
-        // Production endpoints
-        if (isProduction) {
-            // Try Railway first since it has phoneme support
-            return 'https://tts-server-production-61b7.up.railway.app';
-        }
-        
-        // Local development
-        return 'http://localhost:5002';
+        // Prefer Railway in production, localhost in dev
+        return isProduction 
+            ? 'https://tts-server-production-61b7.up.railway.app'
+            : 'http://localhost:5002';
     }
     
     async getTTSWithPhonemes(text, speaker) {
-        const response = await fetch(`${this.ttsUrl}/api/tts`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                text,
-                speaker: speaker.toLowerCase(),
-                include_phonemes: true
-            })
-        });
+        // Try multiple endpoints in order until one works
+        const candidates = [];
+        const unique = new Set();
+        const push = (u)=>{ if (u && !unique.has(u)) { unique.add(u); candidates.push(u); } };
+        push(this.ttsUrl);
+        push(window.unifiedTTS?.baseUrl);
+        push('https://tts-server-production-61b7.up.railway.app');
+        push('https://tts.ilearnhow.com');
+        push('http://localhost:5002');
         
-        if (!response.ok) {
-            throw new Error(`TTS request failed: ${response.status}`);
+        let lastError = null;
+        for (const base of candidates) {
+            try {
+                const response = await fetch(`${base}/api/tts`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text,
+                        speaker: speaker.toLowerCase(),
+                        include_phonemes: true
+                    })
+                });
+                if (!response.ok) {
+                    lastError = new Error(`TTS request failed: ${response.status}`);
+                    continue;
+                }
+                const data = await response.json();
+                // Convert base64 audio to blob
+                const audioData = atob(data.audio);
+                const audioArray = new Uint8Array(audioData.length);
+                for (let i = 0; i < audioData.length; i++) {
+                    audioArray[i] = audioData.charCodeAt(i);
+                }
+                const mimeType = data.audio_format === 'mp3' ? 'audio/mpeg' : 'audio/wav';
+                const audioBlob = new Blob([audioArray], { type: mimeType });
+                // Remember working endpoint
+                this.ttsUrl = base;
+                return {
+                    audio: audioBlob,
+                    phonemes: data.phonemes || [],
+                    duration: data.duration || 0
+                };
+            } catch (err) {
+                lastError = err;
+                continue;
+            }
         }
-        
-        const data = await response.json();
-        
-        // Convert base64 audio to blob
-        const audioData = atob(data.audio);
-        const audioArray = new Uint8Array(audioData.length);
-        for (let i = 0; i < audioData.length; i++) {
-            audioArray[i] = audioData.charCodeAt(i);
-        }
-        
-        const mimeType = data.audio_format === 'mp3' ? 'audio/mpeg' : 'audio/wav';
-        const audioBlob = new Blob([audioArray], { type: mimeType });
-        
-        return {
-            audio: audioBlob,
-            phonemes: data.phonemes || [],
-            duration: data.duration || 0
-        };
+        throw lastError || new Error('No TTS endpoints reachable');
     }
     
     buildVisemeTimeline(phonemes) {
@@ -119,7 +132,27 @@ class AvatarSyncPlayer {
         return timeline;
     }
     
+    async ensureCDNBaseAccessible() {
+        // Verify CDN; if not reachable, fall back to local frames for dev
+        const testUrl = `${this.cdnBase}/kelly/full/REST.png`;
+        try {
+            await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = testUrl;
+            });
+        } catch {
+            const onLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            if (onLocalhost) {
+                console.warn('R2 CDN not reachable, falling back to local viseme frames');
+                this.cdnBase = '/r2-upload-ready';
+            }
+        }
+    }
+
     async preloadVisemeFrames(speaker) {
+        await this.ensureCDNBaseAccessible();
         const visemes = ['REST', 'MBP', 'FV', 'TH', 'DNTL', 'KG', 'S', 'WQ', 'R', 'A', 'E', 'I'];
         const promises = [];
         
@@ -146,6 +179,29 @@ class AvatarSyncPlayer {
         
         await Promise.all(promises);
         console.log(`✅ Preloaded ${this.visemeFrames.size} viseme frames`);
+    }
+
+    buildHeuristicTimeline(text, totalDurationSec) {
+        // Fallback when phonemes are unavailable: generate a natural cycle
+        const cycle = ['MBP', 'A', 'E', 'I', 'REST'];
+        const timeline = [];
+        const minStep = 0.08;  // 80ms per viseme step
+        const maxStep = 0.14;  // 140ms per viseme step
+        const approxCharsPerSec = 13;
+        const estimatedDur = totalDurationSec && totalDurationSec > 0 
+            ? totalDurationSec 
+            : Math.max(1.5, text.length / approxCharsPerSec);
+        const step = Math.max(minStep, Math.min(maxStep, estimatedDur / Math.max(8, Math.round(text.length / 6))));
+        let t = 0;
+        let idx = 0;
+        while (t < estimatedDur) {
+            const viseme = cycle[idx % cycle.length];
+            const next = Math.min(estimatedDur, t + step);
+            timeline.push({ viseme, start: t, end: next });
+            t = next;
+            idx += 1;
+        }
+        return timeline;
     }
     
     getCurrentViseme(currentTime) {
@@ -241,8 +297,15 @@ class AvatarSyncPlayer {
             // Get TTS with phoneme data
             const { audio, phonemes } = await this.getTTSWithPhonemes(text, speaker);
             
-            // Build viseme timeline
+            // Build viseme timeline (fallback to heuristic if phonemes missing)
             this.phonemeTimeline = this.buildVisemeTimeline(phonemes);
+            if (!this.phonemeTimeline.length) {
+                // If server did not return duration, we will compute after audio metadata loads
+                const tentative = this.buildHeuristicTimeline(text, 0);
+                this.phonemeTimeline = tentative;
+                this._needsDurationRefine = true;
+                this._heuristicText = text;
+            }
             console.log(`📊 Built timeline with ${this.phonemeTimeline.length} viseme groups`);
             
             // Preload viseme frames
@@ -257,6 +320,13 @@ class AvatarSyncPlayer {
             this.audio.onerror = (e) => {
                 console.error('Audio playback error:', e);
                 this.stopFrameSync();
+            };
+            this.audio.onloadedmetadata = () => {
+                if (this._needsDurationRefine) {
+                    // Rebuild heuristic timeline with actual duration
+                    this.phonemeTimeline = this.buildHeuristicTimeline(this._heuristicText || text, this.audio.duration || 0);
+                    this._needsDurationRefine = false;
+                }
             };
             
             // Remove loading state
