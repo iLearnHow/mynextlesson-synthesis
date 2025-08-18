@@ -13,7 +13,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
-COPY hybrid_tts_server_with_phonemes.py .
+COPY piper_tts_server.py .
 COPY dist/reference_kelly.wav dist/
 COPY dist/reference_ken_mono16k.wav dist/reference_ken_mono16k.wav
 # Create a symlink for consistency
@@ -34,4 +34,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD python -c "import requests; exit(0 if requests.get('http://localhost:5002/health').status_code == 200 else 1)"
 
 # Run server
-CMD ["python", "hybrid_tts_server_with_phonemes.py"]
+CMD ["python", "piper_tts_server.py"]
