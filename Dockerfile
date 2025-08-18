@@ -13,7 +13,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
-COPY piper_tts_server.py .
+COPY simple_tts_server.py .
+COPY hybrid_tts_server_with_phonemes.py .
 COPY dist/reference_kelly.wav dist/
 COPY dist/reference_ken_mono16k.wav dist/reference_ken_mono16k.wav
 # Create a symlink for consistency
@@ -25,6 +26,8 @@ RUN python -c "from TTS.api import TTS; TTS('tts_models/multilingual/multi-datas
 # Environment
 ENV PYTHONUNBUFFERED=1
 ENV PORT=5002
+ENV COQUI_TOS_AGREED=1
+ENV PYTHONUNBUFFERED=1
 
 # Expose port
 EXPOSE 5002
@@ -34,4 +37,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD python -c "import requests; exit(0 if requests.get('http://localhost:5002/health').status_code == 200 else 1)"
 
 # Run server
-CMD ["python", "piper_tts_server.py"]
+CMD ["python", "simple_tts_server.py"]
