@@ -14,12 +14,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
+COPY emergency-tts-fix.py .
 COPY hybrid_tts_server_with_phonemes.py .
-COPY dist/reference_kelly.wav dist/
-COPY dist/reference_ken_mono16k.wav dist/reference_ken_mono16k.wav
-
-# Create symlink
-RUN ln -s /app/dist/reference_ken_mono16k.wav /app/dist/reference_ken.wav
 
 # Environment
 ENV PYTHONUNBUFFERED=1
@@ -31,4 +27,4 @@ ENV FLASK_ENV=production
 EXPOSE 5002
 
 # Run server (model will download on first run)
-CMD ["python", "hybrid_tts_server_with_phonemes.py"]
+CMD ["python", "emergency-tts-fix.py"]
