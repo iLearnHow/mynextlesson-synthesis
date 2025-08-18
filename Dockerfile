@@ -13,10 +13,8 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
+# Copy ONLY the production server - force Railway to use it
 COPY production-tts-server.py .
-COPY emergency-tts-fix.py .
-COPY hybrid_tts_server_with_phonemes.py .
 
 # Environment
 ENV PYTHONUNBUFFERED=1
@@ -27,5 +25,5 @@ ENV FLASK_ENV=production
 # Expose port
 EXPOSE 5002
 
-# Run server (model will download on first run)
+# Force Railway to use our new production server
 CMD ["python", "production-tts-server.py"]

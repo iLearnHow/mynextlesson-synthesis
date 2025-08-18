@@ -176,7 +176,12 @@ def root():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5002))
-    print(f"🚀 Starting Production TTS Server on port {port}")
+    print("=" * 60)
+    print("🚀 PRODUCTION TTS SERVER STARTING")
+    print("=" * 60)
+    print(f"✅ Port: {port}")
     print(f"✅ CORS enabled for ilearnhow.com")
     print(f"✅ Phoneme generation enabled")
+    print(f"✅ No Coqui dependencies")
+    print("=" * 60)
     app.run(host='0.0.0.0', port=port, debug=False)
