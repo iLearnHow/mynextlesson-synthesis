@@ -1,0 +1,149 @@
+{
+  "speaker": "kelly",
+  "version": "2.0",
+  "total_visemes": 42,
+  "categories": {
+    "basic": [
+      "REST",
+      "MBP",
+      "FV",
+      "TH",
+      "DNTL",
+      "KG",
+      "S",
+      "WQ",
+      "R",
+      "A",
+      "E",
+      "I"
+    ],
+    "enhanced": [
+      "OO",
+      "UH",
+      "AW",
+      "AY",
+      "OY",
+      "NG",
+      "CH",
+      "SH",
+      "ZH",
+      "Y",
+      "L",
+      "H"
+    ],
+    "emotional": [
+      "A_HAPPY",
+      "A_SERIOUS",
+      "A_EXCITED",
+      "E_HAPPY",
+      "E_SERIOUS",
+      "E_EXCITED",
+      "I_HAPPY",
+      "I_SERIOUS",
+      "I_EXCITED"
+    ],
+    "contextual": [
+      "A_TEACH",
+      "A_QUESTION",
+      "A_EMPHASIS",
+      "E_TEACH",
+      "E_QUESTION",
+      "E_EMPHASIS",
+      "I_TEACH",
+      "I_QUESTION",
+      "I_EMPHASIS"
+    ]
+  },
+  "phoneme_mapping": {
+    "REST": [
+      "silence",
+      "pause"
+    ],
+    "MBP": [
+      "m",
+      "b",
+      "p"
+    ],
+    "FV": [
+      "f",
+      "v"
+    ],
+    "TH": [
+      "\u03b8",
+      "\u00f0"
+    ],
+    "DNTL": [
+      "d",
+      "n",
+      "t",
+      "l"
+    ],
+    "KG": [
+      "k",
+      "g",
+      "\u014b"
+    ],
+    "S": [
+      "s",
+      "z"
+    ],
+    "WQ": [
+      "w",
+      "q"
+    ],
+    "R": [
+      "r",
+      "\u0279"
+    ],
+    "A": [
+      "\u0251",
+      "\u00e6"
+    ],
+    "E": [
+      "\u025b",
+      "e"
+    ],
+    "I": [
+      "i",
+      "\u026a"
+    ],
+    "OO": [
+      "u",
+      "\u028a"
+    ],
+    "UH": [
+      "\u028c",
+      "\u0259"
+    ],
+    "AW": [
+      "a\u028a"
+    ],
+    "AY": [
+      "a\u026a"
+    ],
+    "OY": [
+      "\u0254\u026a"
+    ],
+    "NG": [
+      "\u014b"
+    ],
+    "CH": [
+      "t\u0283"
+    ],
+    "SH": [
+      "\u0283"
+    ],
+    "ZH": [
+      "\u0292"
+    ],
+    "Y": [
+      "j"
+    ],
+    "L": [
+      "l"
+    ],
+    "H": [
+      "h"
+    ]
+  }
+}

@@ -14,6 +14,22 @@ class AvatarSyncPlayer {
         this.currentVisemeIndex = -1;
         this.animationFrame = null;
         this.isPlaying = false;
+        // Enhanced viseme system support
+        this.visemeSystem = {
+            basic: ['REST', 'MBP', 'FV', 'TH', 'DNTL', 'KG', 'S', 'WQ', 'R', 'A', 'E', 'I'],
+            enhanced: ['OO', 'UH', 'AW', 'AY', 'OY', 'NG', 'CH', 'SH', 'ZH', 'Y', 'L', 'H'],
+            emotional: ['A_HAPPY', 'A_SERIOUS', 'A_EXCITED', 'E_HAPPY', 'E_SERIOUS', 'E_EXCITED', 'I_HAPPY', 'I_SERIOUS', 'I_EXCITED'],
+            contextual: ['A_TEACH', 'A_QUESTION', 'A_EMPHASIS', 'E_TEACH', 'E_QUESTION', 'E_EMPHASIS', 'I_TEACH', 'I_QUESTION', 'I_EMPHASIS']
+        };
+        this.allVisemes = [
+            ...this.visemeSystem.basic,
+            ...this.visemeSystem.enhanced,
+            ...this.visemeSystem.emotional,
+            ...this.visemeSystem.contextual
+        ];
+        this.currentSpeaker = 'kelly';
+        this.currentEmotion = 'neutral';
+        this.currentContext = 'default';
         
         // Preload REST frame for each avatar
         this.defaultFrames = {
@@ -139,9 +155,10 @@ class AvatarSyncPlayer {
         let currentGroup = null;
         
         for (const phoneme of phonemes) {
-            if (!currentGroup || currentGroup.viseme !== phoneme.viseme) {
+            const optimal = this.selectOptimalViseme(phoneme.viseme, phoneme.text || '');
+            if (!currentGroup || currentGroup.viseme !== optimal) {
                 currentGroup = {
-                    viseme: phoneme.viseme,
+                    viseme: optimal,
                     start: phoneme.start,
                     end: phoneme.end
                 };
@@ -153,6 +170,42 @@ class AvatarSyncPlayer {
         }
         
         return timeline;
+    }
+
+    // Choose the best viseme variant based on content/emotion/context
+    selectOptimalViseme(baseViseme, text) {
+        // Only vowels A/E/I get emotional/contextual variants
+        const applicable = ['A', 'E', 'I'];
+        let selected = baseViseme;
+        const t = (text || '').toLowerCase();
+        // Simple signals
+        const isQuestion = t.includes('?') || /\b(what|how|why|when|where|who)\b/.test(t);
+        const hasEmphasis = /[!"“”]/.test(t) || /\*\*.+\*\*/.test(t) || /__.+__/.test(t);
+        const happyWords = ['great','wonderful','amazing','excellent','fantastic','awesome','nice'];
+        const seriousWords = ['important','critical','serious','careful','attention','warning'];
+        const excitedWords = ['wow','incredible','unbelievable','fantastic','awesome','excited'];
+        let detectedEmotion = this.currentEmotion || 'neutral';
+        if (detectedEmotion === 'neutral') {
+            if (happyWords.some(w=>t.includes(w))) detectedEmotion = 'happy';
+            else if (seriousWords.some(w=>t.includes(w))) detectedEmotion = 'serious';
+            else if (excitedWords.some(w=>t.includes(w))) detectedEmotion = 'excited';
+        }
+        if (applicable.includes(baseViseme)) {
+            if (detectedEmotion && detectedEmotion !== 'neutral') {
+                selected = `${baseViseme}_${detectedEmotion.toUpperCase()}`;
+            } else if (isQuestion) {
+                selected = `${baseViseme}_QUESTION`;
+            } else if (hasEmphasis) {
+                selected = `${baseViseme}_EMPHASIS`;
+            } else if ((this.currentContext || 'default') === 'teach') {
+                selected = `${baseViseme}_TEACH`;
+            }
+        }
+        // Fallback to base if not in catalog
+        if (!this.allVisemes.includes(selected)) {
+            selected = baseViseme;
+        }
+        return selected;
     }
     
     async ensureCDNBaseAccessible() {
@@ -180,16 +233,26 @@ class AvatarSyncPlayer {
 
     async preloadVisemeFrames(speaker) {
         await this.ensureCDNBaseAccessible();
-        const visemes = ['REST', 'MBP', 'FV', 'TH', 'DNTL', 'KG', 'S', 'WQ', 'R', 'A', 'E', 'I'];
+        // Prefer full enhanced catalog; fall back to basic
+        const visemes = this.allVisemes?.length ? this.allVisemes : ['REST', 'MBP', 'FV', 'TH', 'DNTL', 'KG', 'S', 'WQ', 'R', 'A', 'E', 'I'];
         const promises = [];
         
         for (const viseme of visemes) {
             // Try multiple path formats
             const urls = [
+                // Enhanced directories produced by the pipeline
+                `${this.cdnBase}/avatars/${speaker}/2d/visemes/enhanced/mouth_${viseme}.png`,
+                `${this.cdnBase}/avatars/${speaker}/2d/visemes/emotional/mouth_${viseme}.png`,
+                `${this.cdnBase}/avatars/${speaker}/2d/visemes/contextual/mouth_${viseme}.png`,
+                // Legacy full-frame PNGs / WEBPs
                 `${this.cdnBase}/avatars/${speaker}/full/${viseme}.png`,
                 `${this.cdnBase}/avatars/${speaker}/full/${viseme}/frame_01.webp`,
-                `/r2-upload-ready/${speaker}/full/${viseme}.png`,  // Local fallback
-                `/r2-upload-ready/${speaker}/full/${viseme}.png`   // Direct local
+                // Local fallbacks for development
+                `/production-deploy/assets/avatars/${speaker}/2d/visemes/enhanced/mouth_${viseme}.png`,
+                `/production-deploy/assets/avatars/${speaker}/2d/visemes/emotional/mouth_${viseme}.png`,
+                `/production-deploy/assets/avatars/${speaker}/2d/visemes/contextual/mouth_${viseme}.png`,
+                `/production-deploy/assets/avatars/${speaker}/full/${viseme}.png`,
+                `/r2-upload-ready/${speaker}/full/${viseme}.png`
             ];
             const key = `${speaker}_${viseme}`;
             
@@ -270,8 +333,16 @@ class AvatarSyncPlayer {
         let url = this.visemeFrames.get(key);
         
         if (!url) {
-            // Try local fallback
-            url = `/r2-upload-ready/${speaker}/full/${viseme}.png`;
+            // Try local fallback paths in priority order
+            const localCandidates = [
+                `/production-deploy/assets/avatars/${speaker}/2d/visemes/enhanced/mouth_${viseme}.png`,
+                `/production-deploy/assets/avatars/${speaker}/2d/visemes/emotional/mouth_${viseme}.png`,
+                `/production-deploy/assets/avatars/${speaker}/2d/visemes/contextual/mouth_${viseme}.png`,
+                `/production-deploy/assets/avatars/${speaker}/full/${viseme}.png`,
+                `/r2-upload-ready/${speaker}/full/${viseme}.png`
+            ];
+            // Pick the first candidate; note: not verifying existence to keep fast path
+            url = localCandidates[0];
             console.log(`🎭 Using local fallback for ${viseme}: ${url}`);
         }
         

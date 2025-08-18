@@ -1,6 +1,6 @@
 {
   "avatarId": "kelly",
-  "version": "1.0",
+  "version": "2.0",
   "mouth_bbox": {
     "x": 1077,
     "y": 548,
@@ -28,6 +28,88 @@
     "R",
     "A",
     "E",
-    "I"
-  ]
+    "I",
+    "OO",
+    "UH",
+    "AW",
+    "AY",
+    "OY",
+    "NG",
+    "CH",
+    "SH",
+    "ZH",
+    "Y",
+    "L",
+    "H",
+    "A_HAPPY",
+    "A_SERIOUS",
+    "A_EXCITED",
+    "E_HAPPY",
+    "E_SERIOUS",
+    "E_EXCITED",
+    "I_HAPPY",
+    "I_SERIOUS",
+    "I_EXCITED",
+    "A_TEACH",
+    "A_QUESTION",
+    "A_EMPHASIS",
+    "E_TEACH",
+    "E_QUESTION",
+    "E_EMPHASIS",
+    "I_TEACH",
+    "I_QUESTION",
+    "I_EMPHASIS"
+  ],
+  "viseme_categories": {
+    "basic": [
+      "REST",
+      "MBP",
+      "FV",
+      "TH",
+      "DNTL",
+      "KG",
+      "S",
+      "WQ",
+      "R",
+      "A",
+      "E",
+      "I"
+    ],
+    "enhanced": [
+      "OO",
+      "UH",
+      "AW",
+      "AY",
+      "OY",
+      "NG",
+      "CH",
+      "SH",
+      "ZH",
+      "Y",
+      "L",
+      "H"
+    ],
+    "emotional": [
+      "A_HAPPY",
+      "A_SERIOUS",
+      "A_EXCITED",
+      "E_HAPPY",
+      "E_SERIOUS",
+      "E_EXCITED",
+      "I_HAPPY",
+      "I_SERIOUS",
+      "I_EXCITED"
+    ],
+    "contextual": [
+      "A_TEACH",
+      "A_QUESTION",
+      "A_EMPHASIS",
+      "E_TEACH",
+      "E_QUESTION",
+      "E_EMPHASIS",
+      "I_TEACH",
+      "I_QUESTION",
+      "I_EMPHASIS"
+    ]
+  }
 }

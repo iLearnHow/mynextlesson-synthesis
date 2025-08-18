@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Viseme System Test - Kelly & Ken</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .test-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .avatar-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .avatar-display {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 20px;
+            background: #333;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-display.speaking {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        
+        .controls {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .control-group label {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .control-group select,
+        .control-group input,
+        .control-group button {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+        
+        .control-group button {
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .control-group button:hover {
+            background: #45a049;
+        }
+        
+        .control-group button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .text-input {
+            width: 100%;
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .stats-panel {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .viseme-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .category-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .category-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        
+        .viseme-list {
+            font-size: 0.8em;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+        }
+        
+        .status.error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid #f44336;
+        }
+        
+        .status.info {
+            background: rgba(33, 150, 243, 0.3);
+            border: 1px solid #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎭 Enhanced Viseme System</h1>
+        <p>48-Viseme Avatar Synchronization for Kelly & Ken</p>
+    </div>
+    
+    <div class="test-container">
+        <!-- Kelly Avatar Section -->
+        <div class="avatar-section">
+            <h2>Kelly Avatar</h2>
+            <div id="kelly-avatar" class="avatar-display">
+                Ready for Kelly
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="kelly-text">Text to Speak:</label>
+                    <textarea id="kelly-text" class="text-input" placeholder="Enter text for Kelly to speak...">Hello! I'm excited to show you our amazing new viseme system with 48 different mouth shapes!</textarea>
+                </div>
+                
+                <div class="control-group">
+                    <label for="kelly-emotion">Emotion:</label>
+                    <select id="kelly-emotion">
+                        <option value="neutral">Neutral</option>
+                        <option value="happy">Happy</option>
+                        <option value="serious">Serious</option>
+                        <option value="excited">Excited</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="kelly-context">Context:</label>
+                    <select id="kelly-context">
+                        <option value="default">Default</option>
+                        <option value="teach">Teaching</option>
+                        <option value="question">Questioning</option>
+                        <option value="emphasis">Emphasizing</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button id="kelly-play" onclick="playKelly()">🎤 Speak</button>
+                    <button id="kelly-stop" onclick="stopKelly()" disabled>⏹️ Stop</button>
+                </div>
+            </div>
+            
+            <div id="kelly-status" class="status info">Ready to test Kelly's enhanced visemes</div>
+        </div>
+        
+        <!-- Ken Avatar Section -->
+        <div class="avatar-section">
+            <h2>Ken Avatar</h2>
+            <div id="ken-avatar" class="avatar-display">
+                Ready for Ken
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="ken-text">Text to Speak:</label>
+                    <textarea id="ken-text" class="text-input" placeholder="Enter text for Ken to speak...">Welcome to our enhanced viseme demonstration! This system provides incredible mouth synchronization.</textarea>
+                </div>
+                
+                <div class="control-group">
+                    <label for="ken-emotion">Emotion:</label>
+                    <select id="ken-emotion">
+                        <option value="neutral">Neutral</option>
+                        <option value="happy">Happy</option>
+                        <option value="serious">Serious</option>
+                        <option value="excited">Excited</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="ken-context">Context:</label>
+                    <select id="ken-context">
+                        <option value="default">Default</option>
+                        <option value="teach">Teaching</option>
+                        <option value="question">Questioning</option>
+                        <option value="emphasis">Emphasizing</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button id="ken-play" onclick="playKen()">🎤 Speak</button>
+                    <button id="ken-stop" onclick="stopKen()" disabled>⏹️ Stop</button>
+                </div>
+            </div>
+            
+            <div id="ken-status" class="status info">Ready to test Ken's enhanced visemes</div>
+        </div>
+    </div>
+    
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+        <h3>📊 Viseme System Statistics</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="total-visemes">48</div>
+                <div class="stat-label">Total Visemes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="basic-visemes">12</div>
+                <div class="stat-label">Basic Visemes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="enhanced-visemes">12</div>
+                <div class="stat-label">Enhanced Visemes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="emotional-variants">9</div>
+                <div class="stat-label">Emotional Variants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="contextual-variants">9</div>
+                <div class="stat-label">Contextual Variants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="loaded-frames">0</div>
+                <div class="stat-label">Loaded Frames</div>
+            </div>
+        </div>
+        
+        <div class="viseme-categories">
+            <div class="category-card">
+                <div class="category-title">Basic (12)</div>
+                <div class="viseme-list">REST, MBP, FV, TH, DNTL, KG, S, WQ, R, A, E, I</div>
+            </div>
+            <div class="category-card">
+                <div class="category-title">Enhanced (12)</div>
+                <div class="viseme-list">OO, UH, AW, AY, OY, NG, CH, SH, ZH, Y, L, H</div>
+            </div>
+            <div class="category-card">
+                <div class="category-title">Emotional (9)</div>
+                <div class="viseme-list">A_HAPPY, A_SERIOUS, A_EXCITED, E_HAPPY, E_SERIOUS, E_EXCITED, I_HAPPY, I_SERIOUS, I_EXCITED</div>
+            </div>
+            <div class="category-card">
+                <div class="category-title">Contextual (9)</div>
+                <div class="viseme-list">A_TEACH, A_QUESTION, A_EMPHASIS, E_TEACH, E_QUESTION, E_EMPHASIS, I_TEACH, I_QUESTION, I_EMPHASIS</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Avatar Sync Player -->
+    <script src="enhanced-avatar-sync-player.js"></script>
+    
+    <script>
+        // Initialize enhanced avatar sync players
+        let kellyPlayer, kenPlayer;
+        
+        // Initialize players when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePlayers();
+            updateStats();
+        });
+        
+        function initializePlayers() {
+            try {
+                // Initialize Kelly player
+                kellyPlayer = new EnhancedAvatarSyncPlayer();
+                kellyPlayer.avatarBg = document.getElementById('kelly-avatar');
+                
+                // Initialize Ken player
+                kenPlayer = new EnhancedAvatarSyncPlayer();
+                kenPlayer.avatarBg = document.getElementById('ken-avatar');
+                
+                console.log('✅ Enhanced Avatar Sync Players initialized');
+                updateStatus('kelly', 'success', 'Enhanced viseme system ready');
+                updateStatus('ken', 'success', 'Enhanced viseme system ready');
+                
+            } catch (error) {
+                console.error('❌ Error initializing players:', error);
+                updateStatus('kelly', 'error', 'Failed to initialize: ' + error.message);
+                updateStatus('ken', 'error', 'Failed to initialize: ' + error.message);
+            }
+        }
+        
+        function updateStatus(avatar, type, message) {
+            const statusElement = document.getElementById(`${avatar}-status`);
+            statusElement.className = `status ${type}`;
+            statusElement.textContent = message;
+        }
+        
+        function updateStats() {
+            if (kellyPlayer) {
+                const stats = kellyPlayer.getVisemeStats();
+                document.getElementById('total-visemes').textContent = stats.totalVisemes;
+                document.getElementById('basic-visemes').textContent = stats.categories.basic.length;
+                document.getElementById('enhanced-visemes').textContent = stats.categories.enhanced.length;
+                document.getElementById('emotional-variants').textContent = stats.categories.emotional.length;
+                document.getElementById('contextual-variants').textContent = stats.categories.contextual.length;
+                document.getElementById('loaded-frames').textContent = stats.loadedFrames;
+            }
+        }
+        
+        async function playKelly() {
+            if (!kellyPlayer) {
+                updateStatus('kelly', 'error', 'Player not initialized');
+                return;
+            }
+            
+            const text = document.getElementById('kelly-text').value;
+            const emotion = document.getElementById('kelly-emotion').value;
+            const context = document.getElementById('kelly-context').value;
+            
+            if (!text.trim()) {
+                updateStatus('kelly', 'error', 'Please enter text to speak');
+                return;
+            }
+            
+            try {
+                updateStatus('kelly', 'info', 'Starting enhanced viseme sync...');
+                
+                // Set emotion and context
+                kellyPlayer.setEmotion(emotion);
+                kellyPlayer.setContext(context);
+                
+                // Start playback
+                await kellyPlayer.play(text, 'kelly', emotion, context);
+                
+                // Update UI
+                document.getElementById('kelly-play').disabled = true;
+                document.getElementById('kelly-stop').disabled = false;
+                updateStatus('kelly', 'success', 'Speaking with enhanced visemes...');
+                
+                // Update stats
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error playing Kelly:', error);
+                updateStatus('kelly', 'error', 'Error: ' + error.message);
+            }
+        }
+        
+        function stopKelly() {
+            if (kellyPlayer) {
+                kellyPlayer.stop();
+                document.getElementById('kelly-play').disabled = false;
+                document.getElementById('kelly-stop').disabled = true;
+                updateStatus('kelly', 'info', 'Stopped. Ready for next test.');
+            }
+        }
+        
+        async function playKen() {
+            if (!kenPlayer) {
+                updateStatus('ken', 'error', 'Player not initialized');
+                return;
+            }
+            
+            const text = document.getElementById('ken-text').value;
+            const emotion = document.getElementById('ken-emotion').value;
+            const context = document.getElementById('ken-context').value;
+            
+            if (!text.trim()) {
+                updateStatus('ken', 'error', 'Please enter text to speak');
+                return;
+            }
+            
+            try {
+                updateStatus('ken', 'info', 'Starting enhanced viseme sync...');
+                
+                // Set emotion and context
+                kenPlayer.setEmotion(emotion);
+                kenPlayer.setContext(context);
+                
+                // Start playback
+                await kenPlayer.play(text, 'ken', emotion, context);
+                
+                // Update UI
+                document.getElementById('ken-play').disabled = true;
+                document.getElementById('ken-stop').disabled = false;
+                updateStatus('ken', 'success', 'Speaking with enhanced visemes...');
+                
+                // Update stats
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error playing Ken:', error);
+                updateStatus('ken', 'error', 'Error: ' + error.message);
+            }
+        }
+        
+        function stopKen() {
+            if (kenPlayer) {
+                kenPlayer.stop();
+                document.getElementById('ken-play').disabled = false;
+                document.getElementById('ken-stop').disabled = true;
+                updateStatus('ken', 'info', 'Stopped. Ready for next test.');
+            }
+        }
+        
+        // Auto-update stats every 2 seconds
+        setInterval(updateStats, 2000);
+    </script>
+</body>
+</html>

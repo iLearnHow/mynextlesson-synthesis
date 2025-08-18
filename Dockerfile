@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy ONLY the production server - nothing else
-COPY production-tts-server.py .
+# Copy ONLY the new Railway TTS server - nothing else
+COPY railway-tts-server.py .
 
 # Environment variables
 ENV PYTHONUNBUFFERED=1
@@ -26,5 +26,5 @@ ENV FLASK_ENV=production
 # Expose port
 EXPOSE 5002
 
-# Force Railway to use our new server
-CMD ["python", "production-tts-server.py"]
+# Force Railway to use our NEW server
+CMD ["python", "railway-tts-server.py"]

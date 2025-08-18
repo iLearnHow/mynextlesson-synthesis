@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-08-18T22:55:14",
+  "pipeline_version": "2.0",
+  "expansion_results": {
+    "kelly": {
+      "original_visemes": 12,
+      "new_visemes": 12,
+      "emotional_variants": 9,
+      "contextual_variants": 9,
+      "total_visemes": 42,
+      "output_directories": [
+        "ilearn_how/production-deploy/assets/avatars/kelly/2d/visemes/basic",
+        "ilearn_how/production-deploy/assets/avatars/kelly/2d/visemes/enhanced",
+        "ilearn_how/production-deploy/assets/avatars/kelly/2d/visemes/emotional",
+        "ilearn_how/production-deploy/assets/avatars/kelly/2d/visemes/contextual"
+      ]
+    },
+    "ken": {
+      "original_visemes": 12,
+      "new_visemes": 12,
+      "emotional_variants": 9,
+      "contextual_variants": 9,
+      "total_visemes": 42,
+      "output_directories": [
+        "ilearn_how/production-deploy/assets/avatars/ken/2d/visemes/basic",
+        "ilearn_how/production-deploy/assets/avatars/ken/2d/visemes/enhanced",
+        "ilearn_how/production-deploy/assets/avatars/ken/2d/visemes/emotional",
+        "ilearn_how/production-deploy/assets/avatars/ken/2d/visemes/contextual"
+      ]
+    }
+  }
+}
