@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Voice Test - Ken & Kelly</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            background: #f0f0f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .status.ready {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .voice-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        
+        .voice-section h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        
+        .test-text {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button.primary {
+            background: #007AFF;
+            color: white;
+        }
+        
+        button.primary:hover {
+            background: #0051D5;
+        }
+        
+        button.secondary {
+            background: #6C757D;
+            color: white;
+        }
+        
+        button.secondary:hover {
+            background: #545B62;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        .log-entry.error {
+            background: #fee;
+            color: #c00;
+        }
+        
+        .log-entry.success {
+            background: #efe;
+            color: #060;
+        }
+        
+        .log-entry.info {
+            color: #666;
+        }
+        
+        #audio-visualizer {
+            width: 100%;
+            height: 100px;
+            background: #000;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎤 TTS Voice Test - Ken & Kelly</h1>
+        
+        <div id="status" class="status">
+            <strong>Status:</strong> <span id="status-text">Checking TTS servers...</span>
+        </div>
+        
+        <div class="voice-section">
+            <h2>👩 Kelly's Voice</h2>
+            <textarea class="test-text" id="kelly-text" rows="3">Hi! I'm Kelly, and I'm excited to help you learn today. This is my custom synthesized voice, created just for iLearn How!</textarea>
+            <div class="button-group">
+                <button class="primary" onclick="testVoice('kelly')">Test Kelly</button>
+                <button class="secondary" onclick="testPhrase('kelly', 'welcome')">Welcome Message</button>
+                <button class="secondary" onclick="testPhrase('kelly', 'question')">Ask Question</button>
+                <button class="secondary" onclick="testPhrase('kelly', 'feedback')">Give Feedback</button>
+            </div>
+        </div>
+        
+        <div class="voice-section">
+            <h2>👨 Ken's Voice</h2>
+            <textarea class="test-text" id="ken-text" rows="3">Hello! I'm Ken, your learning companion. I'm using our custom voice synthesis technology to speak to you naturally!</textarea>
+            <div class="button-group">
+                <button class="primary" onclick="testVoice('ken')">Test Ken</button>
+                <button class="secondary" onclick="testPhrase('ken', 'welcome')">Welcome Message</button>
+                <button class="secondary" onclick="testPhrase('ken', 'question')">Ask Question</button>
+                <button class="secondary" onclick="testPhrase('ken', 'feedback')">Give Feedback</button>
+            </div>
+        </div>
+        
+        <canvas id="audio-visualizer"></canvas>
+        
+        <div class="log" id="log">
+            <div class="log-entry info">Test log initialized...</div>
+        </div>
+        
+        <audio id="tts-audio" style="display: none;"></audio>
+    </div>
+    
+    <!-- Load TTS systems -->
+    <script src="/unified-tts-handler.js"></script>
+    
+    <script>
+        const log = document.getElementById('log');
+        const statusEl = document.getElementById('status');
+        const statusText = document.getElementById('status-text');
+        
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Test phrases
+        const testPhrases = {
+            kelly: {
+                welcome: "Welcome to today's lesson! I'm Kelly, and I'm so glad you're here to learn with us.",
+                question: "That's a great question! Let me help you understand this concept better.",
+                feedback: "Excellent work! You're really getting the hang of this. Keep it up!"
+            },
+            ken: {
+                welcome: "Hey there! I'm Ken, and I'm excited to explore today's topic together.",
+                question: "Hmm, that's interesting. Let's think about this from a different angle.",
+                feedback: "Nice job! You're making great progress. Let's move on to the next challenge."
+            }
+        };
+        
+        // Check TTS status
+        async function checkStatus() {
+            addLog('Checking TTS status...');
+            
+            try {
+                await window.unifiedTTS.initPromise;
+                
+                if (window.unifiedTTS.isAvailable) {
+                    statusEl.className = 'status ready';
+                    statusText.textContent = `Connected to: ${window.unifiedTTS.baseUrl}`;
+                    addLog(`TTS ready at: ${window.unifiedTTS.baseUrl}`, 'success');
+                } else {
+                    statusEl.className = 'status error';
+                    statusText.textContent = 'TTS servers not available';
+                    addLog('No TTS servers available', 'error');
+                }
+            } catch (error) {
+                statusEl.className = 'status error';
+                statusText.textContent = 'Error checking TTS status';
+                addLog(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test voice function
+        async function testVoice(speaker) {
+            const textArea = document.getElementById(`${speaker}-text`);
+            const text = textArea.value.trim();
+            
+            if (!text) {
+                addLog(`No text to speak for ${speaker}`, 'error');
+                return;
+            }
+            
+            addLog(`Testing ${speaker} voice: "${text.substring(0, 50)}..."`);
+            
+            try {
+                // Disable all buttons during playback
+                document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                
+                await window.unifiedTTS.speak(text, speaker);
+                addLog(`Successfully played ${speaker} voice`, 'success');
+            } catch (error) {
+                addLog(`Error playing ${speaker}: ${error.message}`, 'error');
+            } finally {
+                // Re-enable buttons
+                document.querySelectorAll('button').forEach(btn => btn.disabled = false);
+            }
+        }
+        
+        // Test phrase function
+        async function testPhrase(speaker, phraseType) {
+            const phrase = testPhrases[speaker][phraseType];
+            document.getElementById(`${speaker}-text`).value = phrase;
+            await testVoice(speaker);
+        }
+        
+        // Audio visualizer
+        function setupVisualizer() {
+            const canvas = document.getElementById('audio-visualizer');
+            const ctx = canvas.getContext('2d');
+            const audio = document.getElementById('tts-audio');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaElementSource(audio);
+                
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                
+                function draw() {
+                    requestAnimationFrame(draw);
+                    
+                    analyser.getByteFrequencyData(dataArray);
+                    
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    const barWidth = (canvas.width / bufferLength) * 2.5;
+                    let barHeight;
+                    let x = 0;
+                    
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = dataArray[i] / 2;
+                        
+                        ctx.fillStyle = `rgb(50, ${barHeight + 100}, 50)`;
+                        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                        
+                        x += barWidth + 1;
+                    }
+                }
+                
+                draw();
+            } catch (error) {
+                console.warn('Audio visualizer not available:', error);
+            }
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', async () => {
+            await checkStatus();
+            setupVisualizer();
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '1') testVoice('kelly');
+                if (e.key === '2') testVoice('ken');
+                if (e.key === 'r') checkStatus();
+            });
+            
+            addLog('Keyboard shortcuts: 1=Kelly, 2=Ken, R=Refresh status');
+        });
+    </script>
+</body>
+</html>

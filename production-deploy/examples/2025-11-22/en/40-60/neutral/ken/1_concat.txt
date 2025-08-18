@@ -1,0 +1,3 @@
+file '/Users/nicolette/ilearn_how/production-deploy/examples/2025-11-22/en/40-60/neutral/ken/1_s0.mp3'
+file '/Users/nicolette/ilearn_how/production-deploy/examples/2025-11-22/en/40-60/neutral/ken/1_s1.mp3'
+file '/Users/nicolette/ilearn_how/production-deploy/examples/2025-11-22/en/40-60/neutral/ken/1_s2.mp3'

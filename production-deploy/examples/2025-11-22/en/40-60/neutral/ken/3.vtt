@@ -1,0 +1,8 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:07.500
+Digital signatures prove authorship. You sign with your private key; anyone can verify with your public key.
+
+00:00:07.500 --> 00:00:14.500
+The message stays readable if you want, but the signature lets others check it was you and unchanged.
+

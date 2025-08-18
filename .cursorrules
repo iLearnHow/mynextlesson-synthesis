@@ -16,11 +16,18 @@
 - data/ - Monthly curriculum JSON files
 
 ## FORBIDDEN ACTIONS
-- Creating new HTML files (working-version.html, test-*.html, diagnostic.html)
+- Creating new HTML files (EXCEPTION: test-*.html allowed with explicit user permission for development)
 - Creating new lesson player systems
-- Creating standalone test pages
+- Creating standalone test pages (EXCEPTION: allowed with explicit user permission for safe development testing)
 - Replacing existing architecture with new designs
 - Creating parallel systems
+
+## TEST PAGE GUIDELINES (when permitted)
+- Test pages must be clearly named (test-*.html)
+- Must not interfere with production systems
+- Should be isolated and self-contained
+- Must include clear documentation of purpose
+- Should be removed after testing is complete
 
 ## REQUIRED ACTIONS
 - Enhance existing index.html to display real content

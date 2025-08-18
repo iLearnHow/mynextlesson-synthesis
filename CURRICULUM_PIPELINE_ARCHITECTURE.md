@@ -161,11 +161,11 @@ class LessonPreGenerator {
 ```json
 {
     "day": 1,
-    "title": "The Sun - Our Magnificent Life-Giving Star",
+    "title": "The  - Our Magnificent Life-Giving Star",
     "learning_objective": "Understand how scientific observation...",
     "content": {
         "voiceOver": "Welcome! I'm Kelly, your learning guide...",
-        "onScreen": "Today's Topic: The Sun...",
+        "onScreen": "Today's Topic: The ...",
         "lessonLogic": "🧠 3x3x3x3 Lesson Structure...",
         "questions": [
             {

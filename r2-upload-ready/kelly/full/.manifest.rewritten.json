@@ -1,0 +1,8 @@
+{
+  "version": "1.0",
+  "avatar": "kelly",
+  "visemes": ["REST", "MBP", "FV", "TH", "DNTL", "KG", "S", "WQ", "R", "A", "E", "I"],
+  "frame": { "w": 1920, "h": 1080 },
+  "base_url": "https://pub-16cb321dba5c429a8acbbacbc2f64d64.r2.dev/avatars/kelly/full",
+  "created": "2025-08-18T16:52:54Z"
+}

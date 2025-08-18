@@ -1,0 +1,33 @@
+{
+  "avatarId": "ken",
+  "version": "1.0",
+  "mouth_bbox": {
+    "x": 834,
+    "y": 521,
+    "w": 190,
+    "h": 68
+  },
+  "z_order": [
+    "base",
+    "mouth",
+    "teeth_upper",
+    "teeth_lower",
+    "tongue",
+    "eyelids",
+    "pupils"
+  ],
+  "visemes": [
+    "REST",
+    "MBP",
+    "FV",
+    "TH",
+    "DNTL",
+    "KG",
+    "S",
+    "WQ",
+    "R",
+    "A",
+    "E",
+    "I"
+  ]
+}

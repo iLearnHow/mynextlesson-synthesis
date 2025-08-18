@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "deployment_date": "2025-08-16",
+  "features": {
+    "tts_system": "dynamic-tts-system.js",
+    "voice_generator": "speak.py",
+    "batch_converter": "batch_convert.py",
+    "audio_files": "generated_audio/",
+    "models": "models/"
+  },
+  "status": "tts_enabled"
+}

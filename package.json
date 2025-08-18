@@ -4,7 +4,7 @@
   "description": "iLearn How - Personalized Learning with Kelly and Ken",
   "main": "index.html",
   "scripts": {
-    "deploy": "wrangler pages deploy production-deploy --project-name=ilearnhow",
+    "deploy": "wrangler pages deploy deploy-temp --project-name=ilearnhow",
     "dev": "wrangler pages dev production-deploy",
     "test": "echo 'Testing complete'"
   },
@@ -18,5 +18,8 @@
   "license": "MIT",
   "devDependencies": {
     "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
   }
 }

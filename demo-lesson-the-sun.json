@@ -1,0 +1,243 @@
+{
+  "lesson_metadata": {
+    "lesson_id": "the-sun-our-star",
+    "day": 1,
+    "title": "The Sun - Our Star",
+    "learning_objective": "Understand solar physics while exploring how solar energy drives Earth's climate, technology, and life processes.",
+    "difficulty": "foundation",
+    "duration_minutes": 5,
+    "created_for_demo": true
+  },
+  "default_variant": {
+    "age": 40,
+    "tone": "neutral", 
+    "language": "english",
+    "avatar": "kelly"
+  },
+  "phases": [
+    {
+      "id": "welcome",
+      "title": "Welcome",
+      "type": "consent",
+      "narration": {
+        "voiceOver": "Welcome! Today we're exploring something that touches your life every single day - the sun. It's our closest star, and it makes all life on Earth possible.",
+        "readAlong": "Welcome! Today we're exploring something that touches your life every single day - the sun. It's our closest star, and it makes all life on Earth possible."
+      },
+      "question": {
+        "text": "Would you like to learn about the sun today?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "Yes, let's explore the sun",
+            "isCorrect": true
+          },
+          {
+            "id": "b", 
+            "text": "Tell me about something else",
+            "isCorrect": true
+          }
+        ]
+      },
+      "avatar": {
+        "expression": "kelly_neutral_welcoming",
+        "mood": "curious"
+      },
+      "timing": {
+        "autoAdvance": false,
+        "requiresChoice": true
+      }
+    },
+    {
+      "id": "beginning",
+      "title": "Light Source",
+      "type": "question",
+      "narration": {
+        "voiceOver": "Let's start with something you see every day. During daytime, what is the main source of light that brightens our world?",
+        "readAlong": "Let's start with something you see every day. During daytime, what is the main source of light that brightens our world?"
+      },
+      "question": {
+        "text": "What gives us light during the day?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "The sun",
+            "isCorrect": true,
+            "teachingMoment": "Exactly! The sun is our closest star, located about 93 million miles away. It creates light through nuclear fusion, where hydrogen atoms combine to make helium, releasing enormous amounts of energy as light and heat."
+          },
+          {
+            "id": "b",
+            "text": "The moon", 
+            "isCorrect": false,
+            "teachingMoment": "The moon gives us light at night, but it doesn't create its own light. The moon reflects sunlight back to Earth. During the day, the sun is our main light source - it's actually a star that's constantly creating light and heat."
+          }
+        ]
+      },
+      "avatar": {
+        "expression": "kelly_neutral_questioning",
+        "mood": "engaging"
+      },
+      "timing": {
+        "autoAdvance": false,
+        "requiresChoice": true
+      }
+    },
+    {
+      "id": "middle", 
+      "title": "Daily Impact",
+      "type": "question",
+      "narration": {
+        "voiceOver": "The sun doesn't just give us light - it affects almost everything in our daily lives. Think about how the sun impacts your world.",
+        "readAlong": "The sun doesn't just give us light - it affects almost everything in our daily lives. Think about how the sun impacts your world."
+      },
+      "question": {
+        "text": "How does the sun affect our daily life?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "It helps plants grow",
+            "isCorrect": true,
+            "teachingMoment": "Yes! Plants use sunlight for photosynthesis - they combine sunlight, water, and carbon dioxide to make their own food and release oxygen that we breathe. Without the sun, there would be no plants, no food, and no oxygen."
+          },
+          {
+            "id": "b",
+            "text": "It makes us feel happy",
+            "isCorrect": true,
+            "teachingMoment": "That's also true! Sunlight helps our bodies produce vitamin D, which supports our immune system and mood. Many people feel happier on sunny days because sunlight affects chemicals in our brain like serotonin."
+          }
+        ]
+      },
+      "avatar": {
+        "expression": "kelly_neutral_thoughtful",
+        "mood": "encouraging"
+      },
+      "timing": {
+        "autoAdvance": false,
+        "requiresChoice": true
+      }
+    },
+    {
+      "id": "end",
+      "title": "Critical Importance", 
+      "type": "question",
+      "narration": {
+        "voiceOver": "Now let's think about how essential the sun really is. What do you think would happen to Earth if the sun suddenly disappeared?",
+        "readAlong": "Now let's think about how essential the sun really is. What do you think would happen to Earth if the sun suddenly disappeared?"
+      },
+      "question": {
+        "text": "What would happen without the sun?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "Earth would freeze completely",
+            "isCorrect": true,
+            "teachingMoment": "Exactly right! Without the sun's heat, Earth's average temperature would drop to about -400°F (-240°C). All water would freeze, the atmosphere would collapse, and life as we know it would be impossible."
+          },
+          {
+            "id": "b",
+            "text": "It would just get dark",
+            "isCorrect": false,
+            "teachingMoment": "It would definitely get dark, but that's just the beginning. Without the sun's heat, Earth would become a frozen wasteland in just a few days. All plants would die, which means all animals would eventually die too. The sun provides both light AND the heat that makes life possible."
+          }
+        ]
+      },
+      "avatar": {
+        "expression": "kelly_neutral_serious",
+        "mood": "contemplative"
+      },
+      "timing": {
+        "autoAdvance": false,
+        "requiresChoice": true
+      }
+    },
+    {
+      "id": "wisdom",
+      "title": "Solar Wisdom",
+      "type": "summary",
+      "narration": {
+        "voiceOver": "The sun is truly amazing - it's been shining for about 4.6 billion years and will continue for about 5 billion more. Every second, it converts 600 million tons of hydrogen into helium, creating the energy that makes all life on Earth possible. Next time you feel sunshine on your face, remember you're experiencing the power of nuclear fusion from 93 million miles away.",
+        "readAlong": "The sun is truly amazing - it's been shining for about 4.6 billion years and will continue for about 5 billion more. Every second, it converts 600 million tons of hydrogen into helium, creating the energy that makes all life on Earth possible. Next time you feel sunshine on your face, remember you're experiencing the power of nuclear fusion from 93 million miles away."
+      },
+      "wisdom": {
+        "summary": "The sun is our closest star and the foundation of all life on Earth. It provides light through nuclear fusion and drives our climate, weather, plant growth, and even our moods.",
+        "keyTakeaway": "Every day, the sun demonstrates the incredible power of physics in action, connecting us to the cosmos while sustaining everything we know and love.",
+        "callToAction": "Want to explore more cosmic wonders or dive into a different topic?"
+      },
+      "avatar": {
+        "expression": "kelly_neutral_wise",
+        "mood": "inspirational"
+      },
+      "timing": {
+        "autoAdvance": false,
+        "requiresChoice": false
+      }
+    }
+  ],
+  "age_variants": {
+    "2": {
+      "vocabulary": "simple",
+      "sentence_length": "short",
+      "concepts": "basic",
+      "example_phrase": "Big bright ball in sky makes day!"
+    },
+    "8": {
+      "vocabulary": "elementary",
+      "sentence_length": "medium", 
+      "concepts": "concrete",
+      "example_phrase": "The sun is a star that gives us light and warmth every day."
+    },
+    "25": {
+      "vocabulary": "standard",
+      "sentence_length": "full",
+      "concepts": "detailed",
+      "example_phrase": "The sun generates energy through nuclear fusion, converting hydrogen to helium."
+    },
+    "40": {
+      "vocabulary": "comprehensive",
+      "sentence_length": "complex",
+      "concepts": "scientific",
+      "example_phrase": "Solar fusion creates electromagnetic radiation that drives Earth's climate systems."
+    },
+    "60": {
+      "vocabulary": "sophisticated",
+      "sentence_length": "detailed",
+      "concepts": "integrated", 
+      "example_phrase": "Understanding solar energy helps us appreciate sustainable living and our cosmic connection."
+    },
+    "80": {
+      "vocabulary": "reflective",
+      "sentence_length": "thoughtful",
+      "concepts": "philosophical",
+      "example_phrase": "The sun reminds us of the interconnectedness of all life and our place in the universe."
+    }
+  },
+  "tone_variants": {
+    "neutral": {
+      "style": "clear_informative",
+      "energy": "steady",
+      "approach": "scientific_factual"
+    },
+    "fun": {
+      "style": "enthusiastic_engaging", 
+      "energy": "high",
+      "approach": "wonder_excitement"
+    },
+    "grandmother": {
+      "style": "warm_nurturing",
+      "energy": "gentle",
+      "approach": "story_wisdom"
+    }
+  },
+  "language_variants": {
+    "english": "primary",
+    "spanish": "available",
+    "french": "available"
+  },
+  "ui_elements": {
+    "question_positioning": "ken_tie_level",
+    "caption_highlight": "blue",
+    "phase_progression": "manual_play_pause_control",
+    "autoplay": false,
+    "avatar_background": "white",
+    "popup_coverage": "35_percent_right"
+  }
+}

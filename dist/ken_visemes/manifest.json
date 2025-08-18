@@ -1,0 +1,19 @@
+{
+  "REST": [],
+  "MBP": [],
+  "FV": [],
+  "S": [],
+  "A": [],
+  "E": [
+    "https://YOUR_CDN/avatars/ken/full/E/frame_01.webp",
+    "https://YOUR_CDN/avatars/ken/full/E/frame_02.webp",
+    "https://YOUR_CDN/avatars/ken/full/E/frame_03.webp",
+    "https://YOUR_CDN/avatars/ken/full/E/frame_04.webp"
+  ],
+  "I": [
+    "https://YOUR_CDN/avatars/ken/full/I/frame_01.webp",
+    "https://YOUR_CDN/avatars/ken/full/I/frame_02.webp",
+    "https://YOUR_CDN/avatars/ken/full/I/frame_03.webp",
+    "https://YOUR_CDN/avatars/ken/full/I/frame_04.webp"
+  ]
+}

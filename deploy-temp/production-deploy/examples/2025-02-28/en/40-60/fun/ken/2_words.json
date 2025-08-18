@@ -1,0 +1,319 @@
+{
+  "words": [
+    {
+      "w": "Question",
+      "start_ms": 0,
+      "end_ms": 582
+    },
+    {
+      "w": "two:",
+      "start_ms": 647,
+      "end_ms": 1230
+    },
+    {
+      "w": "Which",
+      "start_ms": 1295,
+      "end_ms": 1877
+    },
+    {
+      "w": "timing",
+      "start_ms": 1943,
+      "end_ms": 2525
+    },
+    {
+      "w": "is",
+      "start_ms": 2591,
+      "end_ms": 3173
+    },
+    {
+      "w": "safer",
+      "start_ms": 3238,
+      "end_ms": 3821
+    },
+    {
+      "w": "and",
+      "start_ms": 3886,
+      "end_ms": 4468
+    },
+    {
+      "w": "more",
+      "start_ms": 4534,
+      "end_ms": 5116
+    },
+    {
+      "w": "helpful",
+      "start_ms": 5182,
+      "end_ms": 5764
+    },
+    {
+      "w": "for",
+      "start_ms": 5830,
+      "end_ms": 6412
+    },
+    {
+      "w": "most",
+      "start_ms": 6477,
+      "end_ms": 7060
+    },
+    {
+      "w": "days?",
+      "start_ms": 7125,
+      "end_ms": 7707
+    },
+    {
+      "w": "Short",
+      "start_ms": 8055,
+      "end_ms": 8746
+    },
+    {
+      "w": "morning",
+      "start_ms": 8824,
+      "end_ms": 9515
+    },
+    {
+      "w": "light",
+      "start_ms": 9593,
+      "end_ms": 10284
+    },
+    {
+      "w": "most",
+      "start_ms": 10362,
+      "end_ms": 11053
+    },
+    {
+      "w": "days,",
+      "start_ms": 11131,
+      "end_ms": 11822
+    },
+    {
+      "w": "or",
+      "start_ms": 11900,
+      "end_ms": 12591
+    },
+    {
+      "w": "a",
+      "start_ms": 12668,
+      "end_ms": 13360
+    },
+    {
+      "w": "long",
+      "start_ms": 13437,
+      "end_ms": 14128
+    },
+    {
+      "w": "midday",
+      "start_ms": 14206,
+      "end_ms": 14897
+    },
+    {
+      "w": "session",
+      "start_ms": 14975,
+      "end_ms": 15666
+    },
+    {
+      "w": "once",
+      "start_ms": 15744,
+      "end_ms": 16435
+    },
+    {
+      "w": "a",
+      "start_ms": 16513,
+      "end_ms": 17204
+    },
+    {
+      "w": "week?",
+      "start_ms": 17282,
+      "end_ms": 17973
+    },
+    {
+      "w": "Coaching:",
+      "start_ms": 18333,
+      "end_ms": 18974
+    },
+    {
+      "w": "morning",
+      "start_ms": 19046,
+      "end_ms": 19687
+    },
+    {
+      "w": "light",
+      "start_ms": 19760,
+      "end_ms": 20401
+    },
+    {
+      "w": "resets",
+      "start_ms": 20473,
+      "end_ms": 21114
+    },
+    {
+      "w": "your",
+      "start_ms": 21186,
+      "end_ms": 21827
+    },
+    {
+      "w": "body",
+      "start_ms": 21900,
+      "end_ms": 22541
+    },
+    {
+      "w": "clock",
+      "start_ms": 22613,
+      "end_ms": 23254
+    },
+    {
+      "w": "and",
+      "start_ms": 23326,
+      "end_ms": 23967
+    },
+    {
+      "w": "supports",
+      "start_ms": 24040,
+      "end_ms": 24681
+    },
+    {
+      "w": "mood",
+      "start_ms": 24753,
+      "end_ms": 25394
+    },
+    {
+      "w": "with",
+      "start_ms": 25466,
+      "end_ms": 26107
+    },
+    {
+      "w": "lower",
+      "start_ms": 26180,
+      "end_ms": 26821
+    },
+    {
+      "w": "burn",
+      "start_ms": 26893,
+      "end_ms": 27534
+    },
+    {
+      "w": "risk.",
+      "start_ms": 27606,
+      "end_ms": 28247
+    },
+    {
+      "w": "If",
+      "start_ms": 28611,
+      "end_ms": 29361
+    },
+    {
+      "w": "midday",
+      "start_ms": 29444,
+      "end_ms": 30194
+    },
+    {
+      "w": "is",
+      "start_ms": 30277,
+      "end_ms": 31027
+    },
+    {
+      "w": "the",
+      "start_ms": 31111,
+      "end_ms": 31861
+    },
+    {
+      "w": "only",
+      "start_ms": 31944,
+      "end_ms": 32694
+    },
+    {
+      "w": "option,",
+      "start_ms": 32777,
+      "end_ms": 33527
+    },
+    {
+      "w": "shorten",
+      "start_ms": 33611,
+      "end_ms": 34361
+    },
+    {
+      "w": "the",
+      "start_ms": 34444,
+      "end_ms": 35194
+    },
+    {
+      "w": "exposure",
+      "start_ms": 35277,
+      "end_ms": 36027
+    },
+    {
+      "w": "and",
+      "start_ms": 36111,
+      "end_ms": 36861
+    },
+    {
+      "w": "add",
+      "start_ms": 36944,
+      "end_ms": 37694
+    },
+    {
+      "w": "shade.",
+      "start_ms": 37777,
+      "end_ms": 38527
+    },
+    {
+      "w": "Micro‑habit:",
+      "start_ms": 38888,
+      "end_ms": 39554
+    },
+    {
+      "w": "ten",
+      "start_ms": 39628,
+      "end_ms": 40294
+    },
+    {
+      "w": "minutes",
+      "start_ms": 40368,
+      "end_ms": 41034
+    },
+    {
+      "w": "before",
+      "start_ms": 41108,
+      "end_ms": 41774
+    },
+    {
+      "w": "10",
+      "start_ms": 41848,
+      "end_ms": 42514
+    },
+    {
+      "w": "a.m.,",
+      "start_ms": 42588,
+      "end_ms": 43254
+    },
+    {
+      "w": "without",
+      "start_ms": 43328,
+      "end_ms": 43994
+    },
+    {
+      "w": "sunglasses",
+      "start_ms": 44068,
+      "end_ms": 44734
+    },
+    {
+      "w": "if",
+      "start_ms": 44808,
+      "end_ms": 45474
+    },
+    {
+      "w": "comfortable",
+      "start_ms": 45548,
+      "end_ms": 46214
+    },
+    {
+      "w": "and",
+      "start_ms": 46288,
+      "end_ms": 46954
+    },
+    {
+      "w": "safe.",
+      "start_ms": 47028,
+      "end_ms": 47694
+    }
+  ]
+}

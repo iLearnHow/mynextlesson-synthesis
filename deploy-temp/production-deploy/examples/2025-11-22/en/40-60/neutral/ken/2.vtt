@@ -1,0 +1,8 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:07.000
+A hash turns any input into a short fingerprint. Small input changes produce totally different hashes.
+
+00:00:07.000 --> 00:00:14.000
+Good hashes are one-way, fast to compute, and wildly sensitive to change—called the avalanche effect.
+

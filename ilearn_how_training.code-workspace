@@ -1,0 +1,46 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../august13/docs"
+		},
+		{
+			"path": "../august13/examples"
+		},
+		{
+			"path": "../august13/node_modules"
+		},
+		{
+			"path": "../august13/openapi"
+		},
+		{
+			"path": "../august13/prd"
+		},
+		{
+			"path": "../august13/schemas"
+		},
+		{
+			"path": "../august13/testdata"
+		},
+		{
+			"path": "../august13/tools"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/august11"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/tts_training 2"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/tts_training 2 2"
+		},
+		{
+			"path": "../Downloads/my-next-lesson/tts_training 3"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "ilearn_how"
+	}
+}

@@ -1,0 +1,159 @@
+{
+  "words": [
+    {
+      "w": "A",
+      "start_ms": 0,
+      "end_ms": 62
+    },
+    {
+      "w": "hash",
+      "start_ms": 62,
+      "end_ms": 371
+    },
+    {
+      "w": "turns",
+      "start_ms": 371,
+      "end_ms": 762
+    },
+    {
+      "w": "any",
+      "start_ms": 762,
+      "end_ms": 989
+    },
+    {
+      "w": "input",
+      "start_ms": 989,
+      "end_ms": 1380
+    },
+    {
+      "w": "into",
+      "start_ms": 1380,
+      "end_ms": 1689
+    },
+    {
+      "w": "a",
+      "start_ms": 1689,
+      "end_ms": 1751
+    },
+    {
+      "w": "short",
+      "start_ms": 1751,
+      "end_ms": 2142
+    },
+    {
+      "w": "fingerprint.",
+      "start_ms": 2142,
+      "end_ms": 3027
+    },
+    {
+      "w": "Small",
+      "start_ms": 3027,
+      "end_ms": 3418
+    },
+    {
+      "w": "input",
+      "start_ms": 3418,
+      "end_ms": 3809
+    },
+    {
+      "w": "changes",
+      "start_ms": 3809,
+      "end_ms": 4365
+    },
+    {
+      "w": "produce",
+      "start_ms": 4365,
+      "end_ms": 4921
+    },
+    {
+      "w": "totally",
+      "start_ms": 4921,
+      "end_ms": 5477
+    },
+    {
+      "w": "different",
+      "start_ms": 5477,
+      "end_ms": 6198
+    },
+    {
+      "w": "hashes.",
+      "start_ms": 6198,
+      "end_ms": 6672
+    },
+    {
+      "w": "Good",
+      "start_ms": 7220,
+      "end_ms": 7541
+    },
+    {
+      "w": "hashes",
+      "start_ms": 7541,
+      "end_ms": 8033
+    },
+    {
+      "w": "are",
+      "start_ms": 8033,
+      "end_ms": 8269
+    },
+    {
+      "w": "one-way,",
+      "start_ms": 8269,
+      "end_ms": 8761
+    },
+    {
+      "w": "fast",
+      "start_ms": 8761,
+      "end_ms": 9082
+    },
+    {
+      "w": "to",
+      "start_ms": 9082,
+      "end_ms": 9232
+    },
+    {
+      "w": "compute,",
+      "start_ms": 9232,
+      "end_ms": 9809
+    },
+    {
+      "w": "and",
+      "start_ms": 9809,
+      "end_ms": 10045
+    },
+    {
+      "w": "wildly",
+      "start_ms": 10045,
+      "end_ms": 10537
+    },
+    {
+      "w": "sensitive",
+      "start_ms": 10537,
+      "end_ms": 11285
+    },
+    {
+      "w": "to",
+      "start_ms": 11285,
+      "end_ms": 11435
+    },
+    {
+      "w": "change—called",
+      "start_ms": 11435,
+      "end_ms": 12439
+    },
+    {
+      "w": "the",
+      "start_ms": 12439,
+      "end_ms": 12675
+    },
+    {
+      "w": "avalanche",
+      "start_ms": 12675,
+      "end_ms": 13423
+    },
+    {
+      "w": "effect.",
+      "start_ms": 13423,
+      "end_ms": 13915
+    }
+  ]
+}

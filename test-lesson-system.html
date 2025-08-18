@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn How - System Test</title>
+    
+    <!-- Load all required JavaScript files -->
+    <script src="/homegrown-tts-system.js?v=20250815a"></script>
+    <script src="/dna-file-loader.js?v=20250811a"></script>
+    <script src="/complete-curriculum.js?v=20250811a"></script>
+    <script src="/corrected-variant-generator-v2.js?v=20250811a"></script>
+    <script src="/complete-lesson-player.js?v=20250811a"></script>
+    <script src="/unified-player-controls.js?v=20250815a"></script>
+    <script src="/lesson-integration-fix.js"></script>
+    
+    <style>
+        /* Add basic styling for DOM elements that need to exist */
+        .avatar-background { display: none; }
+        #lesson-content-overlay { display: none; }
+        #slide-dots { display: none; }
+    </style>
+</head>
+<body>
+    <h1>iLearn How System Test</h1>
+    <p>Testing the lesson integration...</p>
+    
+    <div id="test-results"></div>
+    
+    <!-- Hidden DOM elements that need to exist for tests -->
+    <div class="avatar-background"></div>
+    <div id="lesson-content-overlay"></div>
+    <div id="slide-dots"></div>
+    
+    <script>
+        // Test that all required systems are loaded
+        const results = document.getElementById('test-results');
+        
+        function addResult(test, passed) {
+            const div = document.createElement('div');
+            div.style.color = passed ? 'green' : 'red';
+            div.textContent = `${passed ? '✅' : '❌'} ${test}`;
+            results.appendChild(div);
+        }
+        
+        // Wait for everything to load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Add console error handler
+            window.addEventListener('error', (e) => {
+                console.error('Script loading error:', e);
+                const errorDiv = document.createElement('div');
+                errorDiv.style.color = 'orange';
+                errorDiv.textContent = `⚠️ Loading error: ${e.message}`;
+                results.appendChild(errorDiv);
+            });
+            
+            setTimeout(() => {
+                // Test 1: Check if lesson fix is loaded
+                addResult('Lesson Integration Fix loaded', typeof window.lessonFix !== 'undefined');
+                
+                // Test 2: Check if curriculum is loaded
+                addResult('Curriculum system loaded', typeof window.COMPLETE_CURRICULUM !== 'undefined');
+                
+                // Test 3: Check if lesson player exists
+                addResult('Lesson player loaded', typeof window.UniversalLessonPlayer !== 'undefined');
+                
+                // Test 4: Check if variant generator exists
+                addResult('Variant generator loaded', typeof window.CorrectedVariantGeneratorV2 !== 'undefined');
+                
+                // Test 5: Check if manifest content exists
+                addResult('Available variants found', window.lessonFix && window.lessonFix.availableVariants.length > 0);
+                
+                // Test 6: Check DOM elements
+                addResult('Lesson content overlay exists', document.getElementById('lesson-content-overlay') !== null);
+                addResult('Avatar background exists', document.querySelector('.avatar-background') !== null);
+                addResult('Slide dots exist', document.getElementById('slide-dots') !== null);
+                
+                // Summary
+                const summary = document.createElement('h2');
+                summary.textContent = 'Summary';
+                results.appendChild(summary);
+                
+                if (window.lessonFix && window.lessonFix.availableVariants.length > 0) {
+                    const info = document.createElement('div');
+                    info.style.cssText = 'margin-top: 20px; padding: 20px; background: #f0f9ff; border-radius: 10px;';
+                    
+                    const lessons = [...new Set(window.lessonFix.availableVariants.map(v => v.topic))];
+                    
+                    info.innerHTML = `
+                        <h3 style="color: #0066cc; margin-top: 0;">✅ System is working perfectly!</h3>
+                        <p><strong>Found ${window.lessonFix.availableVariants.length} variants across ${lessons.length} lessons:</strong></p>
+                        <ul style="margin: 10px 0;">
+                            ${lessons.map(topic => `<li>${topic}</li>`).join('')}
+                        </ul>
+                        <p style="color: #666; font-size: 14px;">Each lesson has Kelly and Ken avatars with appropriate tone variants.</p>
+                        <div style="margin-top: 20px;">
+                            <a href="/" style="
+                                display: inline-block;
+                                padding: 12px 24px;
+                                background: #007AFF;
+                                color: white;
+                                text-decoration: none;
+                                border-radius: 8px;
+                                font-size: 16px;
+                                font-weight: 600;
+                            ">Open Lesson System →</a>
+                        </div>
+                    `;
+                    results.appendChild(info);
+                } else {
+                    const error = document.createElement('p');
+                    error.style.color = 'red';
+                    error.textContent = '❌ System not fully loaded. Check console for errors.';
+                    results.appendChild(error);
+                }
+            }, 2000); // Increased timeout to 2 seconds
+        });
+    </script>
+</body>
+</html>

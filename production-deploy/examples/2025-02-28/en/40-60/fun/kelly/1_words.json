@@ -1,0 +1,189 @@
+{
+  "words": [
+    {
+      "w": "Question",
+      "start_ms": 0,
+      "end_ms": 622
+    },
+    {
+      "w": "one:",
+      "start_ms": 622,
+      "end_ms": 855
+    },
+    {
+      "w": "Which",
+      "start_ms": 855,
+      "end_ms": 1244
+    },
+    {
+      "w": "vitamin",
+      "start_ms": 1244,
+      "end_ms": 1789
+    },
+    {
+      "w": "does",
+      "start_ms": 1789,
+      "end_ms": 2100
+    },
+    {
+      "w": "sunlight",
+      "start_ms": 2100,
+      "end_ms": 2722
+    },
+    {
+      "w": "help",
+      "start_ms": 2722,
+      "end_ms": 3033
+    },
+    {
+      "w": "your",
+      "start_ms": 3033,
+      "end_ms": 3344
+    },
+    {
+      "w": "body",
+      "start_ms": 3344,
+      "end_ms": 3655
+    },
+    {
+      "w": "make",
+      "start_ms": 3655,
+      "end_ms": 3966
+    },
+    {
+      "w": "most",
+      "start_ms": 3966,
+      "end_ms": 4277
+    },
+    {
+      "w": "directly?",
+      "start_ms": 4277,
+      "end_ms": 4899
+    },
+    {
+      "w": "As",
+      "start_ms": 5182,
+      "end_ms": 5335
+    },
+    {
+      "w": "you",
+      "start_ms": 5335,
+      "end_ms": 5564
+    },
+    {
+      "w": "consider",
+      "start_ms": 5564,
+      "end_ms": 6177
+    },
+    {
+      "w": "it,",
+      "start_ms": 6177,
+      "end_ms": 6330
+    },
+    {
+      "w": "think",
+      "start_ms": 6330,
+      "end_ms": 6713
+    },
+    {
+      "w": "about",
+      "start_ms": 6713,
+      "end_ms": 7096
+    },
+    {
+      "w": "bone",
+      "start_ms": 7096,
+      "end_ms": 7402
+    },
+    {
+      "w": "strength",
+      "start_ms": 7402,
+      "end_ms": 8015
+    },
+    {
+      "w": "and",
+      "start_ms": 8015,
+      "end_ms": 8244
+    },
+    {
+      "w": "immune",
+      "start_ms": 8244,
+      "end_ms": 8703
+    },
+    {
+      "w": "balance.",
+      "start_ms": 8703,
+      "end_ms": 9239
+    },
+    {
+      "w": "Coaching:",
+      "start_ms": 9522,
+      "end_ms": 10224
+    },
+    {
+      "w": "sunlight",
+      "start_ms": 10224,
+      "end_ms": 10926
+    },
+    {
+      "w": "triggers",
+      "start_ms": 10926,
+      "end_ms": 11628
+    },
+    {
+      "w": "vitamin",
+      "start_ms": 11628,
+      "end_ms": 12242
+    },
+    {
+      "w": "D",
+      "start_ms": 12242,
+      "end_ms": 12329
+    },
+    {
+      "w": "in",
+      "start_ms": 12329,
+      "end_ms": 12504
+    },
+    {
+      "w": "skin.",
+      "start_ms": 12504,
+      "end_ms": 12855
+    },
+    {
+      "w": "Food",
+      "start_ms": 13136,
+      "end_ms": 13494
+    },
+    {
+      "w": "provides",
+      "start_ms": 13494,
+      "end_ms": 14210
+    },
+    {
+      "w": "vitamin",
+      "start_ms": 14210,
+      "end_ms": 14836
+    },
+    {
+      "w": "C;",
+      "start_ms": 14836,
+      "end_ms": 14925
+    },
+    {
+      "w": "daylight",
+      "start_ms": 14925,
+      "end_ms": 15641
+    },
+    {
+      "w": "does",
+      "start_ms": 15641,
+      "end_ms": 15999
+    },
+    {
+      "w": "not.",
+      "start_ms": 15999,
+      "end_ms": 16267
+    }
+  ]
+}

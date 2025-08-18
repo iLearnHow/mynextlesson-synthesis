@@ -1,0 +1,14 @@
+
+<!-- Performance Optimization -->
+<link rel="preconnect" href="https://api.anthropic.com">
+<link rel="preconnect" href="https://api.elevenlabs.io">
+<link rel="dns-prefetch" href="https://static.cloudflareinsights.com">
+
+<!-- Service Worker for caching -->
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(registration => console.log('SW registered'))
+        .catch(error => console.log('SW registration failed'));
+}
+</script>

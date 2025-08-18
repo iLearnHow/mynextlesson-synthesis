@@ -1,0 +1,11 @@
+{
+  "name": "viseme-pack-tools",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.637.0",
+    "mime": "^4.0.4"
+  }
+}
+
+

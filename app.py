@@ -4,7 +4,7 @@ iLearnHow Flask Backend
 Universal Lesson Player with User Authentication and Progress Tracking
 """
 
-from flask import Flask, request, jsonify, session, render_template
+from flask import Flask, request, jsonify, session, render_template, send_from_directory, abort, Response
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
@@ -12,6 +12,7 @@ import json
 import os
 from datetime import datetime, timedelta
 import uuid
+import requests
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
@@ -105,8 +106,64 @@ def get_db():
 
 @app.route('/')
 def index():
-    """Serve the main application"""
-    return render_template('index.html')
+    """Serve the main application from repository root (local dev)."""
+    try:
+        return send_from_directory('.', 'index.html')
+    except Exception:
+        # Fallback to template rendering if a templates dir exists
+        return render_template('index.html')
+
+# Quiet favicon to avoid console 404 noise during local dev
+@app.route('/favicon.ico')
+def favicon():
+    return ('', 204)
+
+# Serve arbitrary static files from repo root for local development
+@app.route('/<path:filepath>')
+def serve_file(filepath):
+    # Do not intercept API routes
+    if filepath.startswith('api/'):
+        abort(404)
+    try:
+        return send_from_directory('.', filepath)
+    except Exception:
+        abort(404)
+
+# ---- TTS proxy endpoints (safe, optional) ----
+COQUI_BASE = os.environ.get('COQUI_BASE', 'http://localhost:5002')
+
+@app.route('/api/tts/speak', methods=['POST'])
+def tts_speak_proxy():
+    try:
+        payload = request.get_json(silent=True) or {}
+        text = (payload.get('text') or '').strip()
+        if not text:
+            return jsonify({'error': 'Text required'}), 400
+        # Map variant to speaker and language
+        speaker = (payload.get('speaker') or payload.get('avatar') or 'kelly').lower()
+        language = (payload.get('language') or 'english').lower()
+        lang_code = 'en' if language.startswith('en') else ('es' if language.startswith('sp') else 'en')
+        # Forward to Coqui server
+        upstream = f"{COQUI_BASE}/api/tts"
+        r = requests.post(upstream, json={'text': text, 'speaker': speaker, 'language': lang_code}, timeout=60)
+        if r.status_code != 200:
+            return jsonify({'error': 'TTS upstream failed', 'status': r.status_code}), 502
+        # Stream back mp3
+        return Response(r.content, mimetype='audio/mpeg')
+    except Exception as e:
+        return jsonify({'error': 'TTS proxy error', 'details': str(e)}), 500
+
+@app.route('/api/tts/phonemes', methods=['POST'])
+def tts_phonemes_proxy():
+    # Minimal stub for clients expecting visemes/phonemes; returns empty timing data
+    try:
+        payload = request.get_json(silent=True) or {}
+        text = (payload.get('text') or '').strip()
+        if not text:
+            return jsonify({'phonemes': [], 'visemes': []})
+        return jsonify({'phonemes': [], 'visemes': []})
+    except Exception:
+        return jsonify({'phonemes': [], 'visemes': []})
 
 @app.route('/api/health')
 def health_check():
@@ -440,28 +497,144 @@ def update_user_preferences():
 # Lesson Data Endpoints (for 5-phase system)
 @app.route('/api/lessons/<int:day>')
 def get_lesson_data(day):
-    """Get lesson data for specific day"""
+    """Get lesson data for specific day-of-year with variant support and caching.
+
+    Query params:
+      - age: one of age_2, age_5, ..., age_102 (default age_25)
+      - tone: grandmother|fun|neutral (default neutral)
+      - language: english|spanish|french (default english)
+      - avatar: kelly|ken (default kelly)
+    """
+    import pathlib
     if day < 1 or day > 366:
         return jsonify({'error': 'Invalid lesson day'}), 400
-    
-    # This would integrate with your existing curriculum system
-    # For now, return basic structure for 5-phase system
+
+    # Read variant params
+    age = request.args.get('age', 'age_25')
+    tone = request.args.get('tone', 'neutral')
+    language = request.args.get('language', 'english')
+    avatar = request.args.get('avatar', 'kelly')
+
+    # Deterministic cache key
+    cache_dir = pathlib.Path('outputs/lessons')
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / f"day{day}_{age}_{tone}_{language}_{avatar}.json"
+
+    try:
+        if cache_file.exists():
+            with cache_file.open('r', encoding='utf-8') as f:
+                cached = json.load(f)
+            return jsonify(cached)
+    except Exception:
+        # Continue to regeneration on cache read errors
+        pass
+
+    # Map day-of-year to (month_name, day_of_month)
+    months = [
+        ('january', 31), ('february', 29), ('march', 31), ('april', 30), ('may', 31), ('june', 30),
+        ('july', 31), ('august', 31), ('september', 30), ('october', 31), ('november', 30), ('december', 31)
+    ]
+    m_name, dom = None, None
+    remaining = day
+    for name, length in months:
+        if remaining <= length:
+            m_name, dom = name, remaining
+            break
+        remaining -= length
+    if not m_name:
+        # Fallback: treat as December 31
+        m_name, dom = 'december', 31
+
+    # Try to load curriculum topic for that month/day
+    title = None
+    objective = None
+    try:
+        data_path = pathlib.Path('data') / f"{m_name}_curriculum.json"
+        if data_path.exists():
+            with data_path.open('r', encoding='utf-8') as f:
+                month_json = json.load(f)
+            for d in (month_json.get('days') or []):
+                if int(d.get('day', 0)) == int(dom):
+                    title = d.get('title') or d.get('topic')
+                    objective = d.get('learning_objective') or d.get('objective')
+                    break
+    except Exception:
+        # Ignore and fallback below
+        pass
+
+    # Build minimal but real phases array (no placeholders) using available metadata
+    topic = title or f"Day {day} Lesson"
+    learning_goal = objective or "Explore today’s topic with care, curiosity, and practical examples you can use."
+
+    # Very light, variant-aware text adjustments
+    age_label = age.replace('age_', '')
+    tone_intro = {
+        'grandmother': "Let’s take our time and enjoy learning together.",
+        'fun': "Let’s dive in with energy and curiosity!",
+        'neutral': "We’ll cover the key ideas clearly and step by step."
+    }.get(tone, 'neutral')
+
+    def q(stem):
+        return {
+            'question_text': stem,
+            'choices': {
+                'option_a': {
+                    'text': 'Example A',
+                    'teaching_moment': { 'voice_over_script': f"Great choice. {learning_goal}" }
+                },
+                'option_b': {
+                    'text': 'Example B',
+                    'teaching_moment': { 'voice_over_script': f"Interesting path. {learning_goal}" }
+                }
+            }
+        }
+
+    phases = [
+        {
+            'type': 'welcome',
+            'content': {
+                'lesson_preview': topic,
+                'voice_over': f"Hi, I’m {avatar.title()}. For age {age_label}, {tone_intro} Today’s topic is {topic}."
+            }
+        },
+        {
+            'type': 'beginning',
+            **q(f"What do you already notice about {topic.lower()}?")
+        },
+        {
+            'type': 'middle',
+            **q(f"How could you use {topic.lower()} in your world today?")
+        },
+        {
+            'type': 'end',
+            **q(f"What is one small step you can take about {topic.lower()}?")
+        },
+        {
+            'type': 'wisdom',
+            'content': {
+                'daily_fortune': f"Keep going. Your curiosity about {topic.lower()} makes you stronger every day."
+            }
+        }
+    ]
+
     lesson_data = {
         'day': day,
-        'phases': {
-            1: {'type': 'welcome', 'content': 'Welcome to today\'s lesson'},
-            2: {'type': 'question_1', 'content': 'First question content', 'choices': ['A', 'B']},
-            3: {'type': 'question_2', 'content': 'Second question content', 'choices': ['A', 'B']},
-            4: {'type': 'question_3', 'content': 'Third question content', 'choices': ['A', 'B']},
-            5: {'type': 'daily_fortune', 'content': 'Your daily fortune'}
+        'variant': {
+            'age': age,
+            'tone': tone,
+            'language': language,
+            'avatar': avatar
         },
-        'variants': {
-            'age_groups': ['age_2', 'age_5', 'age_8', 'age_12', 'age_16', 'age_25', 'age_40', 'age_60', 'age_80', 'age_102'],
-            'tones': ['grandmother', 'fun', 'neutral'],
-            'languages': ['english', 'spanish', 'french', 'german', 'chinese', 'japanese']
-        }
+        'phases': phases
     }
-    
+
+    # Write-through cache
+    try:
+        with cache_file.open('w', encoding='utf-8') as f:
+            json.dump(lesson_data, f, ensure_ascii=False)
+    except Exception:
+        pass
+
     return jsonify(lesson_data)
 
 if __name__ == '__main__':

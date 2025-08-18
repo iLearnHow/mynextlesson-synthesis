@@ -1,0 +1,44 @@
+{
+  "model": {
+    "name": "xtts_v2",
+    "freeze_acoustic": true,
+    "mixed_precision": true,
+    "ema": true,
+    "n_mel_channels": 80,
+    "sampling_rate": 24000,
+    "mel_fmin": 0.0,
+    "mel_fmax": 11025
+  },
+  "training": {
+    "train_steps": 25000,
+    "batch_size": 24,
+    "learning_rate": 1e-4,
+    "weight_decay": 1e-4,
+    "grad_clip": 1.0,
+    "eval_interval": 500,
+    "save_interval": 2000,
+    "seed": 1337
+  },
+  "data": {
+    "type": "single_speaker",
+    "speaker_id": "ken",
+    "audio_dir": "/Users/nicolette/tts_dataset_clean/ken/clips",
+    "transcripts": "/Users/nicolette/tts_dataset_clean/ken/transcripts.tsv",
+    "text_column": "transcript",
+    "file_column": "file",
+    "min_duration": 1.2,
+    "max_duration": 14.0,
+    "sample_rate": 24000,
+    "lowpass_hz": 12000,
+    "highpass_hz": 80
+  },
+  "augment": {
+    "speed_perturb": [0.98, 1.0, 1.02],
+    "gain_db": [-1.0, 0.0, 1.0],
+    "noise_snr_db": []
+  },
+  "checkpoint": {
+    "restore_path": "/workspace/checkpoints/xtts_v2_base.pth",
+    "output_path": "/workspace/out_ken"
+  }
+}

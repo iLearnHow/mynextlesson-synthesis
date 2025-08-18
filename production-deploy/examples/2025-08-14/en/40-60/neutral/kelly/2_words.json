@@ -1,0 +1,99 @@
+{
+  "words": [
+    {
+      "w": "Choose",
+      "start_ms": 0,
+      "end_ms": 730
+    },
+    {
+      "w": "the",
+      "start_ms": 730,
+      "end_ms": 1085
+    },
+    {
+      "w": "pace",
+      "start_ms": 1085,
+      "end_ms": 1565
+    },
+    {
+      "w": "that",
+      "start_ms": 1565,
+      "end_ms": 2045
+    },
+    {
+      "w": "matches",
+      "start_ms": 2045,
+      "end_ms": 2900
+    },
+    {
+      "w": "your",
+      "start_ms": 2900,
+      "end_ms": 3380
+    },
+    {
+      "w": "day.",
+      "start_ms": 3380,
+      "end_ms": 3735
+    },
+    {
+      "w": "You",
+      "start_ms": 3735,
+      "end_ms": 4090
+    },
+    {
+      "w": "can",
+      "start_ms": 4090,
+      "end_ms": 4445
+    },
+    {
+      "w": "change",
+      "start_ms": 4445,
+      "end_ms": 5175
+    },
+    {
+      "w": "it",
+      "start_ms": 5175,
+      "end_ms": 5405
+    },
+    {
+      "w": "anytime.",
+      "start_ms": 5405,
+      "end_ms": 6260
+    },
+    {
+      "w": "Also",
+      "start_ms": 6750,
+      "end_ms": 7281
+    },
+    {
+      "w": "choose",
+      "start_ms": 7281,
+      "end_ms": 8088
+    },
+    {
+      "w": "how",
+      "start_ms": 8088,
+      "end_ms": 8481
+    },
+    {
+      "w": "your",
+      "start_ms": 8481,
+      "end_ms": 9012
+    },
+    {
+      "w": "body",
+      "start_ms": 9012,
+      "end_ms": 9543
+    },
+    {
+      "w": "sits",
+      "start_ms": 9543,
+      "end_ms": 10074
+    },
+    {
+      "w": "best.",
+      "start_ms": 10074,
+      "end_ms": 10605
+    }
+  ]
+}

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Sync Test - Real-time Lip Sync</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        /* Avatar display */
+        #avatar-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: background-image 0.05s ease;
+        }
+        
+        #avatar-background.kelly {
+            background-image: url('/production-deploy/assets/avatars/kelly/kelly_neutral_default.png');
+        }
+        
+        #avatar-background.ken {
+            background-image: url('/production-deploy/assets/avatars/ken/ken_neutral_default.png');
+        }
+        
+        #avatar-background.speaking {
+            filter: brightness(1.1);
+        }
+        
+        /* Control panel */
+        .control-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .avatar-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .avatar-btn {
+            padding: 10px 20px;
+            border: 2px solid #444;
+            background: #222;
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .avatar-btn.active {
+            background: #007AFF;
+            border-color: #007AFF;
+        }
+        
+        .avatar-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #444;
+            background: #111;
+            color: #fff;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        button.primary {
+            background: #007AFF;
+            color: white;
+        }
+        
+        button.primary:hover {
+            background: #0051D5;
+            transform: scale(1.05);
+        }
+        
+        button.secondary {
+            background: #444;
+            color: white;
+        }
+        
+        button.secondary:hover {
+            background: #555;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .status {
+            background: #111;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .status-line {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        .status-line.success {
+            background: rgba(0, 255, 0, 0.1);
+            color: #0f0;
+        }
+        
+        .status-line.error {
+            background: rgba(255, 0, 0, 0.1);
+            color: #f00;
+        }
+        
+        .status-line.info {
+            color: #888;
+        }
+        
+        .viseme-monitor {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            font-family: monospace;
+            min-width: 200px;
+        }
+        
+        .current-viseme {
+            font-size: 48px;
+            text-align: center;
+            margin: 10px 0;
+            color: #007AFF;
+        }
+        
+        .timeline-viz {
+            height: 40px;
+            background: #111;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .timeline-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 2px;
+            background: #007AFF;
+            transition: left 0.1s linear;
+        }
+        
+        .shortcuts {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        .shortcuts h3 {
+            margin-bottom: 10px;
+            color: #007AFF;
+        }
+        
+        .shortcuts kbd {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="avatar-background" class="kelly"></div>
+    
+    <div class="shortcuts">
+        <h3>⌨️ Shortcuts</h3>
+        <div><kbd>Space</kbd> Play/Pause</div>
+        <div><kbd>K</kbd> Test Ken</div>
+        <div><kbd>L</kbd> Test Kelly</div>
+        <div><kbd>1-5</kbd> Test phrases</div>
+        <div><kbd>R</kbd> Reload frames</div>
+    </div>
+    
+    <div class="viseme-monitor">
+        <h3>Current Viseme</h3>
+        <div class="current-viseme" id="current-viseme">REST</div>
+        <div>Time: <span id="playback-time">0.0s</span></div>
+        <div class="timeline-viz">
+            <div class="timeline-progress" id="timeline-progress"></div>
+        </div>
+    </div>
+    
+    <div class="control-panel">
+        <h1>🎭 Avatar Lip Sync Test</h1>
+        
+        <div class="avatar-selector">
+            <button class="avatar-btn active" onclick="selectAvatar('kelly')">👩 Kelly</button>
+            <button class="avatar-btn" onclick="selectAvatar('ken')">👨 Ken</button>
+        </div>
+        
+        <textarea id="test-text" rows="3" placeholder="Enter text to speak...">Welcome to iLearn How! Watch as my mouth movements synchronize perfectly with my voice.</textarea>
+        
+        <div class="button-group">
+            <button class="primary" onclick="playText()" id="play-btn">▶️ Play</button>
+            <button class="secondary" onclick="stopPlayback()">⏹️ Stop</button>
+            <button class="secondary" onclick="pausePlayback()" id="pause-btn">⏸️ Pause</button>
+        </div>
+        
+        <div class="button-group">
+            <button class="secondary" onclick="testPhrase(1)">📚 Lesson Start</button>
+            <button class="secondary" onclick="testPhrase(2)">❓ Question</button>
+            <button class="secondary" onclick="testPhrase(3)">💡 Teaching</button>
+            <button class="secondary" onclick="testPhrase(4)">🎉 Celebration</button>
+            <button class="secondary" onclick="testPhrase(5)">👋 Goodbye</button>
+        </div>
+        
+        <div class="status" id="status">
+            <div class="status-line info">Ready to test avatar synchronization...</div>
+        </div>
+    </div>
+    
+    <audio id="tts-audio" style="display: none;"></audio>
+    
+    <!-- Load required scripts -->
+    <script src="/unified-tts-handler.js"></script>
+    <script src="/avatar-sync-player.js"></script>
+    
+    <script>
+        let currentAvatar = 'kelly';
+        let updateInterval;
+        
+        // Test phrases
+        const testPhrases = {
+            1: "Welcome to today's lesson! I'm excited to explore this topic with you.",
+            2: "Here's an interesting question: What makes the sky appear blue?",
+            3: "Let me explain this concept. When light from the sun enters our atmosphere, it collides with gas molecules.",
+            4: "Excellent work! You've really mastered this concept. I'm so proud of your progress!",
+            5: "Thanks for learning with me today. Remember, curiosity is the key to discovery. See you next time!"
+        };
+        
+        function addStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            const line = document.createElement('div');
+            line.className = `status-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            status.appendChild(line);
+            status.scrollTop = status.scrollHeight;
+        }
+        
+        function selectAvatar(avatar) {
+            currentAvatar = avatar;
+            document.querySelectorAll('.avatar-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update avatar background
+            const bg = document.getElementById('avatar-background');
+            bg.className = avatar;
+            
+            addStatus(`Selected ${avatar} avatar`, 'success');
+        }
+        
+        async function playText() {
+            const text = document.getElementById('test-text').value.trim();
+            if (!text) {
+                addStatus('Please enter some text', 'error');
+                return;
+            }
+            
+            try {
+                document.getElementById('play-btn').disabled = true;
+                addStatus(`Playing with ${currentAvatar}: "${text.substring(0, 50)}..."`, 'info');
+                
+                // Enable avatar sync mode
+                window.lessonPlayer = window.lessonPlayer || {};
+                window.lessonPlayer.fullFrameVisemesEnabled = true;
+                
+                // Play with avatar sync
+                await window.avatarSyncPlayer.play(text, currentAvatar);
+                
+                // Start monitoring
+                startMonitoring();
+                
+                addStatus('Playback started with lip sync', 'success');
+            } catch (error) {
+                addStatus(`Error: ${error.message}`, 'error');
+                console.error(error);
+            } finally {
+                document.getElementById('play-btn').disabled = false;
+            }
+        }
+        
+        function startMonitoring() {
+            stopMonitoring();
+            
+            updateInterval = setInterval(() => {
+                const player = window.avatarSyncPlayer;
+                if (!player || !player.isPlaying) {
+                    stopMonitoring();
+                    return;
+                }
+                
+                // Update current viseme
+                const currentTime = player.currentTime;
+                const { viseme } = player.getCurrentViseme(currentTime);
+                document.getElementById('current-viseme').textContent = viseme;
+                
+                // Update time
+                document.getElementById('playback-time').textContent = currentTime.toFixed(1) + 's';
+                
+                // Update progress bar
+                const progress = (currentTime / player.duration) * 100;
+                document.getElementById('timeline-progress').style.left = progress + '%';
+            }, 50);
+        }
+        
+        function stopMonitoring() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+                updateInterval = null;
+            }
+            document.getElementById('current-viseme').textContent = 'REST';
+            document.getElementById('playback-time').textContent = '0.0s';
+            document.getElementById('timeline-progress').style.left = '0%';
+        }
+        
+        function stopPlayback() {
+            window.avatarSyncPlayer.stop();
+            stopMonitoring();
+            addStatus('Playback stopped', 'info');
+        }
+        
+        function pausePlayback() {
+            const player = window.avatarSyncPlayer;
+            if (player.isPaused) {
+                player.resume();
+                startMonitoring();
+                addStatus('Playback resumed', 'info');
+                document.getElementById('pause-btn').textContent = '⏸️ Pause';
+            } else {
+                player.pause();
+                stopMonitoring();
+                addStatus('Playback paused', 'info');
+                document.getElementById('pause-btn').textContent = '▶️ Resume';
+            }
+        }
+        
+        function testPhrase(num) {
+            const phrase = testPhrases[num];
+            if (phrase) {
+                document.getElementById('test-text').value = phrase;
+                playText();
+            }
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', async (e) => {
+            if (e.target.tagName === 'TEXTAREA') return;
+            
+            switch(e.key.toLowerCase()) {
+                case ' ':
+                    e.preventDefault();
+                    if (window.avatarSyncPlayer.isPlaying) {
+                        pausePlayback();
+                    } else {
+                        playText();
+                    }
+                    break;
+                case 'k':
+                    selectAvatar('ken');
+                    break;
+                case 'l':
+                    selectAvatar('kelly');
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                    testPhrase(parseInt(e.key));
+                    break;
+                case 'r':
+                    addStatus('Reloading viseme frames...', 'info');
+                    window.avatarSyncPlayer.visemeFrames.clear();
+                    await window.avatarSyncPlayer.preloadVisemeFrames(currentAvatar);
+                    addStatus('Frames reloaded', 'success');
+                    break;
+            }
+        });
+        
+        // Initialize
+        window.addEventListener('load', async () => {
+            addStatus('Initializing avatar sync system...', 'info');
+            
+            // Check TTS server
+            try {
+                const response = await fetch('http://localhost:5002/health');
+                const health = await response.json();
+                addStatus(`TTS server: ${health.engine} (phonemes: ${health.capabilities.phonemes})`, 'success');
+            } catch (error) {
+                addStatus('TTS server not responding - make sure it\'s running', 'error');
+            }
+            
+            // Check CDN
+            const testUrl = `${window.avatarSyncPlayer.cdnBase}/kelly/full/REST.png`;
+            try {
+                const img = new Image();
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = testUrl;
+                });
+                addStatus('CDN accessible', 'success');
+            } catch {
+                addStatus('CDN not accessible - upload viseme frames to R2', 'error');
+            }
+            
+            addStatus('Ready! Press Space or click Play to test', 'success');
+        });
+    </script>
+</body>
+</html>

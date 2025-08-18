@@ -173,3 +173,82 @@ Web Interface → Student Experience
 ---
 
 **Next Steps**: Begin Phase 1 implementation while PiperTTS training completes. Ken and Kelly's voices will be ready for integration by Phase 2.
+
+---
+
+## Living Checklist: Uncanny Valley Quality Gate (SadTalker + 3D Rig)
+
+This is the single source of truth for day-to-day production. Keep this section current. Quality > speed.
+
+### A. Non‑negotiables (ship gates)
+- Lip‑sync objective: SyncNet or equivalent score ≥ target; AV drift: ≤ 20 ms (muxed), ≤ 60 ms (dual element) P95
+- No frozen eyes > 2 s; blink rate 12–20/min; no mouth clipping/teeth smearing; no frame tearing
+- Segment length: 8–15 s per line; regenerate or re‑segment rather than pushing long clips
+- Human spot‑check required for all new “hero” scenes until automated metrics stabilize
+
+### B. SadTalker inference settings (hero lines)
+- Input
+  - source image: 768×768 PNG, frontal, neutral, eyes open, consistent lighting per avatar
+  - audio: WAV 44.1 kHz, mono, peak ≤ –1 dBFS, LUFS ≈ –16
+- Model/config (recommended)
+  - output size: 1280×720 (min 720p), fps: 30
+  - face crop: bbox; crop size: 512; align: enabled; still mode: enabled for stability
+  - expression scale: 0.9–1.1; pose scale: 0.3–0.5 (limit yaw/pitch extremes)
+  - enhancer: GFPGAN (strength 0.35) or CodeFormer (weight 0.5) — pick one; avoid over‑enhance
+  - eye re‑tracking: on (if available); mouth refine: on (if available)
+  - seed: fixed per avatar (e.g., Kelly: 221133, Ken: 994411) for identity consistency
+- Encoding
+  - H.264 High, CRF 18–20, keyint 60, AAC 160 kbps, faststart/mp4 fragment for low TTFP
+- CLI template (adjust to your runner)
+  - python inference.py \
+    --source_image /data/kelly_neutral_768.png \
+    --driven_audio /audio/kelly_line_abc.wav \
+    --result_dir /out/kelly/ \
+    --size 720 --fps 30 --crop_size 512 --enhancer gfpgan --enhance_weight 0.35 \
+    --expression_scale 1.0 --pose_scale 0.4 --still --seed 221133
+
+### C. Viseme system (3D real‑time rig) – thresholds and curves
+- Viseme set (12 morph targets in glTF): REST, MBP, FV, TH, DNTL, KG, S, WQ, R, A, E, I
+- Per‑viseme amplitude cap: 0.85
+- Sum‑of‑visemes normalization cap: 1.25 (scale down if exceeded)
+- Cross‑fade envelope: 60–100 ms attack/decay; avoid hard switches
+- Closures (MBP): enforce ≥ 70 ms at 0.7+ amplitude at word boundaries with /M B P/
+- Long vowels (A/E/I/O/U groups): sustain above 0.5 when phoneme spans > 120 ms
+- Blinks: 120–180 ms total, refractory ≥ 2.5 s; bias to sentence/phrase boundaries
+- Eyes: micro‑saccades every 3–7 s (5–12 deg yaw/pitch), occasional target shifts at commas/periods
+- Head: filtered low‑amp noise (≤ 3 deg), micro‑nods (< 5 deg) on stressed syllables
+- AV drift targets (runtime): ≤ 20 ms P50, ≤ 60 ms P95 versus audio currentTime
+
+### D. Player integration (unchanged UI)
+- After audio URL is set, kick a talking‑head job; poll; crossfade at sentence boundary when video is ready
+- Fallback always: if job fails or is slow, continue with 3D rig or static avatar; never block lesson flow
+- Caching key: avatarId + textHash + voiceId; prefetch next segment while current plays
+
+### E. QA automation
+- Metrics per line
+  - Lip‑sync score (SyncNet or equivalent) ≥ threshold
+  - Blink rate in range; saccade interval distribution in range
+  - Frame anomaly detector: flag mouth over‑open/teeth smear/clipping
+  - AV drift telemetry from player
+- Gates
+  - Fail any metric → auto‑retry (alt seed, softer enhancer) up to N attempts; then fallback to 3D rig or re‑author
+
+### F. Ops checklist
+- Job API: POST /talking-head/jobs → {id}; GET /talking-head/jobs/:id → {status, videoUrl}
+- Storage/CDN: versioned URLs; long TTL; lifecycle to purge superseded TTS variants
+- Observability: job P50/P95 latency, failure modes, per‑device playback errors, MOS panel results
+
+### G. Acceptance criteria by phase
+- Phase 1 (seam + baseline)
+  - 3D rig mounted in `#avatar-container`, 60/45 fps desktop/mobile
+  - SadTalker pipeline returns valid hero clips for 10 lines; crossfade works without UI changes
+- Phase 2 (quality)
+  - MOS ≥ 4.3/5 on 30 lines; SyncNet threshold met; zero blocking regressions
+- Phase 3 (scale)
+  - 99% successful generation for hero lines; mobile FPS targets met; CDN hit‑rate ≥ 90% on repeats
+
+### H. Quick runbook (triage)
+1) Lip‑sync off → verify audio sample rate (44.1 kHz), re‑extract phonemes, reduce enhancer strength, retry seed
+2) Teeth smear → lower enhancer strength (–0.1), reduce expression_scale (–0.1), re‑segment around plosives
+3) Frozen eyes → enable eye re‑tracking; increase saccade density; ensure source eyes not occluded
+4) Drift in dual playback → prefer muxed; else enable micro rate‑nudges (0.98–1.02) in player

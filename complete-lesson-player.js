@@ -24,12 +24,47 @@ class UniversalLessonPlayer {
         this.playbackSpeed = 1;
         this.volume = 0.5;
         this.autoplay = false;
+        // Talking-head video preference (SadTalker integration seam)
+        this.talkingHeadEnabled = true;
+        // Prefer using muxed video audio when available in high-quality mode
+        this.useVideoAudioPreferred = false;
+        // Cache for avatar+textHash -> videoUrl
+        this.talkingHeadCache = new Map();
+        // Live 3D avatar (viseme rig) preference
+        this.liveAvatarEnabled = false;
+        // Full-frame viseme mode swaps entire 16:9 background per viseme when assets exist
+        // Default ON (can be disabled via localStorage 'fullframe_visemes' = '0')
+        try {
+            const stored = localStorage.getItem('fullframe_visemes');
+            this.fullFrameVisemesEnabled = (stored === null) ? true : (stored === '1' || stored === 'true');
+        } catch { this.fullFrameVisemesEnabled = true; }
+        // Viseme mapping
+        this.VISEMES = ['REST','MBP','FV','TH','DNTL','KG','S','WQ','R','A','E','I'];
+        this.PHONEME_TO_VISEME = {
+            'SIL':'REST','SP':'REST','PAU':'REST',
+            'P':'MBP','B':'MBP','M':'MBP',
+            'F':'FV','V':'FV',
+            'TH':'TH','DH':'TH',
+            'T':'DNTL','D':'DNTL','N':'DNTL','L':'DNTL',
+            'K':'KG','G':'KG','NG':'KG',
+            'S':'S','Z':'S','SH':'S','ZH':'S','CH':'S','JH':'S',
+            'R':'R','ER':'R',
+            'W':'WQ','OW':'WQ','OY':'WQ','AW':'WQ','UH':'WQ','UW':'WQ',
+            'AA':'A','AE':'A','AH':'A','AO':'A',
+            'EH':'E','EY':'E','AY':'E',
+            'IH':'I','IY':'I','Y':'I',
+            'HH':'REST','UX':'WQ','AX':'A','AXR':'R'
+        };
         
         // Audio system
         this.audioElement = null;
         this.elevenLabs = null;
         // Pre-synthesized audio cache (text -> blob URL)
         this.preSynthCache = new Map();
+        // Finite State Machine minimal state
+        this._fsm = { state: 'idle' }; // idle | welcome | question | teaching_moment | wisdom | complete
+        // Choice gating controller for question phases
+        this._choiceGate = null; // { enabled:boolean, minDelayMs:number, audioThreshold:number, startTs:number }
         
         // Variant system
         this.currentVariant = {
@@ -136,7 +171,16 @@ class UniversalLessonPlayer {
         const feedback = document.querySelector('#lesson-content .choice-feedback');
         if (lessonContentOverlay) lessonContentOverlay.style.display = 'block';
         if (lessonContent) lessonContent.style.display = 'block';
-        if (lessonText) lessonText.innerHTML = '';
+        if (lessonText) {
+          const lips = [
+            'lipsum lorum glossa morum — elara niven torum. velar umbra seri lumen. lipsum lorum glossa morum — elara niven torum.',
+            'lorum ipsen varca miri — selan orum caden. glossa morum — elara niven torum. arcus verum nora.',
+            'morum elara niven torum — vox lumen terra. lipsum lorum glossa morum — elara niven torum.',
+            'the sun\'s light illuminates everything equally, a metaphor for… (placeholder) repeated for testing.',
+            'wisdom: carry brightness; share warmth. lipsum lorum glossa morum — elara niven torum.'
+          ];
+          lessonText.textContent = lips[this._slideIndex||0] || lips[0];
+        }
         if (feedback) { feedback.classList.add('hidden'); feedback.innerHTML = ''; }
         if (phaseLabelEl) {
             const labels = { welcome:'Welcome', beginning:'Beginning', middle:'Middle', end:'End', wisdom:'Wisdom' };
@@ -229,11 +273,15 @@ class UniversalLessonPlayer {
         this.setupAudioEvents();
         this.setVolume(this.volume);
         
-        // Initialize ElevenLabs integration
-        if (typeof ElevenLabsIntegration !== 'undefined') {
-            this.elevenLabs = new ElevenLabsIntegration();
-            console.log('✅ ElevenLabs integration ready');
-        }
+        // Prefer homegrown TTS; allow ElevenLabs only when explicitly enabled (?useELEVEN=1)
+        try {
+            const u = new URL(window.location.href);
+            const allowEleven = u.searchParams.get('useELEVEN') === '1';
+            if (allowEleven && typeof ElevenLabsIntegration !== 'undefined') {
+                this.elevenLabs = new ElevenLabsIntegration();
+                console.log('✅ ElevenLabs integration ready (explicit)');
+            }
+        } catch {}
         
         // Initialize Flask integration
         if (window.flaskIntegration) {
@@ -242,8 +290,25 @@ class UniversalLessonPlayer {
             console.log('✅ Flask integration ready');
         }
         
+        // Reference to optional avatar video element for talking-head
+        try { this.avatarVideoEl = document.getElementById('avatar-video'); } catch {}
+        // Real-time rig scene members
+        this._three = { renderer:null, scene:null, camera:null, mesh:null, morphDict:null, morphInf:null, leftEye:null, rightEye:null, headBone:null };
+        // 2D live compositing rig (mouth/eyes patches)
+        this._live2D = { rig:null, images:{}, canvas:null, ctx:null, bbox:null, imgInfo:null, raf:null };
+
         // Load persisted variant preferences
         this.loadPreferencesFromStorage();
+
+        // Quality mode via URL (?hq=1 or ?quality=1)
+        try {
+            const u = new URL(window.location.href);
+            const hq = (u.searchParams.get('hq') === '1') || (u.searchParams.get('quality') === '1');
+            if (hq) { this.talkingHeadEnabled = true; this.useVideoAudioPreferred = true; }
+            const uva = u.searchParams.get('useVideoAudio');
+            if (uva === '1') this.useVideoAudioPreferred = true;
+            if (uva === '0') this.useVideoAudioPreferred = false;
+        } catch {}
 
         // IMMEDIATELY show avatar first (core product experience)
         try { this.ensureAvatarVisible(); } catch {}
@@ -279,6 +344,139 @@ class UniversalLessonPlayer {
                 this.autoplay = (p === '1' || p === 'true');
                 console.log(`⚙️ Autorun param detected → autoplay=${this.autoplay}`);
             }
+            const live = url.searchParams.get('live');
+            if (live === '1') this.setLiveAvatarEnabled(true);
+        } catch {}
+    }
+
+    /**
+     * Enable/disable enhanced talking-head video (SadTalker). Persist preference.
+     */
+    setTalkingHeadEnabled(enabled) {
+        try {
+            this.talkingHeadEnabled = !!enabled;
+            localStorage.setItem('enhanced_video', this.talkingHeadEnabled ? '1' : '0');
+            if (!this.talkingHeadEnabled) this._hideAvatarVideo();
+        } catch {}
+    }
+
+    /** Enable/disable real-time 3D avatar rig */
+    setLiveAvatarEnabled(enabled) {
+        try {
+            this.liveAvatarEnabled = !!enabled;
+            localStorage.setItem('live_avatar', this.liveAvatarEnabled ? '1' : '0');
+            if (this.liveAvatarEnabled) {
+                // Quality-first: disable video path when live rig is on
+                this.setTalkingHeadEnabled(false);
+                this._ensureThreeRig();
+            } else {
+                this._teardownThreeRig();
+            }
+        } catch {}
+    }
+
+    /** Enable/disable full-frame viseme swapping */
+    setFullFrameVisemesEnabled(enabled){
+        try{
+            this.fullFrameVisemesEnabled = !!enabled;
+            localStorage.setItem('fullframe_visemes', this.fullFrameVisemesEnabled ? '1' : '0');
+            // Preload assets if turning on
+            if (this.fullFrameVisemesEnabled) this._ensureLive2DCompositor();
+        }catch{}
+    }
+
+    /** Initialize Three.js rig if not present */
+    _ensureThreeRig() {
+        try {
+            if (!window.THREE || !window.THREE.GLTFLoader) return;
+            const cont = document.getElementById('avatar-container'); if (!cont) return;
+            if (!this._three.renderer) {
+                const r = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+                r.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+                r.setSize(cont.clientWidth, cont.clientHeight);
+                cont.appendChild(r.domElement);
+                const s = new THREE.Scene();
+                const c = new THREE.PerspectiveCamera(28, cont.clientWidth/cont.clientHeight, 0.1, 100);
+                c.position.set(0,1.4,3.2);
+                const key = new THREE.DirectionalLight(0xffffff,1.1); key.position.set(2,3,2);
+                const fill = new THREE.DirectionalLight(0xffffff,0.6); fill.position.set(-2,2,1);
+                const rim = new THREE.DirectionalLight(0xffffff,0.4); rim.position.set(0,2,-2);
+                const amb = new THREE.AmbientLight(0xffffff,0.25);
+                s.add(key,fill,rim,amb);
+                this._three.renderer = r; this._three.scene = s; this._three.camera = c;
+                window.addEventListener('resize', ()=>{ try { const w=cont.clientWidth,h=cont.clientHeight; r.setSize(w,h); c.aspect=w/h; c.updateProjectionMatrix(); } catch{} });
+            }
+            if (!this._three.mesh) {
+                const loader = new THREE.GLTFLoader();
+                const avatar = this.currentVariant.avatar || 'kelly';
+                const path = (avatar==='ken') ? '/assets/avatars3d/ken.glb' : '/assets/avatars3d/kelly.glb';
+                loader.load(path, (gltf)=>{
+                    this._three.scene.add(gltf.scene);
+                    gltf.scene.traverse((o)=>{
+                        if (o.isSkinnedMesh && o.morphTargetDictionary && o.morphTargetInfluences){ this._three.mesh=o; this._three.morphDict=o.morphTargetDictionary; this._three.morphInf=o.morphTargetInfluences; }
+                        if (o.isBone){ const n=o.name.toLowerCase(); if (n.includes('eye_l')) this._three.leftEye=o; if(n.includes('eye_r')) this._three.rightEye=o; if(n.includes('head')) this._three.headBone=o; }
+                    });
+                });
+                const loop = ()=>{
+                    if (!this.liveAvatarEnabled) return;
+                    requestAnimationFrame(loop);
+                    this._driveThreeRigFrame();
+                };
+                requestAnimationFrame(loop);
+            }
+        } catch {}
+    }
+
+    _teardownThreeRig(){
+        try {
+            const r = this._three.renderer; if (r && r.domElement && r.domElement.parentNode) r.domElement.parentNode.removeChild(r.domElement);
+            this._three = { renderer:null, scene:null, camera:null, mesh:null, morphDict:null, morphInf:null, leftEye:null, rightEye:null, headBone:null };
+        } catch {}
+    }
+
+    _driveThreeRigFrame(){
+        try {
+            const t = (this.audioElement && !isNaN(this.audioElement.currentTime)) ? this.audioElement.currentTime : 0;
+            const curves = window.__avatar_curves__ || null; // Optional precomputed visemes; otherwise procedural
+            const m = this._three.mesh, dict = this._three.morphDict, inf = this._three.morphInf; if (m && dict && inf) {
+                // Helper: resolve internal viseme name to morph index using common synonyms (ARKit/VRM/viseme_* conventions)
+                const resolveIdx = (targetName)=>{
+                    if (!dict) return undefined;
+                    if (dict[targetName] !== undefined) return dict[targetName];
+                    const map = {
+                        'MBP': ['viseme_PBM','mouthClose','mouthPressLeft','mouthPressRight'],
+                        'FV': ['viseme_FV','mouthFunnel','mouthNarrow'],
+                        'TH': ['viseme_TH','tongueOut'],
+                        'DNTL': ['viseme_DD','jawOpen','jawForward'],
+                        'KG': ['viseme_kk','viseme_k','mouthNarrow'],
+                        'S': ['viseme_SS','mouthStretch','mouthDimpleLeft','mouthDimpleRight'],
+                        'WQ': ['viseme_WQ','mouthFunnel','mouthPucker'],
+                        'R': ['viseme_RR','mouthShrugUpper'],
+                        'A': ['A','a','aa','viseme_aa','vrc.v_a','jawOpen'],
+                        'E': ['E','e','eh','viseme_E','vrc.v_e','mouthNarrow'],
+                        'I': ['I','i','ih','viseme_I','vrc.v_i','mouthSmile']
+                    };
+                    const cands = map[targetName] || [];
+                    for (const key of cands){ if (dict[key] !== undefined) return dict[key]; }
+                    return undefined;
+                };
+                for (let i=0; i<inf.length; i++) inf[i]=0;
+                if (curves?.tracks?.visemes) {
+                    const sample1D = (track, tt)=>{ if(!track||!track.length) return 0; if(tt<=track[0].t) return track[0].v; const last=track[track.length-1]; if(tt>=last.t) return last.v; let lo=0,hi=track.length-1; while(hi-lo>1){ const mid=(lo+hi)>>1; (track[mid].t<=tt)?lo=mid:hi=mid; } const A=track[lo],B=track[hi]; const u=(tt-A.t)/Math.max(1e-6,(B.t-A.t)); return A.v*(1-u)+B.v*u; };
+                    let total=0;
+                    for (const name of Object.keys(curves.tracks.visemes)){
+                        const idx = (dict[name] !== undefined) ? dict[name] : resolveIdx(name);
+                        if (idx===undefined) continue;
+                        const w = sample1D(curves.tracks.visemes[name], t);
+                        inf[idx] = Math.min(0.85, w); total += inf[idx];
+                    }
+                    if (total > 1.25) { const scale = 1.25/total; for (let i=0;i<inf.length;i++) inf[i]*=scale; }
+                }
+            }
+            const L = this._three.leftEye, R = this._three.rightEye, H = this._three.headBone;
+            if (L && R){ const yaw = Math.sin(t*0.7)*0.05, pitch = Math.cos(t*0.6)*0.03; L.rotation.y=R.rotation.y=yaw; L.rotation.x=R.rotation.x= -pitch; }
+            if (H){ H.rotation.y = Math.sin(t*0.5)*0.03; H.rotation.x = Math.cos(t*0.42)*0.02; }
+            if (this._three.renderer && this._three.scene && this._three.camera){ this._three.renderer.render(this._three.scene, this._three.camera); }
         } catch {}
     }
 
@@ -330,10 +528,12 @@ class UniversalLessonPlayer {
             const tone = localStorage.getItem('variant_tone');
             const language = localStorage.getItem('variant_language');
             const age = localStorage.getItem('variant_age');
+            const enh = localStorage.getItem('enhanced_video');
             if (avatar) this.currentVariant.avatar = avatar;
             if (tone) this.currentVariant.tone = tone;
             if (language) this.currentVariant.language = language;
             if (age) this.currentVariant.age = age;
+            if (enh !== null) this.talkingHeadEnabled = (enh === '1' || enh === 'true');
         } catch {}
     }
 
@@ -731,6 +931,8 @@ class UniversalLessonPlayer {
         const mappedPhase = this.mapPhaseForContent(phase);
         const phaseNumber = this.currentPhase + 1;
         console.log(`🎵 Playing phase ${phaseNumber}/5: ${phase}`);
+        // FSM state set
+        this._enterFsmState(phase === 'wisdom' ? 'wisdom' : (['beginning','middle','end'].includes(phase) ? 'question' : 'welcome'));
         
         // Update phase display (label/progress). Content rendering is suppressed for PhaseDNA path to avoid duplication.
         this.updatePhaseDisplay(phase, phaseNumber);
@@ -772,8 +974,7 @@ class UniversalLessonPlayer {
         // Legacy display/content path
         this.showPhaseContent(mappedPhase);
         await this.generateAndPlayPhaseAudio(mappedPhase);
-        const phaseDuration = this.getPhaseDuration(mappedPhase);
-        setTimeout(() => { this.nextPhase(); }, phaseDuration * 1000);
+        // Auto-advance for non-question phases happens on audio end now
 
         // Question phases: arm gentle no-interaction hint
         if (['beginning','middle','end'].includes(mappedPhase)) {
@@ -1149,7 +1350,7 @@ class UniversalLessonPlayer {
             html += `<div class="choices-container">`;
             questionData.choices.forEach((choice, index) => {
                 html += `
-                    <button class="choice-btn" data-choice="${index}" onclick="window.lessonPlayer.handleQuestionAnswer(${this.currentPhase - 1}, ${index})">
+                    <button class="choice-btn jit-choice-btn" disabled data-choice="${index}" onclick="window.lessonPlayer.handleQuestionAnswer(${this.currentPhase - 1}, ${index})">
                         ${choice}
                     </button>
                 `;
@@ -1184,10 +1385,61 @@ class UniversalLessonPlayer {
             const avatar = this.currentVariant.avatar;
             const vo = this.getVoiceOverForPhase(phase, content);
             await this.speak(vo, avatar);
+            // Prefetch next phase assets once playback starts
+            try { this._prefetchNextPhaseAssets(); } catch {}
         } catch (error) {
             console.error('❌ Audio generation error:', error);
             this.useFallbackAudio(phase);
         }
+    }
+
+    /**
+     * Predict and prefetch next phase assets (audio + avatar images)
+     */
+    async _prefetchNextPhaseAssets(){
+        try {
+            const nextIndex = this.currentPhase + 1;
+            if (nextIndex >= this.lessonPhases.length) return;
+            const nextPhase = this.lessonPhases[nextIndex];
+            // Prefetch audio (TTS) if available
+            const content = this.getPhaseContent(nextPhase);
+            const vo = this.getVoiceOverForPhase(nextPhase, content);
+            const narration = String(vo||'').trim();
+            if (narration && !this.preSynthCache.get(narration) && !window.__forceSpeech && window.tts && typeof window.tts.generateAudio === 'function'){
+                const voice = (this.currentVariant?.avatar||'kelly').toLowerCase().includes('ken') ? 'ken' : 'kelly';
+                try {
+                    const blob = await window.tts.generateAudio(narration, voice, (this.currentVariant?.language||'english'));
+                    const url = URL.createObjectURL(blob);
+                    try { this.preSynthCache.set(narration, url); } catch {}
+                } catch {}
+            }
+            // Prefetch avatar images for likely expressions
+            const avatar = this.currentVariant?.avatar || 'kelly';
+            const likely = this._predictExpressionsForPhase(nextPhase);
+            likely.forEach(expr=>{ try { this._prefetchAvatarImage(avatar, expr); } catch{} });
+        } catch {}
+    }
+
+    _predictExpressionsForPhase(phase){
+        if (phase === 'welcome') return ['teaching_explaining'];
+        if (['beginning','middle','end'].includes(phase)) return ['question_curious','happy_celebrating','concerned_thinking'];
+        if (phase === 'wisdom') return ['welcoming_engaging'];
+        return ['teaching_explaining'];
+    }
+
+    _prefetchAvatarImage(avatar, expression){
+        let path;
+        switch (expression){
+            case 'concerned_thinking':
+            case 'happy_celebrating':
+                path = `/production-deploy/assets/avatars/${avatar}/emotional-expressions/${avatar}_${expression}.png`; break;
+            case 'question_curious':
+            case 'teaching_explaining':
+                path = `/production-deploy/assets/avatars/${avatar}/lesson-sequence/${avatar}_${expression}.png`; break;
+            default:
+                path = `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+        }
+        const img = new Image(); img.src = path; img.decoding = 'async';
     }
 
     getVoiceOverForPhase(phase, content){
@@ -1266,10 +1518,8 @@ class UniversalLessonPlayer {
     useFallbackAudio(phase) {
         const duration = this.getPhaseDuration(phase);
         
-        // Simulate audio playback
-        setTimeout(() => {
-            this.nextPhase();
-        }, duration * 1000);
+        // Simulate audio playback; use unified end handler
+        setTimeout(() => { this._onAudioEnded(); }, duration * 1000);
         
         console.log('🔊 Using fallback audio simulation for phase:', phase);
     }
@@ -1340,31 +1590,12 @@ class UniversalLessonPlayer {
             console.log(`⏱️ TEST: Phase '${phase}' duration: ${duration} seconds`);
             return duration;
         }
-        
-        // Fallback to age-appropriate durations
-        const age = this.currentVariant.age;
-        
-        // Age-appropriate durations
-        const durations = {
-            age_2: { opening: 30, question: 45, closing: 30 },
-            age_5: { opening: 45, question: 60, closing: 45 },
-            age_8: { opening: 60, question: 90, closing: 60 },
-            age_12: { opening: 75, question: 120, closing: 75 },
-            age_16: { opening: 90, question: 150, closing: 90 },
-            age_25: { opening: 90, question: 150, closing: 90 },
-            age_40: { opening: 90, question: 150, closing: 90 },
-            age_60: { opening: 90, question: 150, closing: 90 },
-            age_80: { opening: 90, question: 150, closing: 90 },
-            age_102: { opening: 90, question: 150, closing: 90 }
-        };
-        
-        const ageDurations = durations[age] || durations.age_25;
-        
-        if (phase === 'opening') return ageDurations.opening;
-        if (phase.includes('question')) return ageDurations.question;
-        if (phase === 'closing') return ageDurations.closing;
-        
-        return 90; // Default duration
+        // Default durations (fallback only; normal flow is audio-driven)
+        switch (phase) {
+            case 'welcome': return 4;
+            case 'wisdom': return 6;
+            default: return 5;
+        }
     }
 
     /**
@@ -1454,10 +1685,9 @@ class UniversalLessonPlayer {
         // Show feedback
         this.showQuestionFeedback(questionIndex, selectedOption);
         
-        // Advance to next phase after delay
-        setTimeout(() => {
-            this.nextPhase();
-        }, 3000);
+        // Advance to next phase after dwell (teaching moment timing)
+        const dwell = Math.max(1500, (this.currentDNA?.phases?.find(p=>p.id===this.lessonPhases[this.currentPhase])?.timing?.teachingMomentMs||3000));
+        setTimeout(() => { this.nextPhase(); }, dwell);
     }
 
     /**
@@ -1538,6 +1768,9 @@ class UniversalLessonPlayer {
         }
         
         avatarContainer.style.backgroundImage = `url('${imagePath}')`;
+        // Remember path for 2D compositor mapping
+        this.currentAvatarImagePath = imagePath;
+        try { this._positionMouthCanvas(); } catch {}
         
         console.log(`🎭 Avatar updated: ${avatar} with expression: ${expression} using path: ${imagePath}`);
     }
@@ -1883,11 +2116,11 @@ class UniversalLessonPlayer {
         this.audioElement.addEventListener('timeupdate', () => {
             this.currentTime = this.audioElement.currentTime;
             this.updateProgressBar();
+            // Gate choice reveal for question phases by audio progress and minimum dwell
+            try { this._checkChoiceGate(); } catch {}
         });
 
-        this.audioElement.addEventListener('ended', () => {
-            this.nextPhase();
-        });
+        this.audioElement.addEventListener('ended', () => { this._onAudioEnded(); });
 
         this.audioElement.addEventListener('pause', () => {
             const ra = this.readAlong; if (!ra) return;
@@ -1911,6 +2144,28 @@ class UniversalLessonPlayer {
             this.pauseLesson();
         } else {
             this.resumeLesson();
+        }
+    }
+
+    /** FSM helpers */
+    _enterFsmState(state){ this._fsm.state = state; try { window.dispatchEvent(new CustomEvent('ml:fsm_state', { detail:{ state, phaseIndex:this.currentPhase } })); } catch{} }
+    _onAudioEnded(){
+        // For question phases, audio end should not auto-advance; wait for teaching moment or timeout
+        const phase = this.lessonPhases[this.currentPhase];
+        if (['beginning','middle','end'].includes(phase)) return; // gated by choice flow
+        this.nextPhase();
+    }
+    _armChoiceGate(minDelayMs, audioThreshold){ this._choiceGate = { enabled:false, minDelayMs, audioThreshold, startTs: performance.now() }; }
+    _checkChoiceGate(){
+        const g = this._choiceGate; if (!g) return;
+        if (g.enabled) return;
+        const elapsed = performance.now() - g.startTs;
+        const dur = Math.max(0.001, this.audioElement?.duration||0);
+        const prog = dur ? (this.audioElement.currentTime / dur) : 0;
+        if (elapsed >= g.minDelayMs && prog >= g.audioThreshold) {
+            // enable choice buttons
+            try { document.querySelectorAll('#lesson-content .choices-container .choice-btn').forEach(b=>{ b.disabled = false; b.classList.add('ready'); }); } catch{}
+            g.enabled = true;
         }
     }
 
@@ -2245,17 +2500,43 @@ The system is ready for real curriculum integration!`,
         if (!narration) return;
         try { this.startReadAlong(narration); } catch {}
         const chosenAvatar = avatar || this.currentVariant.avatar || 'kelly';
+        // Live rig path takes precedence when enabled
+        if (this.liveAvatarEnabled) {
+            try { await this._speakWithLiveRig(narration, chosenAvatar); } catch {}
+            return;
+        }
         // Use pre-synthesized cache if available
         try {
             const cached = this.preSynthCache.get(narration);
             if (cached) {
                 this.audioElement.src = cached;
                 this.audioElement.playbackRate = this.playbackSpeed;
-                try { await this.audioElement.play(); } catch {}
+                try { await this.audioElement.play(); } catch (e) {
+                    console.warn('Audio playback failed', e);
+                }
                 this.isPlaying = true; this.updatePlayButton();
                 return;
             }
         } catch {}
+        // Prefer homegrown TTS if available via window.tts (unless forced speech)
+        try {
+            if (!window.__forceSpeech && window.tts && typeof window.tts.generateAudio === 'function') {
+                const voice = (chosenAvatar||'kelly').toLowerCase().includes('ken') ? 'ken' : 'kelly';
+                const blob = await window.tts.generateAudio(narration, voice, (this.currentVariant?.language||'english'));
+                const url = URL.createObjectURL(blob);
+                try { this.preSynthCache.set(narration, url); } catch {}
+                this.audioElement.src = url;
+                this.audioElement.playbackRate = this.playbackSpeed;
+                try { await this.audioElement.play(); } catch {}
+                this.isPlaying = true; this.updatePlayButton();
+                return;
+            }
+        } catch (err) {
+            console.warn('speak() homegrown TTS path failed; falling back', err);
+        }
+        // No browser speech synthesis fallback - require proper TTS
+        // Ken & Kelly voices only
+        // Optional ElevenLabs fallback if explicitly enabled earlier
         try {
             if (this.elevenLabs) {
                 const result = await this.elevenLabs.generateAudio(narration, chosenAvatar);
@@ -2263,30 +2544,507 @@ The system is ready for real curriculum integration!`,
                     try { this.preSynthCache.set(narration, result); } catch {}
                     this.audioElement.src = result;
                     this.audioElement.playbackRate = this.playbackSpeed;
-                    try {
-                        await this.audioElement.play();
-                    } catch (err) {
-                        // Autoplay may be blocked; retry after first user gesture
-                        await new Promise(resolve => {
-                            const retry = () => { document.removeEventListener('click', retry); resolve(); };
-                            document.addEventListener('click', retry, { once: true });
-                        });
-                        try { await this.audioElement.play(); } catch(_) {}
-                    }
-                    this.isPlaying = true;
-                    this.updatePlayButton();
+                    try { await this.audioElement.play(); } catch {}
+                    this.isPlaying = true; this.updatePlayButton();
                     return;
                 }
-                return;
             }
         } catch (err) {
-            console.warn('speak() ElevenLabs path failed; falling back', err);
+            console.warn('speak() ElevenLabs fallback failed', err);
         }
         try {
             this.isPlaying = true; this.updatePlayButton();
             const approxMs = Math.min(15000, Math.max(2000, narration.split(/\s+/).length * 300));
             setTimeout(()=>{ this.isPlaying = false; this.updatePlayButton(); }, approxMs);
         } catch {}
+    }
+
+    async _speakWithLiveRig(narration, avatar) {
+        try {
+            this._ensureThreeRig();
+            this._ensureLive2DCompositor();
+            const qp = new URLSearchParams(location.search);
+            const mock = qp.get('mockRealtimeVisemes') === '1';
+            let audioUrl = null; let phonemes = null; let duration = null;
+            if (!mock) {
+                try {
+                    const res = await this._requestPhonemesBackend(narration, avatar);
+                    if (res && (res.audioUrl || res.audio_url) && Array.isArray(res.phonemes)) {
+                        audioUrl = res.audioUrl || res.audio_url; phonemes = res.phonemes; duration = res.duration_s || null;
+                    }
+                } catch {}
+            }
+            if (!audioUrl || !phonemes) {
+                // Fallback to existing TTS and naive phoneme synthesis
+                if (!this.elevenLabs) throw new Error('No TTS available for fallback');
+                const blobUrl = await this.elevenLabs.generateAudio(narration, avatar);
+                if (typeof blobUrl === 'string' && blobUrl.startsWith('blob:')) {
+                    audioUrl = blobUrl;
+                    phonemes = this._synthesizePhonemesFromText(narration);
+                } else {
+                    throw new Error('Audio fallback failed');
+                }
+            }
+            const curves = this._buildVisemeCurvesFromPhonemes(phonemes);
+            window.__avatar_curves__ = curves;
+            // Start 2D compositor loop bound to audio time
+            this._startLive2DLoop(curves);
+            this.audioElement.src = audioUrl;
+            this.audioElement.playbackRate = this.playbackSpeed;
+            try { await this.audioElement.play(); } catch {}
+            this.isPlaying = true; this.updatePlayButton();
+        } catch (e) {
+            console.warn('live rig speak failed', e);
+        }
+    }
+
+    _ensureLive2DCompositor(){
+        try {
+            const cont = document.getElementById('avatar-container'); if (!cont) return;
+            if (!this._live2D.canvas){
+                const c = document.getElementById('avatar-mouth');
+                if (c) { this._live2D.canvas = c; this._live2D.ctx = c.getContext('2d'); }
+            }
+            // Lazy-load rig assets
+            if (!this._live2D.rig){
+                const avatar = this.currentVariant.avatar || 'kelly';
+                const base = `/production-deploy/assets/avatars/${avatar}/2d`;
+                fetch(`${base}/rig.json`).then(r=>r.json()).then(j=>{ this._live2D.rig=j; this._live2D.bbox=j.mouth_bbox; this._preloadMouthSprites(base, j.visemes||[]); });
+            }
+            // Optionally preload full-frame viseme images from Cloudflare or local assets
+            if (this.fullFrameVisemesEnabled && !this._live2D.full){
+                this._live2D.full = { images:{}, last:null, overlay:null };
+                this._loadFullFrameManifest().catch(()=>{});
+            }
+            this._positionMouthCanvas();
+        } catch {}
+    }
+
+    async _loadFullFrameManifest(){
+        try {
+            const avatar = (this.currentVariant.avatar||'kelly').toLowerCase();
+            // Allow CDN override: window.VISEME_CDN_BASE = 'https://cdn.example.com/avatars'
+            const CDNB = (window.VISEME_CDN_BASE||'').replace(/\/$/,'');
+            // Prefer rewritten manifest name when uploaded via tooling; fall back to original
+            const tryUrls = CDNB
+                ? [
+                    `${CDNB}/${avatar}/full/.manifest.rewritten.json`,
+                    `${CDNB}/${avatar}/full/manifest.json`
+                  ]
+                : [
+                    `/production-deploy/assets/avatars/${avatar}/2d/full/.manifest.rewritten.json`,
+                    `/production-deploy/assets/avatars/${avatar}/2d/full/manifest.json`
+                  ];
+            let res = null; let manifest = null; let lastErr = null;
+            for (const u of tryUrls){
+                try {
+                    const r = await fetch(u, { cache:'no-cache' });
+                    if (r.ok) { res = r; manifest = await r.json(); break; }
+                    lastErr = new Error(`manifest ${r.status}`);
+                } catch (e) { lastErr = e; }
+            }
+            if (!manifest) { if (lastErr) throw lastErr; else throw new Error('manifest not found'); }
+            const images = this._live2D.full.images || (this._live2D.full.images = {});
+            const names = this.VISEMES;
+            // Optional frame size for precise patch positioning
+            if (manifest && manifest.frame && typeof manifest.frame.w === 'number' && typeof manifest.frame.h === 'number') {
+                this._live2D.full.frame = { w: manifest.frame.w, h: manifest.frame.h };
+            }
+            // Support both simple string arrays and objects with {url,x,y,w,h}
+            names.forEach(v=>{
+                const arr = manifest[v] || manifest[v.toLowerCase()] || [];
+                const first = Array.isArray(arr) ? arr[0] : null;
+                if (!first) return;
+                if (typeof first === 'string') {
+                    const img = new Image(); img.crossOrigin='anonymous'; img.src = first; images[v] = img;
+                    // Also set as avatar background for immediate visual feedback
+                    // Do not mutate background immediately; only swap during loop to avoid mid-slide jumps
+                    try { /* no-op preload visual */ } catch{}
+                } else if (first && typeof first === 'object' && first.url) {
+                    // Overlay patch mode
+                    const img = new Image(); img.crossOrigin='anonymous'; img.src = first.url; images[v] = { image: img, patch: { x:first.x||0, y:first.y||0, w:first.w||0, h:first.h||0 } };
+                }
+            });
+            // Prepare overlay element for patch mode
+            if (!this._live2D.full.overlay){
+                const host = document.getElementById('avatar-container');
+                if (host){
+                    const ov = document.createElement('img');
+                    ov.id = 'viseme-overlay';
+                    ov.style.position = 'absolute';
+                    // default full overlay; will be repositioned for patch mode
+                    ov.style.left = '0'; ov.style.top = '0';
+                    ov.style.width = '100%'; ov.style.height = '100%';
+                    ov.style.objectFit = 'cover';
+                    ov.style.pointerEvents = 'none';
+                    ov.style.zIndex = '2';
+                    ov.style.display = 'none';
+                    host.appendChild(ov);
+                    this._live2D.full.overlay = ov;
+                }
+            }
+        } catch (e) { console.warn('fullframe manifest load failed', e); }
+    }
+
+    _preloadMouthSprites(base, names){
+        try {
+            names.forEach(n=>{
+                const img = new Image(); img.crossOrigin='anonymous'; img.src = `${base}/mouth_${n}.png`;
+                this._live2D.images[`mouth_${n}`] = img;
+            });
+            const eyelids = new Image(); eyelids.src = `${base}/eyelids_closed.png`; this._live2D.images['eyelids_closed']=eyelids;
+            const pL = new Image(); pL.src = `${base}/pupil_L.png`; this._live2D.images['pupil_L']=pL;
+            const pR = new Image(); pR.src = `${base}/pupil_R.png`; this._live2D.images['pupil_R']=pR;
+        } catch {}
+    }
+
+    _positionMouthCanvas(){
+        try {
+            const c = this._live2D.canvas; const bbox = this._live2D.bbox; if (!c || !bbox) return;
+            // Position canvas approximately over the avatar mouth region
+            // Since background is cover, we approximate central placement; refine if needed with calibration.
+            c.style.opacity = '1';
+        } catch {}
+    }
+
+    _startLive2DLoop(curves){
+        try {
+            const c = this._live2D.canvas; const ctx = this._live2D.ctx; const rig = this._live2D.rig; if (!c||!ctx||!rig) return;
+            const sample1D = (track, t)=>{ if(!track||!track.length) return 0; if(t<=track[0].t) return track[0].v; const last=track[track.length-1]; if(t>=last.t) return last.v; let lo=0,hi=track.length-1; while(hi-lo>1){ const mid=(lo+hi)>>1; (track[mid].t<=t)?lo=mid:hi=mid; } const A=track[lo],B=track[hi]; const u=(t-A.t)/Math.max(1e-6,(B.t-A.t)); return A.v*(1-u)+B.v*u; };
+            const names = Object.keys(curves.tracks.visemes||{});
+            const loop = ()=>{
+                if (!this.liveAvatarEnabled) return;
+                this._live2D.raf = requestAnimationFrame(loop);
+                const a = this.audioElement; const t = a && !isNaN(a.currentTime) ? a.currentTime : 0;
+                // Clear
+                ctx.clearRect(0,0,c.width,c.height);
+                // Choose dominant viseme by weight
+                let best = 'REST'; let bw = 0;
+                for (const nm of names){ const w = sample1D(curves.tracks.visemes[nm], t); if (w>bw){ bw=w; best=nm; } }
+                // If full-frame images are available, swap the background image instead of only mouth
+                if (this.fullFrameVisemesEnabled && this._live2D.full && this._live2D.full.images[best]){
+                    if (this._live2D.full.last !== best) {
+                        const bg = document.getElementById('avatar-background');
+                        const entry = this._live2D.full.images[best];
+                        if (bg && entry) {
+                            // Handle two modes: full-frame URL string OR patch object {image, patch}
+                            if (typeof entry === 'object' && entry.image && entry.patch) {
+                                // Keep white background; overlay patch image at precise position
+                                const ov = this._live2D.full.overlay;
+                                const frame = this._live2D.full.frame;
+                                if (ov && frame && frame.w > 0 && frame.h > 0) {
+                                    ov.src = entry.image.src;
+                                    const px = entry.patch.x / frame.w * 100;
+                                    const py = entry.patch.y / frame.h * 100;
+                                    const pw = entry.patch.w / frame.w * 100;
+                                    const ph = entry.patch.h / frame.h * 100;
+                                    ov.style.left = px + '%';
+                                    ov.style.top = py + '%';
+                                    ov.style.width = pw + '%';
+                                    ov.style.height = ph + '%';
+                                    ov.style.display = 'block';
+                                } else if (ov) {
+                                    // Fallback: full overlay
+                                    ov.src = entry.image.src;
+                                    ov.style.left = '0'; ov.style.top = '0';
+                                    ov.style.width = '100%'; ov.style.height = '100%';
+                                    ov.style.display = 'block';
+                                }
+                            } else {
+                                const im = entry;
+                                const url = im.src;
+                                bg.style.backgroundImage = `url('${url}')`;
+                                if (this._live2D.full.overlay) this._live2D.full.overlay.style.display = 'none';
+                            }
+                            this._live2D.full.last = best;
+                        }
+                    }
+                } else {
+                    const img = this._live2D.images[`mouth_${best}`];
+                    if (img && img.complete) {
+                        // Draw centered; refine with rig bbox offsets
+                        const W = c.width, H=c.height; const iw = img.width, ih=img.height;
+                        const scale = Math.min(W/iw, H/ih);
+                        const dw = iw*scale, dh=ih*scale;
+                        ctx.drawImage(img, (W-dw)/2, (H-dh)/2, dw, dh);
+                    }
+                }
+                // TODO: eyelids/pupils rendering aligned to rig once calibration added
+            };
+            if (this._live2D.raf) cancelAnimationFrame(this._live2D.raf);
+            this._live2D.raf = requestAnimationFrame(loop);
+        } catch {}
+    }
+
+    async _requestPhonemesBackend(text, avatar) {
+        try {
+            const lang = this.currentVariant.language || 'english';
+            const voiceId = avatar;
+            const res = await fetch('/api/tts/phonemes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, voiceId, lang, sampleRate: 44100 })
+            });
+            if (!res.ok) return null;
+            return await res.json();
+        } catch { return null; }
+    }
+
+    _synthesizePhonemesFromText(text) {
+        try {
+            const words = String(text).split(/\s+/).filter(Boolean);
+            const phonemes = [];
+            let t = 0;
+            for (const w of words) {
+                const dur = Math.min(0.7, Math.max(0.18, w.length * 0.06));
+                const units = ['A','E','I','DNTL','R'];
+                const seg = dur / Math.max(1, units.length);
+                let tt = t;
+                for (const u of units) { phonemes.push({ p: u, start: tt, end: tt + seg, src: u }); tt += seg; }
+                t += dur + 0.06;
+            }
+            return phonemes;
+        } catch { return []; }
+    }
+
+    _buildVisemeCurvesFromPhonemes(phonemeList) {
+        const tracks = { visemes: {} };
+        for (const name of this.VISEMES) tracks.visemes[name] = [];
+        const attack = 0.06, decay = 0.08;
+        for (const ph of (phonemeList||[])) {
+            const src = String(ph.src || ph.p || '').toUpperCase();
+            const vname = this.PHONEME_TO_VISEME[src] || src;
+            if (!tracks.visemes[vname]) continue;
+            const t0 = Math.max(0, Number(ph.start)||0);
+            const t1 = Math.max(t0, Number(ph.end)||t0+0.12);
+            const peak = Math.min(0.85, vname==='MBP' ? 0.9 : 0.8);
+            const a1 = t0 + Math.min(attack, (t1-t0)*0.4);
+            const d1 = t1 - Math.min(decay, (t1-t0)*0.4);
+            tracks.visemes[vname].push({ t: t0, v: 0 });
+            tracks.visemes[vname].push({ t: a1, v: peak });
+            tracks.visemes[vname].push({ t: Math.max(a1, d1), v: peak * 0.9 });
+            tracks.visemes[vname].push({ t: t1, v: 0 });
+        }
+        let maxT = 0;
+        for (const arr of Object.values(tracks.visemes)) { if (arr.length) maxT = Math.max(maxT, arr[arr.length-1].t||0); }
+        return { meta: { avatarId: this.currentVariant.avatar||'kelly', visemeSet: this.VISEMES.join(','), version: '1.0' }, duration: maxT, tracks };
+    }
+
+    /**
+     * Request a talking‑head generation job and begin polling for completion.
+     * audioBlobUrl is a blob: URL for current audio; backend should be able to fetch via relay if needed.
+     */
+    async _requestTalkingHead(narration, avatar, audioBlobUrl) {
+        try {
+            if (!this.avatarVideoEl) return;
+            // Cancel any prior poll for previous line
+            this._cancelTalkingHeadPoll();
+
+            const imageUrl = this._getAvatarNeutralImageUrl(avatar);
+            const textHash = await this._sha1(narration + '|' + avatar);
+            let uploadedAudioUrl = null;
+            try {
+                if (audioBlobUrl && String(audioBlobUrl).startsWith('blob:')) {
+                    const resp = await fetch(audioBlobUrl);
+                    const blob = await resp.blob();
+                    const form = new FormData();
+                    form.append('file', blob, 'audio.mp3');
+                    const up = await fetch('/api/talking-head/upload', { method: 'POST', body: form });
+                    if (up.ok) {
+                        const uj = await up.json();
+                        uploadedAudioUrl = uj.audioUrl || null;
+                    }
+                }
+            } catch {}
+            const payload = {
+                avatar,
+                imageUrl,
+                // The client cannot expose blob: URLs cross‑origin; server should accept text and synthesize or the
+                // environment should provide a relay to upload the blob. We pass a hint hash for caching.
+                text: narration,
+                textHash,
+                audioUrl: uploadedAudioUrl || undefined,
+                fps: 30,
+                resolution: 720,
+                enhance: { engine: 'gfpgan', strength: 0.35 },
+                pose_scale: 0.4,
+                expression_scale: 1.0,
+                seed: (avatar === 'kelly') ? 221133 : 994411
+            };
+            // Cache lookup
+            const cacheKey = `${avatar}::${textHash}`;
+            try {
+                const cached = this.talkingHeadCache.get(cacheKey);
+                if (cached) { this._playAvatarVideo(cached); return; }
+            } catch {}
+
+            const res = await fetch('/api/talking-head/jobs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error('talking-head job create failed');
+            const j = await res.json();
+            const jobId = j.id || j.jobId;
+            if (!jobId) return;
+            this._talkJob = { id: jobId };
+            this._pollTalkingHead(jobId, textHash, cacheKey);
+        } catch (e) {
+            // Silent fallback; audio continues
+        }
+    }
+
+    _cancelTalkingHeadPoll() {
+        try {
+            if (this._talkJob?.timer) clearInterval(this._talkJob.timer);
+            this._talkJob = null;
+        } catch {}
+    }
+
+    _pollTalkingHead(jobId, textHash, cacheKey) {
+        try {
+            const intervalMs = 1000;
+            const maxWaitMs = 30000;
+            const start = Date.now();
+            this._talkJob = this._talkJob || { id: jobId };
+            this._talkJob.timer = setInterval(async () => {
+                try {
+                    if (Date.now() - start > maxWaitMs) { this._cancelTalkingHeadPoll(); return; }
+                    const r = await fetch(`/api/talking-head/jobs/${encodeURIComponent(jobId)}`);
+                    if (!r.ok) return; const j = await r.json();
+                    if (j.status === 'succeeded' && (j.videoUrl || j.video_url)) {
+                        this._cancelTalkingHeadPoll();
+                        const url = j.videoUrl || j.video_url;
+                        try { if (cacheKey) this.talkingHeadCache.set(cacheKey, url); } catch {}
+                        this._playAvatarVideo(url);
+                    } else if (j.status === 'failed') {
+                        this._cancelTalkingHeadPoll();
+                    }
+                } catch {}
+            }, intervalMs);
+        } catch {}
+    }
+
+    _getAvatarNeutralImageUrl(avatar) {
+        try {
+            if (avatar === 'kelly') {
+                // Prefer optimized base state if available
+                return '/production-deploy/assets/avatars/kelly/optimized/base-states/kelly_neutral_default.png';
+            }
+            if (avatar === 'ken') {
+                return '/production-deploy/assets/avatars/ken/ken_neutral_default.png';
+            }
+        } catch {}
+        return `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+    }
+
+    /**
+     * Optional viseme overlay for debugging: draws per‑viseme weights on #avatar-mouth
+     */
+    _driveMouthOverlay(){
+        try {
+            const canvas = document.getElementById('avatar-mouth'); if (!canvas) return;
+            const ctx = canvas.getContext('2d'); if (!ctx) return;
+            const curves = window.__avatar_curves__ || null; if (!curves?.tracks?.visemes) return;
+            const a = this.audioElement; if (!a) return;
+            const names = Object.keys(curves.tracks.visemes);
+            const w = canvas.width, h = canvas.height; const pad = 20; const barW = (w - pad*2) / Math.max(1, names.length);
+            const sample1D = (track, t)=>{
+                if (!track || !track.length) return 0;
+                if (t<=track[0].t) return track[0].v; const last=track[track.length-1]; if (t>=last.t) return last.v;
+                let lo=0,hi=track.length-1; while(hi-lo>1){ const mid=(lo+hi)>>1; (track[mid].t<=t)?lo=mid:hi=mid; }
+                const A=track[lo],B=track[hi]; const u=(t-A.t)/Math.max(1e-6,(B.t-A.t)); return A.v*(1-u)+B.v*u;
+            };
+            const draw = ()=>{
+                if (a.paused) return;
+                const t = a.currentTime || 0;
+                ctx.clearRect(0,0,w,h);
+                names.forEach((nm, i)=>{
+                    const v = sample1D(curves.tracks.visemes[nm], t);
+                    const x = pad + i*barW + 4; const y = h - pad; const bh = (h - pad*2) * v;
+                    ctx.fillStyle = '#007AFF'; ctx.globalAlpha = 0.9; ctx.fillRect(x, y - bh, barW - 8, bh);
+                    ctx.globalAlpha = 1; ctx.fillStyle = '#222'; ctx.font = '20px -apple-system, BlinkMacSystemFont, Helvetica'; ctx.fillText(nm, x, h - 2);
+                });
+                requestAnimationFrame(draw);
+            };
+            canvas.style.opacity = '1';
+            requestAnimationFrame(draw);
+        } catch {}
+    }
+
+    _playAvatarVideo(videoUrl) {
+        try {
+            const v = this.avatarVideoEl; if (!v) return;
+            v.src = String(videoUrl);
+            // Choose audio source: prefer unified video audio when flagged
+            let useVideoAudio = !!this.useVideoAudioPreferred;
+            v.muted = !useVideoAudio;
+            v.loop = false;
+            v.style.display = 'block';
+            const startPlayback = async () => {
+                try {
+                    const a = this.audioElement;
+                    if (useVideoAudio) {
+                        // Pause separate audio and let video carry AV sync
+                        try { a?.pause(); } catch {}
+                        try { v.volume = (typeof a?.volume === 'number') ? a.volume : 1.0; } catch {}
+                        await v.play().catch(()=>{});
+                    } else {
+                        // Align A/V with separate audio
+                        if (a && !isNaN(a.currentTime)) {
+                            try { v.currentTime = a.currentTime; } catch {}
+                        }
+                        await v.play().catch(()=>{});
+                        this._syncVideoToAudio();
+                    }
+                    // Fade in the video surface
+                    requestAnimationFrame(()=>{ v.style.opacity = '1'; });
+                } catch {}
+            };
+            if (v.readyState >= 2) { startPlayback(); }
+            else { v.addEventListener('loadeddata', startPlayback, { once: true }); }
+        } catch {}
+    }
+
+    _hideAvatarVideo() {
+        try {
+            const v = this.avatarVideoEl; if (!v) return;
+            v.style.opacity = '0';
+            v.style.display = 'none';
+            try { v.pause(); } catch {}
+        } catch {}
+    }
+
+    _syncVideoToAudio() {
+        try {
+            if (this._syncTimer) clearInterval(this._syncTimer);
+            const v = this.avatarVideoEl; const a = this.audioElement; if (!v || !a) return;
+            this._syncTimer = setInterval(() => {
+                try {
+                    if (v.paused || a.paused) return;
+                    const drift = (v.currentTime || 0) - (a.currentTime || 0);
+                    const abs = Math.abs(drift);
+                    if (abs > 0.25) {
+                        // Hard re-sync on large drift
+                        v.currentTime = a.currentTime;
+                    } else if (abs > 0.06) {
+                        // Micro nudge
+                        const adjust = (drift > 0) ? 0.98 : 1.02;
+                        v.playbackRate = adjust;
+                    } else {
+                        v.playbackRate = 1.0;
+                    }
+                } catch {}
+            }, 250);
+        } catch {}
+    }
+
+    async _sha1(text) {
+        try {
+            const data = new TextEncoder().encode(text);
+            const hash = await crypto.subtle.digest('SHA-1', data);
+            return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+        } catch { return String(text).length + '_na'; }
     }
 
     /**
@@ -2373,8 +3131,8 @@ The system is ready for real curriculum integration!`,
 // Manifest-driven minimal player API (dev + prod)
 if (typeof window !== 'undefined') {
   const listeners = new Map();
-  function emit(evt, data){ (listeners.get(evt) || []).forEach(fn => { try { fn(data); } catch {} }); }
-  function on(evt, fn){ const arr = listeners.get(evt) || []; arr.push(fn); listeners.set(evt, arr); }
+  const emit = (evt, data) => { (listeners.get(evt) || []).forEach(fn => { try { fn(data); } catch {} }); };
+  const on = (evt, fn) => { const arr = listeners.get(evt) || []; arr.push(fn); listeners.set(evt, arr); };
   function prox(url){
     try {
       const p = window.DEV_PROXY_URL;
@@ -2397,6 +3155,33 @@ if (typeof window !== 'undefined') {
       }
     }
     throw lastErr || new Error('fetch failed');
+  }
+
+  // Unified audio fetch + buffer with Safari fallback from .opus → .m4a
+  async function fetchAndBufferAudio(player, url, opts={}){
+    const u = String(url);
+    const res = await fetchWithRetry(prox(u), opts);
+    const ab = await res.arrayBuffer();
+    try {
+      if (/\.opus($|\?)/i.test(u)) {
+        return await player._audio.appendChunk(ab);
+      } else {
+        const buf = await player._audio.decodeOpus(ab);
+        player._audio.scheduleBuffer(buf);
+        return player._audio.getBufferedSeconds();
+      }
+    } catch (e) {
+      if (/\.opus($|\?)/i.test(u)) {
+        // Try m4a fallback
+        const alt = u.replace(/\.opus(\?.*)?$/i, '.m4a$1');
+        const r2 = await fetchWithRetry(prox(alt), opts);
+        const ab2 = await r2.arrayBuffer();
+        const buf2 = await player._audio.decodeOpus(ab2);
+        player._audio.scheduleBuffer(buf2);
+        return player._audio.getBufferedSeconds();
+      }
+      throw e;
+    }
   }
 
   // Minimal protobuf reader for specific message shapes (proto3)
@@ -2482,13 +3267,26 @@ if (typeof window !== 'undefined') {
     _prefetchTimer: null,
     _prefetchAbort: null,
     _stallTimer: null,
-    _captions: { container: null, cues: [], raf: null },
-    _popup: { host: null, shownId: null, raf: null },
+    _captions: { container: null, cues: [], words: [], raf: null },
+    _popup: { host: null, hostRight: null, hostLeft: null, shownId: null, raf: null },
     _timelines: {},
     _resolver: null,
+    _applyPhonemesHookInstalled: false,
     setManifestResolver(fn){ this._resolver = typeof fn === 'function' ? fn : null; },
+    _emitProgress(type, extra={}){
+      try {
+        const evt = { type, slide_index: this._slideIndex, ts: Date.now(), ...extra };
+        emit('progress_event', evt);
+        // Optional POST only when dev proxy is present
+        if (window.DEV_PROXY_URL) {
+          const url = `${window.DEV_PROXY_URL}${encodeURIComponent('https://api.ilearnhow.com/api/v1/progress')}`;
+          fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(evt) }).catch(()=>{});
+        }
+      } catch {}
+    },
     mountCaptions(containerEl){ this._captions.container = containerEl || null; },
     mountPopupHost(hostEl){ this._popup.host = hostEl || null; },
+    mountPopupHosts(rightEl, leftEl){ this._popup.hostRight = rightEl || null; this._popup.hostLeft = leftEl || null; },
     _parseVtt(text){
       const lines = String(text||'').split(/\r?\n/);
       const cues = [];
@@ -2519,17 +3317,89 @@ if (typeof window !== 'undefined') {
         if (!res.ok) return;
         const txt = await res.text();
         this._captions.cues = this._parseVtt(txt);
+        // optional words.json for read-along
+        this._captions.words = [];
+        if (slide.word_timing_json_uri) {
+          try { const wr = await fetch(prox(slide.word_timing_json_uri)); if (wr.ok) { const j = await wr.json(); this._captions.words = Array.isArray(j?.words) ? j.words : []; } } catch {}
+        }
       } catch {}
     },
-    _startCaptionsTicker(){
+     _startCaptionsTicker(){
       if (!this._captions.container) return;
       cancelAnimationFrame(this._captions.raf);
       const tick = ()=>{
         try {
           if (!this._captions.container) return;
-          const tMs = Math.max(0, (this._audio?.ctx?.currentTime - this._slideStartAtAudioTime) * 1000);
-          const cue = this._captions.cues.find(c=> tMs >= c.startMs && tMs <= c.endMs);
-          this._captions.container.textContent = cue ? cue.text : '';
+          const now = this._audio?.ctx?.currentTime || 0;
+          // Gate: don't render read-along until audio actually starts
+          if (now < (this._slideStartAtAudioTime - 0.01)) { this._captions.container.textContent=''; this._captions.container.removeAttribute('aria-label'); this._captions.raf = requestAnimationFrame(tick); return; }
+          const tMs = Math.max(0, (now - this._slideStartAtAudioTime) * 1000);
+          // Micro-adjust using audio RMS onset: if speech starts and we are before first word, nudge
+          try {
+            const rms = this._audio?.getRms ? this._audio.getRms() : 0;
+            if (rms > 0.015 && this._captions.words && this._captions.words.length){
+              const first = this._captions.words[0];
+              if (tMs + 80 < first.start_ms){
+                // align slide start so words catch up to audio
+                const deltaMs = (first.start_ms - (tMs+80));
+                this._slideStartAtAudioTime -= (deltaMs/1000);
+                console.debug('[read-along] onset align: -', deltaMs.toFixed(1),'ms');
+              }
+            }
+          } catch {}
+          const slide = this._manifest?.slides?.[this._slideIndex];
+          const wordsAll = this._captions.words || [];
+          const useReadAlong = wordsAll.length > 0;
+          if (useReadAlong && slide && Array.isArray(slide.sentence_boundaries_ms)){
+            const bounds = slide.sentence_boundaries_ms;
+            let si = 0; for (let i=0;i<bounds.length-1;i++){ if (tMs >= bounds[i] && tMs <= bounds[i+1]) { si = i; break; } }
+            const startB = bounds[si] ?? 0; const endB = bounds[si+1] ?? (startB + 4000);
+            const tol = 80;
+            const words = wordsAll.filter(w=> (w.end_ms >= (startB - tol)) && (w.start_ms <= (endB + tol)));
+            const html = words.map(w=>{
+              const active = (tMs >= (w.start_ms - 20) && tMs <= (w.end_ms + 20));
+              return `<span style="${active? 'background: rgba(255,230,180,.9); border-radius:4px; padding:1px 2px;' : ''}">${String(w.w)}</span>`;
+            }).join(' ');
+            this._captions.container.innerHTML = html;
+            this._captions.container.setAttribute('aria-label', words.map(w=>w.w).join(' '));
+            if (window.localStorage.getItem('READALONG_DEBUG')==='1'){
+              const ww = words.find(w=> tMs >= w.start_ms && tMs <= w.end_ms);
+              console.debug('[read-along]', { tMs: Math.floor(tMs), word: ww?.w, start: ww?.start_ms, end: ww?.end_ms, sentenceIndex: si });
+            }
+          } else {
+            // Fallback to caption cue blocks
+            const cue = this._captions.cues.find(c=> tMs >= c.startMs && tMs <= c.endMs);
+            if (!cue) { this._captions.container.textContent=''; this._captions.container.removeAttribute('aria-label'); }
+            else {
+              this._captions.container.textContent = cue.text;
+              this._captions.container.setAttribute('aria-label', cue.text);
+            }
+          }
+          // Positioning: center below chin over collar, two-line wrap (avoid face-safe zone)
+          try {
+            const el = this._captions.container;
+            el.style.position = 'fixed';
+            el.style.left = '50%';
+            el.style.right = 'auto';
+            el.style.transform = 'translateX(-50%)';
+            el.style.bottom = '21vh'; // stays below the 30–55% face-safe band
+            el.style.maxWidth = (document.body.classList.contains('compact') ? '46%' : '52%');
+            el.style.textAlign = 'center';
+            el.style.lineHeight = (document.body.classList.contains('compact') ? '1.2' : '1.25');
+            el.style.fontSize = (document.body.classList.contains('compact') ? '15px' : '16px');
+            el.style.color = '#222';
+            el.style.background = 'rgba(255,255,255,0.9)';
+            el.style.borderRadius = '12px';
+            el.style.padding = (document.body.classList.contains('compact') ? '8px 10px' : '10px 12px');
+            el.style.boxShadow = '0 6px 20px rgba(0,0,0,.16)';
+            el.style.textShadow = 'none';
+            el.style.whiteSpace = 'normal';
+            el.style.wordBreak = 'break-word';
+            // Natural wrap to avoid ellipsis/cutoff (no mask)
+            el.style.display = 'block';
+            el.style.overflow = 'visible';
+            el.style.maxHeight = 'none';
+          } catch{}
         } catch {}
         this._captions.raf = requestAnimationFrame(tick);
       };
@@ -2577,61 +3447,217 @@ if (typeof window !== 'undefined') {
       this._animRaf = requestAnimationFrame(tick);
     },
     _stopAnimTicker(){ cancelAnimationFrame(this._animRaf); this._animRaf = null; },
+    // Breathing overlay ticker (box breathing) — optional per slide via overlay_plan
+    _startOverlayTicker(){
+      cancelAnimationFrame(this._overlayRaf);
+      try {
+        const slide = this._manifest?.slides?.[this._slideIndex];
+        const plan = slide && slide.overlay_plan; // { type:'box_breath', cadence:[ms,ms,ms,ms], cycles:n }
+        if (!plan || plan.type !== 'box_breath') { if (this._overlayEl) this._overlayEl.style.display='none'; return; }
+        if (!this._overlayEl){
+          const d = document.createElement('div');
+          d.id = 'breath-overlay';
+          d.style.position='fixed'; d.style.left='50%'; d.style.transform='translateX(-50%)';
+          d.style.bottom='26vh'; d.style.width='72px'; d.style.height='72px'; d.style.borderRadius='999px';
+          d.style.background='rgba(255,255,255,0.96)'; d.style.boxShadow='0 8px 22px rgba(0,0,0,.14)'; d.style.zIndex='3100'; d.style.display='none';
+          document.body.appendChild(d); this._overlayEl = d;
+        }
+        const el = this._overlayEl; el.style.display='block';
+        const cadence = Array.isArray(plan.cadence)&&plan.cadence.length===4? plan.cadence : [4000,4000,4000,4000];
+        const cycles = Math.max(1, plan.cycles||2);
+        const keyframes=[]; for(let i=0;i<cycles;i++){ keyframes.push(...cadence); }
+        const total = keyframes.reduce((a,b)=>a+b,0);
+        const min=72, max=164, rng=max-min;
+        const tick = ()=>{
+          try{
+            const now = this._audio?.ctx?.currentTime || 0;
+            const tMs = Math.max(0, (now - this._slideStartAtAudioTime) * 1000);
+            const phase = keyframes.length? (tMs % total) : 0;
+            let acc=0, seg=0; for(let i=0;i<keyframes.length;i++){ acc+=keyframes[i]; if (phase<=acc){ seg=i%4; break; } }
+            const segDur = keyframes[seg]||1; const segStart = acc - segDur; const segPos = Math.max(0, Math.min(1, (phase - segStart)/segDur));
+            let px=min; if (seg===0) px=min+rng*segPos; else if(seg===1) px=max; else if(seg===2) px=max-rng*segPos; else px=min;
+            el.style.width=`${Math.floor(px)}px`; el.style.height=`${Math.floor(px)}px`;
+          }catch{}
+          this._overlayRaf = requestAnimationFrame(tick);
+        };
+        this._overlayRaf = requestAnimationFrame(tick);
+      } catch {}
+    },
+    _stopOverlayTicker(){ cancelAnimationFrame(this._overlayRaf); this._overlayRaf=null; if (this._overlayEl) this._overlayEl.style.display='none'; },
     _startPopupTicker(){
       cancelAnimationFrame(this._popup.raf);
-      const host = this._popup.host; if (!host) return;
-      host.style.position='fixed'; host.style.right='20px'; host.style.top='20px'; host.style.zIndex='3200';
+      const single = this._popup.host && !(this._popup.hostRight || this._popup.hostLeft);
+      const hostRight = this._popup.hostRight || (single ? this._popup.host : null);
+      const hostLeft = this._popup.hostLeft || null;
+      const ensurePos = (el, side)=>{ if (!el) return; el.style.position='fixed'; el.style.zIndex='3200'; el.style.top='8vh'; el.style.bottom='auto'; if (side==='right'){ el.style.right='20px'; el.style.left=''; } else { el.style.left='20px'; el.style.right=''; } };
+      ensurePos(hostRight,'right'); ensurePos(hostLeft,'left');
       const tick = ()=>{
         try {
           const slide = this._manifest.slides[this._slideIndex];
-          const payload = slide.popup_payload || null; const tpl = slide.popup_template_id || null; if (!payload || !tpl) { this._popup.raf = requestAnimationFrame(tick); return; }
-          const at = Number(payload.at_ms || 0); const tMs = Math.max(0, (this._audio?.ctx?.currentTime - this._slideStartAtAudioTime) * 1000);
-          const show = tMs >= at && tMs <= (at + 4000);
-          if (show){
-            if (this._popup.shownId !== at){ this._popup.shownId = at; host.innerHTML = renderPopup(tpl, payload); }
+          const now = this._audio?.ctx?.currentTime || 0;
+          const tMs = Math.max(0, (now - this._slideStartAtAudioTime) * 1000);
+          // Clues as hover tooltips only (no auto popups during playback)
+          const payload = slide.popup_payload || null; const tpl = slide.popup_template_id || null;
+          if (payload && tpl){
+            // Time-gate the appearance of the button if at_ms provided
+            const ready = typeof payload.at_ms === 'number' ? tMs >= payload.at_ms : true;
+            const side = String(payload.side||'right').toLowerCase()==='left' ? 'left' : 'right';
+            const target = side==='left' ? (hostLeft || hostRight) : (hostRight || hostLeft || this._popup.host);
+            if (target){ ensurePos(target, side); }
+            if (target && !target._tooltipInit){
+              target._tooltipInit = true;
+              const btn = document.createElement('button');
+              btn.textContent = 'Learn more';
+              btn.style.padding='8px 12px'; btn.style.fontSize='12px'; btn.style.borderRadius='16px'; btn.style.border='1px solid rgba(0,0,0,.12)'; btn.style.background='rgba(255,255,255,0.96)'; btn.style.cursor='pointer';
+              btn.onmouseenter = ()=>{ target.innerHTML = renderPopup(tpl, payload); };
+              btn.onmouseleave = ()=>{ target.innerHTML = ''; target.appendChild(btn); };
+              target.appendChild(btn);
+              target._btn = btn;
+            }
+            // toggle visibility based on time gate
+            if (target && target._btn){ target.style.display = ready ? 'block' : 'none'; }
           } else {
-            if (host.innerHTML) host.innerHTML = '';
+            if (hostRight && hostRight.innerHTML) hostRight.innerHTML = '';
+            if (hostLeft && hostLeft.innerHTML) hostLeft.innerHTML = '';
           }
+          // Render Q&A chips (slides with qa): two horizontally aligned options below captions
+          try {
+            const s = slide.qa; if (s && Array.isArray(s.choices)){
+              let deck = document.getElementById('qa-lower-deck');
+              if (!deck){ deck = document.createElement('div'); deck.id='qa-lower-deck'; document.body.appendChild(deck); }
+              // Keep Q&A chips away from the face: below captions and slightly lower in compact mode
+              deck.style.position='fixed'; deck.style.bottom = (document.body.classList.contains('compact') ? '8vh' : '10vh'); deck.style.left='50%'; deck.style.transform='translateX(-50%)'; deck.style.display='flex'; deck.style.gap='20px'; deck.style.zIndex='3300'; deck.style.flexDirection='row'; deck.style.alignItems='center'; deck.style.pointerEvents='auto';
+              if (deck._renderedSlide !== this._slideIndex){
+                deck.innerHTML=''; deck._renderedSlide = this._slideIndex;
+                s.choices.slice(0,2).forEach((c)=>{
+                  const btn = document.createElement('button');
+                  btn.textContent = c.text || c.id;
+                  btn.style.padding = (document.body.classList.contains('compact') ? '10px 12px' : '14px 18px'); btn.style.fontSize=(document.body.classList.contains('compact') ? '15px' : '17px'); btn.style.borderRadius='999px'; btn.style.border='1px solid rgba(0,0,0,.12)'; btn.style.background='rgba(255,255,255,0.96)'; btn.style.boxShadow='0 8px 20px rgba(0,0,0,.14)'; btn.style.cursor='pointer'; btn.style.minWidth=(document.body.classList.contains('compact') ? '160px' : '220px');
+                  btn.onmouseenter=()=>{ btn.style.background='rgba(255,255,255,1)'; };
+                  btn.onmouseleave=()=>{ btn.style.background='rgba(255,255,255,0.96)'; };
+                  btn.onclick = ()=>{
+                    try { this._emitProgress('choice', { slide:this._slideIndex, choice:c.id }); } catch{}
+                    // transient feedback bubble
+                    try {
+                      const fb = document.createElement('div');
+                      fb.textContent = String(c.feedback||'');
+                      fb.style.position='fixed'; fb.style.left='50%'; fb.style.transform='translateX(-50%)'; fb.style.bottom='16vh'; fb.style.fontSize='15px'; fb.style.padding='10px 14px'; fb.style.background='rgba(255,255,255,0.96)'; fb.style.border='1px solid rgba(0,0,0,.12)'; fb.style.borderRadius='12px'; fb.style.boxShadow='0 8px 22px rgba(0,0,0,.14)'; fb.style.zIndex='3350';
+                      document.body.appendChild(fb); setTimeout(()=>{ try { fb.remove(); } catch{} }, 1200);
+                    } catch{}
+                    // auto-advance shortly after
+                    setTimeout(()=>{ try { if (this._slideIndex < 4) this.seekToSlide(this._slideIndex+1); } catch{} }, 1300);
+                  };
+                  deck.appendChild(btn);
+                });
+              }
+            } else {
+              const deck = document.getElementById('qa-lower-deck'); if (deck){ deck.innerHTML=''; deck._renderedSlide = undefined; }
+            }
+          } catch{}
         } catch {}
         this._popup.raf = requestAnimationFrame(tick);
       };
       this._popup.raf = requestAnimationFrame(tick);
       function renderPopup(tpl, p){
-        const card = (inner)=>`<div style="background:rgba(255,255,255,.92);color:#111;border-radius:12px;padding:12px 14px;max-width:320px;box-shadow:0 6px 24px rgba(0,0,0,.2);font-size:14px;">${inner}</div>`;
+        const withExtra = (inner)=>{
+          const extra = p && p.extra_html ? `<div style='margin-top:8px'>${p.extra_html}</div>` : '';
+          return `<div style="background:rgba(255,255,255,.92);color:#111;border-radius:12px;padding:12px 14px;max-width:320px;box-shadow:0 6px 24px rgba(0,0,0,.2);font-size:14px;">${inner}${extra}</div>`;
+        };
         switch(String(tpl)){
-          case 'quote_card': return card(`<div style='font-weight:600'>&ldquo;${p.quote||''}&rdquo;</div>`);
+          case 'quote_card': return withExtra(`<div style='font-weight:600'>&ldquo;${p.quote||''}&rdquo;</div>`);
           case 'list_points': {
-            const items = Array.isArray(p.items)?p.items:[]; return card(`<ul style='margin-left:18px'>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`);
+            const items = Array.isArray(p.items)?p.items:[]; return withExtra(`<ul style='margin-left:18px'>${items.map(i=>`<li>${i}</li>`).join('')}</ul>`);
           }
-          case 'number_highlight': return card(`<div style='font-size:26px;font-weight:700'>${p.value||0}<span style='font-size:13px;margin-left:6px'>${p.unit||''}</span></div><div>${p.label||''}</div>`);
-          case 'definition_card': return card(`<div><strong>${p.term||''}</strong></div><div>${p.definition||''}</div>`);
-          default: return card(`<div>${tpl}</div>`);
+          case 'number_highlight': return withExtra(`<div style='font-size:26px;font-weight:700'>${p.value||0}<span style='font-size:13px;margin-left:6px'>${p.unit||''}</span></div><div>${p.label||''}</div>`);
+          case 'definition_card': return withExtra(`<div><strong>${p.term||''}</strong></div><div>${p.definition||''}</div>`);
+          default: return withExtra(`<div>${tpl}</div>`);
         }
       }
     },
     _stopPopupTicker(){ cancelAnimationFrame(this._popup.raf); this._popup.raf=null; if (this._popup.host) this._popup.host.innerHTML=''; },
+    async _bufferFirstChunkOfSlide(nextIndex){
+      try {
+        if (!this._manifest) return false;
+        if (nextIndex<0 || nextIndex>4) return false;
+        const slide = this._manifest.slides[nextIndex];
+        const first = slide?.audio_manifest?.chunks?.[0];
+        if (!first) return false;
+        await fetchAndBufferAudio(this, first);
+        this._slideIndex = nextIndex;
+        // Align slide clock to actual scheduled start of the just-scheduled buffer
+        try { this._slideStartAtAudioTime = this._audio.getLastStartAt(); } catch { this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds()); }
+        await this._loadCaptionsForSlide(slide); this._startCaptionsTicker();
+      await this._loadTimelinesForSlide(this._slideIndex); this._startAnimTicker(); this._startPopupTicker(); this._startOverlayTicker();
+        emit('slide_started', this._slideIndex);
+        this._emitProgress('slide_started', { index: this._slideIndex });
+        this._currentChunkIndex = 1; this._schedulePrefetch();
+        return true;
+      } catch { return false; }
+    },
     async prepare(manifest){
       this._manifest = manifest; this._slideIndex = 0; this._prepared = false; this._buffers = [];
       this._audio = new window.BufferedOpusPlayer();
       this._currentChunkIndex = 0;
+      // Autoplay policy: only start audio on first user interaction; expose a gate
+      try {
+        if (!this._autoplayArmed) {
+          const arm = ()=>{ this._autoplayArmed = true; window.removeEventListener('click', arm); window.removeEventListener('keydown', arm); };
+          window.addEventListener('click', arm, { once:true });
+          window.addEventListener('keydown', arm, { once:true });
+        }
+      } catch {}
+      // Dev validation (lightweight)
+      try {
+        const ok = Array.isArray(manifest?.slides) && manifest.slides.length===5 && manifest.slides.every(s=>s.captions_vtt_uri && s.audio_manifest && Array.isArray(s.audio_manifest.chunks));
+        if (!ok) console.warn('Manifest appears incomplete; check api/schemas/manifest.schema.json');
+      } catch {}
       // Prefetch first slide: protobufs (ignored here) and first audio chunk
       const slide = manifest.slides[0];
       const firstChunk = slide.audio_manifest?.chunks?.[0];
       if (firstChunk) {
-        const r = await fetchWithRetry(prox(firstChunk));
-        const ab = await r.arrayBuffer();
-        const buffered = await this._audio.appendChunk(ab);
-        this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds());
+        const buffered = await fetchAndBufferAudio(this, firstChunk);
+        try { this._slideStartAtAudioTime = this._audio.getLastStartAt(); } catch { this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds()); }
         this._currentChunkIndex = 1;
         this._schedulePrefetch();
         emit('buffer', Math.floor(buffered * 1000));
       }
       await this._loadCaptionsForSlide(slide); this._startCaptionsTicker();
-      await this._loadTimelinesForSlide(0); this._startAnimTicker(); this._startPopupTicker();
+      await this._loadTimelinesForSlide(0); this._startAnimTicker(); this._startPopupTicker(); this._startOverlayTicker();
       this._prepared = true;
       this._startStallMonitor();
+      // Install a global hook for test phoneme provider
+      if (!this._applyPhonemesHookInstalled) {
+        try {
+          window.__applyPhonemes = (payload)=>{
+            try {
+              if (!payload || !payload.audioUrl || !Array.isArray(payload.phonemes)) return;
+              // Ensure live rig path is active
+              try { this.setLiveAvatarEnabled(true); } catch {}
+              // Adopt provided audio into main audio element so the compositor can time off it
+              if (!this.audioElement) this.audioElement = new Audio();
+              this.audioElement.src = String(payload.audioUrl);
+              this.audioElement.playbackRate = this.playbackSpeed || 1;
+              // Autoplay policy: start muted so Safari allows playback; unmute on first user gesture
+              try {
+                this.audioElement.muted = true;
+                const unmuteOnce = ()=>{ try { this.audioElement.muted = false; } catch{} window.removeEventListener('click', unmuteOnce); window.removeEventListener('keydown', unmuteOnce); };
+                window.addEventListener('click', unmuteOnce, { once:true });
+                window.addEventListener('keydown', unmuteOnce, { once:true });
+              } catch{}
+              this.audioElement.addEventListener('canplay', ()=>{ if (this._isPlaying || this.autoplay) this.audioElement.play().catch(()=>{}); });
+              // Build viseme curves from phonemes and start the 2D loop
+              const curves = this._buildVisemeCurvesFromPhonemes(payload.phonemes);
+              window.__avatar_curves__ = curves;
+              this._ensureLive2DCompositor();
+              this._startLive2DLoop(curves);
+              console.log('✅ Phonemes applied. frames:', payload.phonemes.length);
+            } catch(e){ console.warn('applyPhonemes failed', e); }
+          };
+          this._applyPhonemesHookInstalled = true;
+        } catch{}
+      }
     },
-    async play(){ if (!this._prepared) return; this._audio.resume(); this._isPlaying = true; emit('slide_started', this._slideIndex); },
+    async play(){ if (!this._prepared) return; this._autoplayArmed = true; this._audio.resume(); this._isPlaying = true; emit('slide_started', this._slideIndex); this._emitProgress('play'); },
     pause(){ if (!this._prepared) return; this._audio.pause(); this._isPlaying = false; },
     stop(){ if (!this._prepared) return; this._audio.stop(); this._isPlaying = false; },
     async seekToSlide(i){
@@ -2642,15 +3668,13 @@ if (typeof window !== 'undefined') {
       const slide = this._manifest.slides[this._slideIndex];
       const firstChunk = slide.audio_manifest?.chunks?.[0];
       if (firstChunk) {
-        const r = await fetchWithRetry(prox(firstChunk));
-        const ab = await r.arrayBuffer();
-        await this._audio.appendChunk(ab);
-        this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds());
+        await fetchAndBufferAudio(this, firstChunk);
+        try { this._slideStartAtAudioTime = this._audio.getLastStartAt(); } catch { this._slideStartAtAudioTime = this._audio.ctx.currentTime + Math.max(0.01, this._audio.getBufferedSeconds()); }
         this._currentChunkIndex = 1; this._schedulePrefetch();
       }
       await this._loadCaptionsForSlide(slide); this._startCaptionsTicker();
-      await this._loadTimelinesForSlide(this._slideIndex); this._startAnimTicker(); this._startPopupTicker();
-      emit('slide_started', this._slideIndex);
+      await this._loadTimelinesForSlide(this._slideIndex); this._startAnimTicker(); this._startPopupTicker(); this._startOverlayTicker();
+      emit('slide_started', this._slideIndex); this._emitProgress('seek', { to: this._slideIndex });
     },
     _schedulePrefetch(){
       clearInterval(this._prefetchTimer);
@@ -2659,12 +3683,58 @@ if (typeof window !== 'undefined') {
         try {
           const slide = this._manifest.slides[this._slideIndex];
           const chunks = slide.audio_manifest?.chunks || [];
-          if (this._currentChunkIndex >= chunks.length) { clearInterval(this._prefetchTimer); return; }
+          if (this._currentChunkIndex >= chunks.length) {
+            // when last chunk drained, auto-advance to next slide
+            const remaining = this._audio.getBufferedSeconds();
+            // additional guard: make sure we've passed the end boundary/target duration so content isn't cut
+            let pastEnd = true;
+            try {
+              const now = this._audio?.ctx?.currentTime || 0;
+              const tMs = Math.max(0, (now - this._slideStartAtAudioTime) * 1000);
+              const lastBoundary = (()=>{
+                const arr = Array.isArray(slide.sentence_boundaries_ms) ? slide.sentence_boundaries_ms : [];
+                return arr.length ? arr[arr.length-1] : 0;
+              })();
+              const target = Math.max(lastBoundary, slide.target_duration_ms||0);
+              pastEnd = tMs >= (target - 150);
+            } catch {}
+            if (this._isPlaying && remaining < 0.5 && pastEnd) {
+              const next = this._slideIndex + 1;
+              if (next <= 4) { clearInterval(this._prefetchTimer); await this._bufferFirstChunkOfSlide(next); return; }
+            }
+            return;
+          }
           const bufferedSec = this._audio.getBufferedSeconds();
-          if (bufferedSec < 2.0) {
-            const url = chunks[this._currentChunkIndex++];
-            const r = await fetchWithRetry(prox(url), { signal: this._prefetchAbort.signal });
-            const ab = await r.arrayBuffer(); await this._audio.appendChunk(ab);
+          // Maintain ~3s buffer for natural pacing
+          if (bufferedSec < 3.0) {
+            const url = String(chunks[this._currentChunkIndex++]);
+            await fetchAndBufferAudio(this, url, { signal: this._prefetchAbort.signal });
+          }
+          if (this._currentChunkIndex >= chunks.length) {
+            const remaining = this._audio.getBufferedSeconds();
+            let pastEnd2 = true;
+            try {
+              const now = this._audio?.ctx?.currentTime || 0;
+              const tMs = Math.max(0, (now - this._slideStartAtAudioTime) * 1000);
+              const lastBoundary = (()=>{
+                const arr = Array.isArray(slide.sentence_boundaries_ms) ? slide.sentence_boundaries_ms : [];
+                return arr.length ? arr[arr.length-1] : 0;
+              })();
+              const target = Math.max(lastBoundary, slide.target_duration_ms||0);
+              pastEnd2 = tMs >= (target - 150);
+            } catch {}
+            if (this._isPlaying && remaining < 0.75 && pastEnd2) {
+              const next = this._slideIndex + 1;
+              if (next <= 4) {
+                clearInterval(this._prefetchTimer);
+                this._emitProgress('slide_completed', { index: this._slideIndex });
+                await this._bufferFirstChunkOfSlide(next);
+                return;
+              } else {
+                clearInterval(this._prefetchTimer);
+                this._emitProgress('lesson_completed');
+              }
+            }
           }
         } catch {}
       }, 250);

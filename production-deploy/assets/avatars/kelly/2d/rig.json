@@ -1,0 +1,33 @@
+{
+  "avatarId": "kelly",
+  "version": "1.0",
+  "mouth_bbox": {
+    "x": 1077,
+    "y": 548,
+    "w": 251,
+    "h": 118
+  },
+  "z_order": [
+    "base",
+    "mouth",
+    "teeth_upper",
+    "teeth_lower",
+    "tongue",
+    "eyelids",
+    "pupils"
+  ],
+  "visemes": [
+    "REST",
+    "MBP",
+    "FV",
+    "TH",
+    "DNTL",
+    "KG",
+    "S",
+    "WQ",
+    "R",
+    "A",
+    "E",
+    "I"
+  ]
+}

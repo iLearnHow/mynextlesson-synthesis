@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Ready Verification</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 40px; }
+        .test { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 8px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; font-size: 16px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>🎓 Student-Ready System Verification</h1>
+    
+    <div id="tests"></div>
+    
+    <button onclick="testAudio()">Test Kelly Audio Playback</button>
+    <button onclick="window.open('/', '_blank')">Open Main System</button>
+    
+    <script>
+        const tests = document.getElementById('tests');
+        
+        function addTest(name, passed) {
+            const div = document.createElement('div');
+            div.className = `test ${passed ? 'pass' : 'fail'}`;
+            div.textContent = `${passed ? '✅' : '❌'} ${name}`;
+            tests.appendChild(div);
+        }
+        
+        // Run tests
+        window.onload = () => {
+            // Test 1: Audio file accessible
+            fetch('/production-deploy/examples/2025-02-28/en/40-60/fun/kelly/0_full.mp3', { method: 'HEAD' })
+                .then(r => addTest('Kelly audio files accessible', r.ok))
+                .catch(() => addTest('Kelly audio files accessible', false));
+            
+            // Test 2: Student audio system loaded
+            setTimeout(() => {
+                addTest('Student audio system loaded', typeof window.studentAudioSystem !== 'undefined');
+                addTest('Lesson integration loaded', typeof window.lessonFix !== 'undefined');
+            }, 1000);
+        };
+        
+        function testAudio() {
+            const audio = new Audio('/production-deploy/examples/2025-02-28/en/40-60/fun/kelly/0_full.mp3');
+            audio.volume = 0.5;
+            audio.play()
+                .then(() => {
+                    addTest('Audio playback working', true);
+                    alert('You should hear Kelly speaking now!');
+                })
+                .catch(e => {
+                    addTest('Audio playback working', false);
+                    console.error(e);
+                });
+        }
+    </script>
+</body>
+</html>

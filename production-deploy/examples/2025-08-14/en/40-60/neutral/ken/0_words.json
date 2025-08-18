@@ -1,0 +1,339 @@
+{
+  "words": [
+    {
+      "w": "Welcome.",
+      "start_ms": 0,
+      "end_ms": 680
+    },
+    {
+      "w": "Today",
+      "start_ms": 680,
+      "end_ms": 1160
+    },
+    {
+      "w": "we’ll",
+      "start_ms": 1160,
+      "end_ms": 1540
+    },
+    {
+      "w": "practice",
+      "start_ms": 1540,
+      "end_ms": 2320
+    },
+    {
+      "w": "box",
+      "start_ms": 2320,
+      "end_ms": 2600
+    },
+    {
+      "w": "breathing—a",
+      "start_ms": 2600,
+      "end_ms": 3580
+    },
+    {
+      "w": "steady",
+      "start_ms": 3580,
+      "end_ms": 4160
+    },
+    {
+      "w": "rhythm",
+      "start_ms": 4160,
+      "end_ms": 4740
+    },
+    {
+      "w": "to",
+      "start_ms": 4740,
+      "end_ms": 4920
+    },
+    {
+      "w": "calm",
+      "start_ms": 4920,
+      "end_ms": 5300
+    },
+    {
+      "w": "your",
+      "start_ms": 5300,
+      "end_ms": 5680
+    },
+    {
+      "w": "body",
+      "start_ms": 5680,
+      "end_ms": 6060
+    },
+    {
+      "w": "and",
+      "start_ms": 6060,
+      "end_ms": 6340
+    },
+    {
+      "w": "steady",
+      "start_ms": 6340,
+      "end_ms": 6920
+    },
+    {
+      "w": "your",
+      "start_ms": 6920,
+      "end_ms": 7300
+    },
+    {
+      "w": "attention.",
+      "start_ms": 7300,
+      "end_ms": 8180
+    },
+    {
+      "w": "It’s",
+      "start_ms": 8750,
+      "end_ms": 9065
+    },
+    {
+      "w": "four",
+      "start_ms": 9065,
+      "end_ms": 9492
+    },
+    {
+      "w": "parts:",
+      "start_ms": 9492,
+      "end_ms": 10031
+    },
+    {
+      "w": "breathe",
+      "start_ms": 10031,
+      "end_ms": 10794
+    },
+    {
+      "w": "in",
+      "start_ms": 10794,
+      "end_ms": 10997
+    },
+    {
+      "w": "for",
+      "start_ms": 10997,
+      "end_ms": 11312
+    },
+    {
+      "w": "four,",
+      "start_ms": 11312,
+      "end_ms": 11739
+    },
+    {
+      "w": "hold",
+      "start_ms": 11739,
+      "end_ms": 12166
+    },
+    {
+      "w": "for",
+      "start_ms": 12166,
+      "end_ms": 12481
+    },
+    {
+      "w": "four,",
+      "start_ms": 12481,
+      "end_ms": 12908
+    },
+    {
+      "w": "breathe",
+      "start_ms": 12908,
+      "end_ms": 13671
+    },
+    {
+      "w": "out",
+      "start_ms": 13671,
+      "end_ms": 13986
+    },
+    {
+      "w": "for",
+      "start_ms": 13986,
+      "end_ms": 14301
+    },
+    {
+      "w": "four,",
+      "start_ms": 14301,
+      "end_ms": 14728
+    },
+    {
+      "w": "hold",
+      "start_ms": 14728,
+      "end_ms": 15155
+    },
+    {
+      "w": "for",
+      "start_ms": 15155,
+      "end_ms": 15470
+    },
+    {
+      "w": "four.",
+      "start_ms": 15470,
+      "end_ms": 15897
+    },
+    {
+      "w": "You",
+      "start_ms": 16500,
+      "end_ms": 16850
+    },
+    {
+      "w": "don’t",
+      "start_ms": 16850,
+      "end_ms": 17323
+    },
+    {
+      "w": "need",
+      "start_ms": 17323,
+      "end_ms": 17796
+    },
+    {
+      "w": "to",
+      "start_ms": 17796,
+      "end_ms": 18022
+    },
+    {
+      "w": "count",
+      "start_ms": 18022,
+      "end_ms": 18619
+    },
+    {
+      "w": "out",
+      "start_ms": 18619,
+      "end_ms": 18969
+    },
+    {
+      "w": "loud.",
+      "start_ms": 18969,
+      "end_ms": 19442
+    },
+    {
+      "w": "A",
+      "start_ms": 19442,
+      "end_ms": 19545
+    },
+    {
+      "w": "circle",
+      "start_ms": 19545,
+      "end_ms": 20265
+    },
+    {
+      "w": "on",
+      "start_ms": 20265,
+      "end_ms": 20491
+    },
+    {
+      "w": "the",
+      "start_ms": 20491,
+      "end_ms": 20841
+    },
+    {
+      "w": "screen",
+      "start_ms": 20841,
+      "end_ms": 21561
+    },
+    {
+      "w": "will",
+      "start_ms": 21561,
+      "end_ms": 22034
+    },
+    {
+      "w": "expand,",
+      "start_ms": 22034,
+      "end_ms": 22754
+    },
+    {
+      "w": "pause,",
+      "start_ms": 22754,
+      "end_ms": 23351
+    },
+    {
+      "w": "contract,",
+      "start_ms": 23351,
+      "end_ms": 24318
+    },
+    {
+      "w": "and",
+      "start_ms": 24318,
+      "end_ms": 24668
+    },
+    {
+      "w": "pause",
+      "start_ms": 24668,
+      "end_ms": 25265
+    },
+    {
+      "w": "with",
+      "start_ms": 25265,
+      "end_ms": 25738
+    },
+    {
+      "w": "you.",
+      "start_ms": 25738,
+      "end_ms": 26088
+    },
+    {
+      "w": "We’ll",
+      "start_ms": 26750,
+      "end_ms": 27268
+    },
+    {
+      "w": "try",
+      "start_ms": 27268,
+      "end_ms": 27651
+    },
+    {
+      "w": "a",
+      "start_ms": 27651,
+      "end_ms": 27765
+    },
+    {
+      "w": "short",
+      "start_ms": 27765,
+      "end_ms": 28418
+    },
+    {
+      "w": "round",
+      "start_ms": 28418,
+      "end_ms": 29071
+    },
+    {
+      "w": "together,",
+      "start_ms": 29071,
+      "end_ms": 30127
+    },
+    {
+      "w": "then",
+      "start_ms": 30127,
+      "end_ms": 30645
+    },
+    {
+      "w": "set",
+      "start_ms": 30645,
+      "end_ms": 31028
+    },
+    {
+      "w": "a",
+      "start_ms": 31028,
+      "end_ms": 31142
+    },
+    {
+      "w": "tiny",
+      "start_ms": 31142,
+      "end_ms": 31660
+    },
+    {
+      "w": "plan",
+      "start_ms": 31660,
+      "end_ms": 32178
+    },
+    {
+      "w": "for",
+      "start_ms": 32178,
+      "end_ms": 32561
+    },
+    {
+      "w": "your",
+      "start_ms": 32561,
+      "end_ms": 33079
+    },
+    {
+      "w": "day.",
+      "start_ms": 33079,
+      "end_ms": 33462
+    }
+  ]
+}

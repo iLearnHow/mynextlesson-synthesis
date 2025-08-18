@@ -1,0 +1,354 @@
+{
+  "metadata": {
+    "version": "phase_v1",
+    "lessonId": "the-moon",
+    "title": "AI-synthesized concept for the-moon"
+  },
+  "phases": [
+    {
+      "id": "welcome",
+      "timing": {
+        "minListen": 6
+      },
+      "narration": { "voiceOver": "Bienvenue. Ce soir, pensons comme des explorateurs: comment la Lune déplace l’eau, mesure les mois et inspire des histoires. Je te guiderai avec trois courtes questions; j’ajouterai un indice si besoin." },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "right_shoulder",
+                "id": "intro",
+                "text": "AI-synthesized concept for the-moon"
+              }
+            ]
+          }
+        ]
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "teaching_explaining"
+          }
+        ]
+      }
+    },
+    {
+      "id": "beginning",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": { "voiceOver": "Question un. Qu’est‑ce qui fait monter et descendre l’océan—le vent, ou la gravité de la Lune? Choisis quand tu es prêt(e).", "onNoChoice": "Indice: le vent fait des vagues, mais les marées ont besoin d’une traction—la gravité de la Lune. Choisissons cela." },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "beginning_q",
+                "text": "What causes the ocean tides to rise and fall?"
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "beginning_choices",
+                "text": "",
+                "extra": {
+                  "a": "The wind",
+                  "b": "The Moon's gravity"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "beginning_tm_b",
+                "text": "Exactly! The Moon's gravity gently pulls on the Earth's oceans, creating tides."
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "beginning_tm_a",
+                "text": "Wind makes waves, but the Moon's pull is strong enough to move the whole ocean!"
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "What causes the ocean tides to rise and fall?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "The wind"
+          },
+          {
+            "id": "b",
+            "text": "The Moon's gravity"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "Wind makes waves, but the Moon's pull is strong enough to move the whole ocean!",
+          "b": "Exactly! The Moon's gravity gently pulls on the Earth's oceans, creating tides."
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "middle",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": { "voiceOver": "Question deux. Combien de temps dure un tour de la Lune autour de la Terre—un jour, ou un mois? Choisis quand tu es prêt(e).", "onNoChoice": "Indice du langage lui‑même: ‘mois’ vient de ‘lune’. Environ un mois." },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "middle_q",
+                "text": "How long does it take for the moon to orbit the Earth?"
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "middle_choices",
+                "text": "",
+                "extra": {
+                  "a": "About a day",
+                  "b": "About a month"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "middle_tm_b",
+                "text": "That's right! The word \"month\" even comes from the word \"moon\"!"
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "middle_tm_a",
+                "text": "It takes about a day for the Earth to spin around once, but the moon takes longer to travel around us."
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "How long does it take for the moon to orbit the Earth?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "About a day"
+          },
+          {
+            "id": "b",
+            "text": "About a month"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "It takes about a day for the Earth to spin around once, but the moon takes longer to travel around us.",
+          "b": "That's right! The word \"month\" even comes from the word \"moon\"!"
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "end",
+      "timing": {
+        "minListen": 8,
+        "maxWait": 16,
+        "autoAdvanceAfterFeedback": 3
+      },
+      "narration": { "voiceOver": "Question trois. Des humains ont‑ils laissé des empreintes sur la Lune—non, trop loin, ou oui, les astronautes y ont marché? Choisis quand tu es prêt(e).", "onNoChoice": "Souviens‑toi d’Apollo—oui, nous y sommes allés. Choisissons cela et célébrons le possible." },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "text",
+                "region": "question_deck",
+                "id": "end_q",
+                "text": "Have people ever walked on the moon?"
+              }
+            ]
+          },
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "choices",
+                "region": "lower_deck",
+                "id": "end_choices",
+                "text": "",
+                "extra": {
+                  "a": "No, it is too far away",
+                  "b": "Yes, astronauts have walked on it"
+                }
+              }
+            ]
+          },
+          {
+            "at": "on_correct",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "end_tm_b",
+                "text": "Correct! The Apollo missions took astronauts to the moon and they even brought back moon rocks!"
+              }
+            ]
+          },
+          {
+            "at": "on_incorrect",
+            "show": [
+              {
+                "type": "hint",
+                "region": "right_shoulder",
+                "id": "end_tm_a",
+                "text": "It is very far, but brave astronauts have traveled there and back!"
+              }
+            ]
+          }
+        ]
+      },
+      "question": {
+        "text": "Have people ever walked on the moon?",
+        "choices": [
+          {
+            "id": "a",
+            "text": "No, it is too far away"
+          },
+          {
+            "id": "b",
+            "text": "Yes, astronauts have walked on it"
+          }
+        ],
+        "correct": "b",
+        "teachingMoments": {
+          "a": "It is very far, but brave astronauts have traveled there and back!",
+          "b": "Correct! The Apollo missions took astronauts to the moon and they even brought back moon rocks!"
+        }
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "question_curious"
+          },
+          {
+            "at": "on_correct",
+            "expression": "happy_celebrating"
+          },
+          {
+            "at": "on_incorrect",
+            "expression": "concerned_thinking"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wisdom",
+      "timing": {
+        "minListen": 6
+      },
+      "narration": { "voiceOver": "À emporter: comme la Lune, tu as des phases. Sois doux/douce pendant les moments plus sombres; la lumière revient." },
+      "screen": {
+        "steps": [
+          {
+            "at": "start",
+            "show": [
+              {
+                "type": "fortune",
+                "region": "right_shoulder",
+                "id": "fortune",
+                "text": "The moon reminds us that even in darkness, there is light."
+              }
+            ]
+          }
+        ]
+      },
+      "avatar": {
+        "cues": [
+          {
+            "at": "start",
+            "expression": "happy_celebrating"
+          }
+        ]
+      }
+    }
+  ]
+}

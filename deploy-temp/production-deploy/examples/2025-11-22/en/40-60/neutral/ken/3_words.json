@@ -1,0 +1,179 @@
+{
+  "words": [
+    {
+      "w": "Digital",
+      "start_ms": 0,
+      "end_ms": 569
+    },
+    {
+      "w": "signatures",
+      "start_ms": 569,
+      "end_ms": 1391
+    },
+    {
+      "w": "prove",
+      "start_ms": 1391,
+      "end_ms": 1792
+    },
+    {
+      "w": "authorship.",
+      "start_ms": 1792,
+      "end_ms": 2614
+    },
+    {
+      "w": "You",
+      "start_ms": 2614,
+      "end_ms": 2846
+    },
+    {
+      "w": "sign",
+      "start_ms": 2846,
+      "end_ms": 3163
+    },
+    {
+      "w": "with",
+      "start_ms": 3163,
+      "end_ms": 3480
+    },
+    {
+      "w": "your",
+      "start_ms": 3480,
+      "end_ms": 3797
+    },
+    {
+      "w": "private",
+      "start_ms": 3797,
+      "end_ms": 4366
+    },
+    {
+      "w": "key;",
+      "start_ms": 4366,
+      "end_ms": 4598
+    },
+    {
+      "w": "anyone",
+      "start_ms": 4598,
+      "end_ms": 5083
+    },
+    {
+      "w": "can",
+      "start_ms": 5083,
+      "end_ms": 5315
+    },
+    {
+      "w": "verify",
+      "start_ms": 5315,
+      "end_ms": 5800
+    },
+    {
+      "w": "with",
+      "start_ms": 5800,
+      "end_ms": 6117
+    },
+    {
+      "w": "your",
+      "start_ms": 6117,
+      "end_ms": 6434
+    },
+    {
+      "w": "public",
+      "start_ms": 6434,
+      "end_ms": 6919
+    },
+    {
+      "w": "key.",
+      "start_ms": 6919,
+      "end_ms": 7151
+    },
+    {
+      "w": "The",
+      "start_ms": 7720,
+      "end_ms": 7956
+    },
+    {
+      "w": "message",
+      "start_ms": 7956,
+      "end_ms": 8533
+    },
+    {
+      "w": "stays",
+      "start_ms": 8533,
+      "end_ms": 8939
+    },
+    {
+      "w": "readable",
+      "start_ms": 8939,
+      "end_ms": 9601
+    },
+    {
+      "w": "if",
+      "start_ms": 9601,
+      "end_ms": 9751
+    },
+    {
+      "w": "you",
+      "start_ms": 9751,
+      "end_ms": 9987
+    },
+    {
+      "w": "want,",
+      "start_ms": 9987,
+      "end_ms": 10308
+    },
+    {
+      "w": "but",
+      "start_ms": 10308,
+      "end_ms": 10544
+    },
+    {
+      "w": "the",
+      "start_ms": 10544,
+      "end_ms": 10780
+    },
+    {
+      "w": "signature",
+      "start_ms": 10780,
+      "end_ms": 11528
+    },
+    {
+      "w": "lets",
+      "start_ms": 11528,
+      "end_ms": 11849
+    },
+    {
+      "w": "others",
+      "start_ms": 11849,
+      "end_ms": 12341
+    },
+    {
+      "w": "check",
+      "start_ms": 12341,
+      "end_ms": 12747
+    },
+    {
+      "w": "it",
+      "start_ms": 12747,
+      "end_ms": 12897
+    },
+    {
+      "w": "was",
+      "start_ms": 12897,
+      "end_ms": 13133
+    },
+    {
+      "w": "you",
+      "start_ms": 13133,
+      "end_ms": 13369
+    },
+    {
+      "w": "and",
+      "start_ms": 13369,
+      "end_ms": 13605
+    },
+    {
+      "w": "unchanged.",
+      "start_ms": 13605,
+      "end_ms": 14353
+    }
+  ]
+}

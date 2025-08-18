@@ -1,0 +1,11 @@
+.visemeenv
+__deploy_bundle
+venv
+node_modules
+mynextlesson-synthesis
+tools
+coqui_training
+**/*.mp4
+**/*.bin
+**/*.so
+**/*.dylib

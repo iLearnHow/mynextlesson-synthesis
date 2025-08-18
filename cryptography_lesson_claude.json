@@ -1,0 +1,255 @@
+{
+  "meta": {
+    "date": "2025-11-22",
+    "topic": "Cryptography",
+    "age_band": "40-60",
+    "tone": "neutral"
+  },
+  "slides": [
+    {
+      "id": 1,
+      "type": "welcome",
+      "sentences": [
+        {
+          "text": "Welcome. Today we're exploring cryptography—the mathematics that keeps your bank account private and your messages authentic.",
+          "delivery": "warm",
+          "target_ms": 3400,
+          "rest_ms_after": 280
+        },
+        {
+          "text": "This isn't abstract theory. Every secure website, every digital payment, every private message relies on three elegant mathematical principles.",
+          "delivery": "purposeful",
+          "target_ms": 3600,
+          "rest_ms_after": 320
+        },
+        {
+          "text": "By the end, you'll understand how impossibly large numbers create perfect secrecy, and why that matters for your digital life.",
+          "delivery": "inviting",
+          "target_ms": 3200,
+          "rest_ms_after": 400
+        }
+      ],
+      "popups": [
+        {
+          "type": "definition_card",
+          "title": "Cryptography",
+          "content": "Mathematical methods for securing communication and verifying identity in an untrusted environment.",
+          "at_ms": 1800
+        }
+      ],
+      "visuals": {
+        "background_concept": "abstract_mathematical_flow",
+        "description": "Subtle flowing mathematical symbols and equations that morph and cascade gently behind the avatar - not distracting, but suggesting the mathematical beauty underlying security"
+      }
+    },
+    {
+      "id": 2,
+      "type": "q_and_a",
+      "question": {
+        "text": "When you shop online, what mathematical principle keeps your credit card number secret from everyone except the merchant?"
+      },
+      "choices": [
+        {
+          "choice_text": "Asymmetric encryption with public and private key pairs",
+          "feedback_text": "Exactly right. The merchant publishes a public key that anyone can use to encrypt data, but only they hold the private key that can decrypt it.",
+          "tone": "affirm"
+        },
+        {
+          "choice_text": "A shared password that both you and the merchant know",
+          "feedback_text": "That's symmetric encryption, which has a fatal flaw—how do you safely share the password? Asymmetric keys solve this elegantly.",
+          "tone": "gentle"
+        }
+      ],
+      "supporting_sentences": [
+        {
+          "text": "Think of it as a mathematical mailbox—anyone can drop a letter through the slot, but only the key holder can open it.",
+          "delivery": "metaphor",
+          "target_ms": 2800,
+          "rest_ms_after": 300
+        },
+        {
+          "text": "The mathematical relationship between these keys relies on problems that would take centuries to solve, even with supercomputers.",
+          "delivery": "wonder",
+          "target_ms": 3400,
+          "rest_ms_after": 350
+        }
+      ],
+      "popups": [
+        {
+          "type": "number_highlight",
+          "label": "RSA-2048 security",
+          "value": "2^2048 possible keys",
+          "content": "More combinations than atoms in the observable universe",
+          "at_ms": 2200
+        }
+      ],
+      "visuals": {
+        "main_concept": "key_pair_visualization",
+        "description": "Split-screen animation showing a public key (golden, radiating outward) and private key (silver, contained) with mathematical relationship lines connecting them. Show data flowing in encrypted (scrambled) and decrypted (clear) states."
+      }
+    },
+    {
+      "id": 3,
+      "type": "q_and_a",
+      "question": {
+        "text": "How can you verify that a software download hasn't been tampered with, without knowing anything about its contents?"
+      },
+      "choices": [
+        {
+          "choice_text": "Compare its cryptographic hash to the publisher's official hash",
+          "feedback_text": "Perfect. A hash is like a mathematical fingerprint—change even one bit of the file, and the hash changes completely and unpredictably.",
+          "tone": "affirm"
+        },
+        {
+          "choice_text": "Check the file size and creation date",
+          "feedback_text": "Those can be easily faked. Hashes use mathematical functions that make it virtually impossible to create two different files with the same fingerprint.",
+          "tone": "gentle"
+        }
+      ],
+      "supporting_sentences": [
+        {
+          "text": "Hash functions have a beautiful property called the avalanche effect—change one letter in a document, and roughly half the hash bits flip.",
+          "delivery": "fascination",
+          "target_ms": 3600,
+          "rest_ms_after": 280
+        },
+        {
+          "text": "It's computationally infeasible to work backwards from a hash to recreate the original data—that's what makes them so powerful for verification.",
+          "delivery": "technical_clarity",
+          "target_ms": 3800,
+          "rest_ms_after": 320
+        }
+      ],
+      "popups": [
+        {
+          "type": "definition_card",
+          "title": "Avalanche Effect",
+          "content": "A small change in input produces a dramatically different output, making tampering immediately detectable.",
+          "at_ms": 1600
+        }
+      ],
+      "visuals": {
+        "main_concept": "hash_avalanche_demo",
+        "description": "Side-by-side comparison showing two nearly identical text blocks (differing by one character) producing completely different hash outputs. Animated cascade showing how the single change ripples through the mathematical function to create the avalanche effect."
+      }
+    },
+    {
+      "id": 4,
+      "type": "q_and_a",
+      "question": {
+        "text": "When a software company digitally signs their code, what mathematical proof are they providing?"
+      },
+      "choices": [
+        {
+          "choice_text": "That they created this exact code and it hasn't been modified",
+          "feedback_text": "Precisely. They hash the code, then encrypt that hash with their private key. Anyone can verify using their public key that only they could have created this signature.",
+          "tone": "affirm"
+        },
+        {
+          "choice_text": "That the code is safe to run and free of malware",
+          "feedback_text": "Not quite—signatures prove authenticity and integrity, but not safety. A company could legitimately sign malicious code, though their reputation would suffer.",
+          "tone": "gentle"
+        }
+      ],
+      "supporting_sentences": [
+        {
+          "text": "Digital signatures combine hashing and asymmetric encryption to create mathematical proof of authorship that's impossible to forge.",
+          "delivery": "technical_precision",
+          "target_ms": 3600,
+          "rest_ms_after": 300
+        },
+        {
+          "text": "This is why your operating system can warn you about unsigned software—it lacks this mathematical proof of origin.",
+          "delivery": "practical_connection",
+          "target_ms": 3200,
+          "rest_ms_after": 350
+        }
+      ],
+      "popups": [
+        {
+          "type": "list_points",
+          "title": "Digital Signature Properties",
+          "content": [
+            "Authentication: Proves who signed it",
+            "Integrity: Proves content wasn't changed", 
+            "Non-repudiation: Signer can't deny they signed it"
+          ],
+          "at_ms": 2000
+        }
+      ],
+      "visuals": {
+        "main_concept": "digital_signature_process",
+        "description": "Flow diagram showing: Document → Hash Function → Hash Value → Private Key Encryption → Digital Signature. Then verification flow: Document + Signature → Public Key Decryption → Hash Comparison → Valid/Invalid result. Use distinct colors for each step."
+      }
+    },
+    {
+      "id": 5,
+      "type": "wisdom",
+      "sentences": [
+        {
+          "text": "Here's your mental model: asymmetric keys create private channels in public spaces, hashes create unforgeable fingerprints, and signatures prove mathematical authorship.",
+          "delivery": "synthesis",
+          "target_ms": 4200,
+          "rest_ms_after": 350
+        },
+        {
+          "text": "These aren't just technical curiosities—they're the mathematical foundations that make digital trust possible in a world of strangers.",
+          "delivery": "significance",
+          "target_ms": 3800,
+          "rest_ms_after": 300
+        },
+        {
+          "text": "Tomorrow, we'll explore how quantum computing threatens these mathematical assumptions, and what cryptographers are building to replace them.",
+          "delivery": "forward_anticipation",
+          "target_ms": 3600,
+          "rest_ms_after": 500
+        }
+      ],
+      "popups": [
+        {
+          "type": "number_highlight",
+          "label": "Quantum threat timeline",
+          "value": "10-30 years",
+          "content": "Estimated time until quantum computers can break current encryption",
+          "at_ms": 3000
+        }
+      ],
+      "visuals": {
+        "main_concept": "cryptographic_ecosystem",
+        "description": "Elegant network visualization showing how the three concepts (keys, hashes, signatures) interconnect to secure different aspects of digital life: banking, messaging, software, identity. Gentle pulsing connections showing the flow of trust through the system."
+      }
+    }
+  ],
+  "timing_hints": {
+    "pace_wpm": 150,
+    "min_inter_sentence_rest_ms": 280,
+    "slide_end_rest_ms": 400
+  },
+  "visual_assets_needed": [
+    {
+      "asset_id": "abstract_mathematical_flow",
+      "type": "background_animation",
+      "description": "Subtle, slow-moving mathematical symbols and light geometric patterns that suggest complexity without distraction"
+    },
+    {
+      "asset_id": "key_pair_visualization", 
+      "type": "concept_illustration",
+      "description": "Split-screen showing public key (golden, radiating) and private key (silver, contained) with connecting mathematical relationship lines"
+    },
+    {
+      "asset_id": "hash_avalanche_demo",
+      "type": "interactive_comparison", 
+      "description": "Two text blocks differing by one character, showing completely different hash outputs with animated cascade effect"
+    },
+    {
+      "asset_id": "digital_signature_process",
+      "type": "process_flow",
+      "description": "Clean flow diagram showing signature creation and verification process with distinct color coding for each step"
+    },
+    {
+      "asset_id": "cryptographic_ecosystem",
+      "type": "network_visualization",
+      "description": "Interconnected network showing how keys, hashes, and signatures secure different digital activities with gentle pulsing connections"
+    }
+  ]
+}

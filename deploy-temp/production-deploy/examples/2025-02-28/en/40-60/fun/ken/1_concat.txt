@@ -1,0 +1,7 @@
+file "/Users/nicolette/ilearn_how/production-deploy/examples/2025-02-28/en/40-60/fun/ken/1_s0.mp3"
+file "/Users/nicolette/ilearn_how/production-deploy/examples/2025-02-28/en/40-60/fun/ken/sil_250ms.wav"
+file "/Users/nicolette/ilearn_how/production-deploy/examples/2025-02-28/en/40-60/fun/ken/1_s1.mp3"
+file "/Users/nicolette/ilearn_how/production-deploy/examples/2025-02-28/en/40-60/fun/ken/sil_250ms.wav"
+file "/Users/nicolette/ilearn_how/production-deploy/examples/2025-02-28/en/40-60/fun/ken/1_s2.mp3"
+file "/Users/nicolette/ilearn_how/production-deploy/examples/2025-02-28/en/40-60/fun/ken/sil_250ms.wav"
+file "/Users/nicolette/ilearn_how/production-deploy/examples/2025-02-28/en/40-60/fun/ken/1_s3.mp3"

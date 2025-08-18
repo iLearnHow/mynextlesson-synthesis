@@ -11,7 +11,7 @@
 ### **✅ Phase 1: Remove Testing Elements**
 - **Status**: ✅ COMPLETED
 - **Changes**: Removed red background flash from `toggleAllControls()` function
-- **Location**: `index.html` line ~2670
+- **Location**: `CXindex.html` line ~2670
 - **Result**: Clean expansion without visual testing feedback
 
 ### **✅ Phase 2: Update "Talk" to "Continue"**

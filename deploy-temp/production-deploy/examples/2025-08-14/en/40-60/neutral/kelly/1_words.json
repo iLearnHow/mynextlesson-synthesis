@@ -1,0 +1,284 @@
+{
+  "words": [
+    {
+      "w": "Sit",
+      "start_ms": 0,
+      "end_ms": 330
+    },
+    {
+      "w": "comfortably.",
+      "start_ms": 330,
+      "end_ms": 1593
+    },
+    {
+      "w": "Shoulders",
+      "start_ms": 1593,
+      "end_ms": 2623
+    },
+    {
+      "w": "relaxed.",
+      "start_ms": 2623,
+      "end_ms": 3419
+    },
+    {
+      "w": "We’ll",
+      "start_ms": 3750,
+      "end_ms": 4102
+    },
+    {
+      "w": "do",
+      "start_ms": 4102,
+      "end_ms": 4268
+    },
+    {
+      "w": "two",
+      "start_ms": 4268,
+      "end_ms": 4527
+    },
+    {
+      "w": "gentle",
+      "start_ms": 4527,
+      "end_ms": 5066
+    },
+    {
+      "w": "cycles",
+      "start_ms": 5066,
+      "end_ms": 5605
+    },
+    {
+      "w": "together.",
+      "start_ms": 5605,
+      "end_ms": 6330
+    },
+    {
+      "w": "Watch",
+      "start_ms": 6330,
+      "end_ms": 6776
+    },
+    {
+      "w": "the",
+      "start_ms": 6776,
+      "end_ms": 7035
+    },
+    {
+      "w": "circle",
+      "start_ms": 7035,
+      "end_ms": 7574
+    },
+    {
+      "w": "and",
+      "start_ms": 7574,
+      "end_ms": 7833
+    },
+    {
+      "w": "let",
+      "start_ms": 7833,
+      "end_ms": 8092
+    },
+    {
+      "w": "it",
+      "start_ms": 8092,
+      "end_ms": 8258
+    },
+    {
+      "w": "guide",
+      "start_ms": 8258,
+      "end_ms": 8704
+    },
+    {
+      "w": "you.",
+      "start_ms": 8704,
+      "end_ms": 8963
+    },
+    {
+      "w": "In…",
+      "start_ms": 9500,
+      "end_ms": 10051
+    },
+    {
+      "w": "two…",
+      "start_ms": 10051,
+      "end_ms": 10888
+    },
+    {
+      "w": "three…",
+      "start_ms": 10888,
+      "end_ms": 12296
+    },
+    {
+      "w": "four.",
+      "start_ms": 12296,
+      "end_ms": 13418
+    },
+    {
+      "w": "Hold…",
+      "start_ms": 13750,
+      "end_ms": 14730
+    },
+    {
+      "w": "two…",
+      "start_ms": 14730,
+      "end_ms": 15460
+    },
+    {
+      "w": "three…",
+      "start_ms": 15460,
+      "end_ms": 16690
+    },
+    {
+      "w": "four.",
+      "start_ms": 16690,
+      "end_ms": 17670
+    },
+    {
+      "w": "Out…",
+      "start_ms": 18000,
+      "end_ms": 18780
+    },
+    {
+      "w": "two…",
+      "start_ms": 18780,
+      "end_ms": 19560
+    },
+    {
+      "w": "three…",
+      "start_ms": 19560,
+      "end_ms": 20873
+    },
+    {
+      "w": "four.",
+      "start_ms": 20873,
+      "end_ms": 21919
+    },
+    {
+      "w": "Hold…",
+      "start_ms": 22250,
+      "end_ms": 23230
+    },
+    {
+      "w": "two…",
+      "start_ms": 23230,
+      "end_ms": 23960
+    },
+    {
+      "w": "three…",
+      "start_ms": 23960,
+      "end_ms": 25190
+    },
+    {
+      "w": "four.",
+      "start_ms": 25190,
+      "end_ms": 26170
+    },
+    {
+      "w": "One",
+      "start_ms": 26500,
+      "end_ms": 26792
+    },
+    {
+      "w": "more",
+      "start_ms": 26792,
+      "end_ms": 27188
+    },
+    {
+      "w": "cycle,",
+      "start_ms": 27188,
+      "end_ms": 27688
+    },
+    {
+      "w": "a",
+      "start_ms": 27688,
+      "end_ms": 27772
+    },
+    {
+      "w": "touch",
+      "start_ms": 27772,
+      "end_ms": 28272
+    },
+    {
+      "w": "softer.",
+      "start_ms": 28272,
+      "end_ms": 28877
+    },
+    {
+      "w": "In…",
+      "start_ms": 29250,
+      "end_ms": 29801
+    },
+    {
+      "w": "two…",
+      "start_ms": 29801,
+      "end_ms": 30638
+    },
+    {
+      "w": "three…",
+      "start_ms": 30638,
+      "end_ms": 32046
+    },
+    {
+      "w": "four.",
+      "start_ms": 32046,
+      "end_ms": 33168
+    },
+    {
+      "w": "Hold…",
+      "start_ms": 33500,
+      "end_ms": 34480
+    },
+    {
+      "w": "two…",
+      "start_ms": 34480,
+      "end_ms": 35210
+    },
+    {
+      "w": "three…",
+      "start_ms": 35210,
+      "end_ms": 36440
+    },
+    {
+      "w": "four.",
+      "start_ms": 36440,
+      "end_ms": 37420
+    },
+    {
+      "w": "Out…",
+      "start_ms": 37750,
+      "end_ms": 38530
+    },
+    {
+      "w": "two…",
+      "start_ms": 38530,
+      "end_ms": 39310
+    },
+    {
+      "w": "three…",
+      "start_ms": 39310,
+      "end_ms": 40623
+    },
+    {
+      "w": "four.",
+      "start_ms": 40623,
+      "end_ms": 41669
+    },
+    {
+      "w": "Hold…",
+      "start_ms": 42000,
+      "end_ms": 42980
+    },
+    {
+      "w": "two…",
+      "start_ms": 42980,
+      "end_ms": 43710
+    },
+    {
+      "w": "three…",
+      "start_ms": 43710,
+      "end_ms": 44940
+    },
+    {
+      "w": "four.",
+      "start_ms": 44940,
+      "end_ms": 45920
+    }
+  ]
+}

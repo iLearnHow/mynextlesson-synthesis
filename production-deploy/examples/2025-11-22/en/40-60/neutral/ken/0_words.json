@@ -1,0 +1,194 @@
+{
+  "words": [
+    {
+      "w": "Today,",
+      "start_ms": 0,
+      "end_ms": 499
+    },
+    {
+      "w": "you",
+      "start_ms": 499,
+      "end_ms": 790
+    },
+    {
+      "w": "and",
+      "start_ms": 790,
+      "end_ms": 1081
+    },
+    {
+      "w": "I",
+      "start_ms": 1081,
+      "end_ms": 1164
+    },
+    {
+      "w": "will",
+      "start_ms": 1164,
+      "end_ms": 1559
+    },
+    {
+      "w": "unlock",
+      "start_ms": 1559,
+      "end_ms": 2162
+    },
+    {
+      "w": "how",
+      "start_ms": 2162,
+      "end_ms": 2453
+    },
+    {
+      "w": "modern",
+      "start_ms": 2453,
+      "end_ms": 3056
+    },
+    {
+      "w": "cryptography",
+      "start_ms": 3056,
+      "end_ms": 4282
+    },
+    {
+      "w": "protects",
+      "start_ms": 4282,
+      "end_ms": 5093
+    },
+    {
+      "w": "nearly",
+      "start_ms": 5093,
+      "end_ms": 5696
+    },
+    {
+      "w": "everything",
+      "start_ms": 5696,
+      "end_ms": 6714
+    },
+    {
+      "w": "we",
+      "start_ms": 6714,
+      "end_ms": 6901
+    },
+    {
+      "w": "do",
+      "start_ms": 6901,
+      "end_ms": 7088
+    },
+    {
+      "w": "online.",
+      "start_ms": 7088,
+      "end_ms": 7691
+    },
+    {
+      "w": "You",
+      "start_ms": 8220,
+      "end_ms": 8496
+    },
+    {
+      "w": "will",
+      "start_ms": 8496,
+      "end_ms": 8871
+    },
+    {
+      "w": "leave",
+      "start_ms": 8871,
+      "end_ms": 9344
+    },
+    {
+      "w": "with",
+      "start_ms": 9344,
+      "end_ms": 9719
+    },
+    {
+      "w": "a",
+      "start_ms": 9719,
+      "end_ms": 9797
+    },
+    {
+      "w": "clear",
+      "start_ms": 9797,
+      "end_ms": 10270
+    },
+    {
+      "w": "picture",
+      "start_ms": 10270,
+      "end_ms": 10941
+    },
+    {
+      "w": "of",
+      "start_ms": 10941,
+      "end_ms": 11118
+    },
+    {
+      "w": "keys,",
+      "start_ms": 11118,
+      "end_ms": 11493
+    },
+    {
+      "w": "hashes,",
+      "start_ms": 11493,
+      "end_ms": 12065
+    },
+    {
+      "w": "and",
+      "start_ms": 12065,
+      "end_ms": 12341
+    },
+    {
+      "w": "signatures—plus",
+      "start_ms": 12341,
+      "end_ms": 13703
+    },
+    {
+      "w": "a",
+      "start_ms": 13703,
+      "end_ms": 13781
+    },
+    {
+      "w": "mental",
+      "start_ms": 13781,
+      "end_ms": 14353
+    },
+    {
+      "w": "model",
+      "start_ms": 14353,
+      "end_ms": 14826
+    },
+    {
+      "w": "you",
+      "start_ms": 14826,
+      "end_ms": 15102
+    },
+    {
+      "w": "can",
+      "start_ms": 15102,
+      "end_ms": 15378
+    },
+    {
+      "w": "trust.",
+      "start_ms": 15378,
+      "end_ms": 15851
+    },
+    {
+      "w": "We’ll",
+      "start_ms": 16440,
+      "end_ms": 17420
+    },
+    {
+      "w": "move",
+      "start_ms": 17420,
+      "end_ms": 18400
+    },
+    {
+      "w": "quickly,",
+      "start_ms": 18400,
+      "end_ms": 20130
+    },
+    {
+      "w": "but",
+      "start_ms": 20130,
+      "end_ms": 20860
+    },
+    {
+      "w": "gently.",
+      "start_ms": 20860,
+      "end_ms": 22340
+    }
+  ]
+}

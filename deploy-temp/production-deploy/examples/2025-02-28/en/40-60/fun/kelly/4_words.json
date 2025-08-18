@@ -1,0 +1,334 @@
+{
+  "words": [
+    {
+      "w": "Small,",
+      "start_ms": 0,
+      "end_ms": 477
+    },
+    {
+      "w": "safe",
+      "start_ms": 477,
+      "end_ms": 858
+    },
+    {
+      "w": "daylight",
+      "start_ms": 858,
+      "end_ms": 1621
+    },
+    {
+      "w": "is",
+      "start_ms": 1621,
+      "end_ms": 1811
+    },
+    {
+      "w": "a",
+      "start_ms": 1811,
+      "end_ms": 1906
+    },
+    {
+      "w": "signal,",
+      "start_ms": 1906,
+      "end_ms": 2478
+    },
+    {
+      "w": "not",
+      "start_ms": 2478,
+      "end_ms": 2764
+    },
+    {
+      "w": "a",
+      "start_ms": 2764,
+      "end_ms": 2859
+    },
+    {
+      "w": "chore.",
+      "start_ms": 2859,
+      "end_ms": 3336
+    },
+    {
+      "w": "It",
+      "start_ms": 3336,
+      "end_ms": 3526
+    },
+    {
+      "w": "tells",
+      "start_ms": 3526,
+      "end_ms": 4003
+    },
+    {
+      "w": "your",
+      "start_ms": 4003,
+      "end_ms": 4384
+    },
+    {
+      "w": "brain:",
+      "start_ms": 4384,
+      "end_ms": 4861
+    },
+    {
+      "w": "“It’s",
+      "start_ms": 4861,
+      "end_ms": 5147
+    },
+    {
+      "w": "daytime—be",
+      "start_ms": 5147,
+      "end_ms": 6006
+    },
+    {
+      "w": "steady.”",
+      "start_ms": 6006,
+      "end_ms": 6578
+    },
+    {
+      "w": "This",
+      "start_ms": 6865,
+      "end_ms": 7220
+    },
+    {
+      "w": "week,",
+      "start_ms": 7220,
+      "end_ms": 7575
+    },
+    {
+      "w": "aim",
+      "start_ms": 7575,
+      "end_ms": 7841
+    },
+    {
+      "w": "for",
+      "start_ms": 7841,
+      "end_ms": 8107
+    },
+    {
+      "w": "short",
+      "start_ms": 8107,
+      "end_ms": 8551
+    },
+    {
+      "w": "morning",
+      "start_ms": 8551,
+      "end_ms": 9173
+    },
+    {
+      "w": "light",
+      "start_ms": 9173,
+      "end_ms": 9617
+    },
+    {
+      "w": "most",
+      "start_ms": 9617,
+      "end_ms": 9972
+    },
+    {
+      "w": "days.",
+      "start_ms": 9972,
+      "end_ms": 10327
+    },
+    {
+      "w": "On",
+      "start_ms": 10327,
+      "end_ms": 10504
+    },
+    {
+      "w": "cloudy",
+      "start_ms": 10504,
+      "end_ms": 11037
+    },
+    {
+      "w": "or",
+      "start_ms": 11037,
+      "end_ms": 11214
+    },
+    {
+      "w": "busy",
+      "start_ms": 11214,
+      "end_ms": 11569
+    },
+    {
+      "w": "days,",
+      "start_ms": 11569,
+      "end_ms": 11924
+    },
+    {
+      "w": "step",
+      "start_ms": 11924,
+      "end_ms": 12279
+    },
+    {
+      "w": "out",
+      "start_ms": 12279,
+      "end_ms": 12545
+    },
+    {
+      "w": "for",
+      "start_ms": 12545,
+      "end_ms": 12811
+    },
+    {
+      "w": "two",
+      "start_ms": 12811,
+      "end_ms": 13077
+    },
+    {
+      "w": "minutes.",
+      "start_ms": 13077,
+      "end_ms": 13699
+    },
+    {
+      "w": "You",
+      "start_ms": 13991,
+      "end_ms": 14253
+    },
+    {
+      "w": "can",
+      "start_ms": 14253,
+      "end_ms": 14515
+    },
+    {
+      "w": "link",
+      "start_ms": 14515,
+      "end_ms": 14864
+    },
+    {
+      "w": "it",
+      "start_ms": 14864,
+      "end_ms": 15038
+    },
+    {
+      "w": "to",
+      "start_ms": 15038,
+      "end_ms": 15212
+    },
+    {
+      "w": "coffee",
+      "start_ms": 15212,
+      "end_ms": 15736
+    },
+    {
+      "w": "or",
+      "start_ms": 15736,
+      "end_ms": 15910
+    },
+    {
+      "w": "your",
+      "start_ms": 15910,
+      "end_ms": 16259
+    },
+    {
+      "w": "first",
+      "start_ms": 16259,
+      "end_ms": 16696
+    },
+    {
+      "w": "message",
+      "start_ms": 16696,
+      "end_ms": 17308
+    },
+    {
+      "w": "of",
+      "start_ms": 17308,
+      "end_ms": 17482
+    },
+    {
+      "w": "the",
+      "start_ms": 17482,
+      "end_ms": 17744
+    },
+    {
+      "w": "day—tiny,",
+      "start_ms": 17744,
+      "end_ms": 18356
+    },
+    {
+      "w": "consistent,",
+      "start_ms": 18356,
+      "end_ms": 19230
+    },
+    {
+      "w": "and",
+      "start_ms": 19230,
+      "end_ms": 19492
+    },
+    {
+      "w": "doable.",
+      "start_ms": 19492,
+      "end_ms": 20016
+    },
+    {
+      "w": "Tomorrow",
+      "start_ms": 20305,
+      "end_ms": 20955
+    },
+    {
+      "w": "we’ll",
+      "start_ms": 20955,
+      "end_ms": 21280
+    },
+    {
+      "w": "connect",
+      "start_ms": 21280,
+      "end_ms": 21849
+    },
+    {
+      "w": "light",
+      "start_ms": 21849,
+      "end_ms": 22255
+    },
+    {
+      "w": "to",
+      "start_ms": 22255,
+      "end_ms": 22417
+    },
+    {
+      "w": "sleep",
+      "start_ms": 22417,
+      "end_ms": 22823
+    },
+    {
+      "w": "timing,",
+      "start_ms": 22823,
+      "end_ms": 23311
+    },
+    {
+      "w": "so",
+      "start_ms": 23311,
+      "end_ms": 23473
+    },
+    {
+      "w": "nights",
+      "start_ms": 23473,
+      "end_ms": 23961
+    },
+    {
+      "w": "feel",
+      "start_ms": 23961,
+      "end_ms": 24286
+    },
+    {
+      "w": "calmer",
+      "start_ms": 24286,
+      "end_ms": 24774
+    },
+    {
+      "w": "and",
+      "start_ms": 24774,
+      "end_ms": 25018
+    },
+    {
+      "w": "mornings",
+      "start_ms": 25018,
+      "end_ms": 25668
+    },
+    {
+      "w": "feel",
+      "start_ms": 25668,
+      "end_ms": 25993
+    },
+    {
+      "w": "easier.",
+      "start_ms": 25993,
+      "end_ms": 26481
+    }
+  ]
+}

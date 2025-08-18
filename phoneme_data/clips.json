@@ -1,0 +1,13 @@
+{
+  "kelly2_first60": {
+    "label": "Kelly • first 60s",
+    "audioUrl": "/phoneme_data/audio/kelly2_first60.mp3",
+    "phonemes": "/phoneme_data/kelly2_first60.json"
+  },
+  "ken2_first60": {
+    "label": "Ken • first 60s",
+    "audioUrl": "/phoneme_data/audio/ken2_first60.mp3",
+    "phonemes": "/phoneme_data/ken2_first60.json"
+  }
+}
+

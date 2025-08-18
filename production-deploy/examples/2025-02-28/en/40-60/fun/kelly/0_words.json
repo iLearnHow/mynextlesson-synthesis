@@ -1,0 +1,194 @@
+{
+  "words": [
+    {
+      "w": "Welcome",
+      "start_ms": 0,
+      "end_ms": 502
+    },
+    {
+      "w": "to",
+      "start_ms": 502,
+      "end_ms": 645
+    },
+    {
+      "w": "this",
+      "start_ms": 645,
+      "end_ms": 932
+    },
+    {
+      "w": "lesson",
+      "start_ms": 932,
+      "end_ms": 1362
+    },
+    {
+      "w": "about",
+      "start_ms": 1362,
+      "end_ms": 1720
+    },
+    {
+      "w": "the",
+      "start_ms": 1720,
+      "end_ms": 1935
+    },
+    {
+      "w": "powerful",
+      "start_ms": 1935,
+      "end_ms": 2509
+    },
+    {
+      "w": "Sun.",
+      "start_ms": 2509,
+      "end_ms": 2724
+    },
+    {
+      "w": "In",
+      "start_ms": 3005,
+      "end_ms": 3157
+    },
+    {
+      "w": "the",
+      "start_ms": 3157,
+      "end_ms": 3385
+    },
+    {
+      "w": "next",
+      "start_ms": 3385,
+      "end_ms": 3689
+    },
+    {
+      "w": "few",
+      "start_ms": 3689,
+      "end_ms": 3917
+    },
+    {
+      "w": "minutes,",
+      "start_ms": 3917,
+      "end_ms": 4450
+    },
+    {
+      "w": "you’ll",
+      "start_ms": 4450,
+      "end_ms": 4831
+    },
+    {
+      "w": "explore",
+      "start_ms": 4831,
+      "end_ms": 5364
+    },
+    {
+      "w": "three",
+      "start_ms": 5364,
+      "end_ms": 5745
+    },
+    {
+      "w": "quick",
+      "start_ms": 5745,
+      "end_ms": 6126
+    },
+    {
+      "w": "questions",
+      "start_ms": 6126,
+      "end_ms": 6812
+    },
+    {
+      "w": "and",
+      "start_ms": 6812,
+      "end_ms": 7040
+    },
+    {
+      "w": "then",
+      "start_ms": 7040,
+      "end_ms": 7344
+    },
+    {
+      "w": "a",
+      "start_ms": 7344,
+      "end_ms": 7420
+    },
+    {
+      "w": "daily",
+      "start_ms": 7420,
+      "end_ms": 7801
+    },
+    {
+      "w": "dose",
+      "start_ms": 7801,
+      "end_ms": 8105
+    },
+    {
+      "w": "of",
+      "start_ms": 8105,
+      "end_ms": 8257
+    },
+    {
+      "w": "wisdom.",
+      "start_ms": 8257,
+      "end_ms": 8714
+    },
+    {
+      "w": "Notice",
+      "start_ms": 8999,
+      "end_ms": 9531
+    },
+    {
+      "w": "how",
+      "start_ms": 9531,
+      "end_ms": 9797
+    },
+    {
+      "w": "small",
+      "start_ms": 9797,
+      "end_ms": 10240
+    },
+    {
+      "w": "sunlight",
+      "start_ms": 10240,
+      "end_ms": 10949
+    },
+    {
+      "w": "cues",
+      "start_ms": 10949,
+      "end_ms": 11303
+    },
+    {
+      "w": "shape",
+      "start_ms": 11303,
+      "end_ms": 11746
+    },
+    {
+      "w": "mood,",
+      "start_ms": 11746,
+      "end_ms": 12100
+    },
+    {
+      "w": "energy,",
+      "start_ms": 12100,
+      "end_ms": 12632
+    },
+    {
+      "w": "and",
+      "start_ms": 12632,
+      "end_ms": 12898
+    },
+    {
+      "w": "bone",
+      "start_ms": 12898,
+      "end_ms": 13252
+    },
+    {
+      "w": "health.",
+      "start_ms": 13252,
+      "end_ms": 13784
+    },
+    {
+      "w": "Let’s",
+      "start_ms": 14065,
+      "end_ms": 14516
+    },
+    {
+      "w": "begin.",
+      "start_ms": 14516,
+      "end_ms": 15079
+    }
+  ]
+}

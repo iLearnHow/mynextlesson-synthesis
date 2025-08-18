@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iLearn How - Immersive UI v40 (Production)</title>
+    <link rel="stylesheet" href="/student-ready-polish.css">
+    <script>
+    // Early global open shim (queues until real openModal is ready)
+    (function(){
+      if (!window.__mlOpen) {
+        window.__mlOpen = function(id){
+          window.__mlOpenQueue = window.__mlOpenQueue || [];
+          window.__mlOpenQueue.push(id);
+        };
+      }
+    })();
+    // Global early shim to avoid cached bundle errors before any scripts load
+    (function(){
+      try {
+        var P = (window.UniversalLessonPlayer && window.UniversalLessonPlayer.prototype) || null;
+        if (P && typeof P._makeInspectorsDraggable !== 'function') {
+          P._makeInspectorsDraggable = function(){};
+        }
+        // Ensure phase mapper exists for legacy bundles
+        if (P && typeof P.mapPhaseForContent !== 'function') {
+          P.mapPhaseForContent = function(phase){
+            try {
+              var direct = ['welcome','beginning','middle','end','wisdom'];
+              if (direct.indexOf(phase) !== -1) return phase;
+              var alias = { opening:'welcome', question_1:'beginning', question_2:'middle', question_3:'end', closing:'wisdom', fortune:'wisdom' };
+              return alias[phase] || phase;
+            } catch(_) { return phase; }
+          };
+        }
+        // Also define an idempotent helper on window to re-apply after the class attaches
+        if (!window.__ml_drag_shim_installed) {
+          window._mlEnsureDragShim = function(){
+            try {
+              var P2 = (window.UniversalLessonPlayer && window.UniversalLessonPlayer.prototype) || null;
+              if (P2 && typeof P2._makeInspectorsDraggable !== 'function') { P2._makeInspectorsDraggable = function(){}; }
+              if (P2 && typeof P2.mapPhaseForContent !== 'function') {
+                P2.mapPhaseForContent = function(phase){
+                  try {
+                    var direct = ['welcome','beginning','middle','end','wisdom'];
+                    if (direct.indexOf(phase) !== -1) return phase;
+                    var alias = { opening:'welcome', question_1:'beginning', question_2:'middle', question_3:'end', closing:'wisdom', fortune:'wisdom' };
+                    return alias[phase] || phase;
+                  } catch(_) { return phase; }
+                };
+              }
+            } catch(e){}
+          };
+          window.__ml_drag_shim_installed = true;
+        }
+      } catch(e){}
+    })();
+    </script>
+    <style>
+        :root {
+            --glass-bg: rgba(242, 242, 247, 0.8); --glass-blur: blur(50px);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6); --shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            --text-primary: #1d1d1f; --accent-blue: #007AFF; --icon-size: 44px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; overflow: hidden; height: 100vh; background-color: #fff; }
+        .immersive-container { position: relative; width: 100vw; height: 100vh; }
+        .avatar-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; transition: background-image 0.5s ease-in-out; background-color: #e0e0e0; }
+        .avatar-background.kelly { 
+            background-image: url('/production-deploy/assets/avatars/kelly/kelly_neutral_default.png');
+            background-color: #FFE4E1; /* Light pink fallback */
+        }
+        .avatar-background.ken { 
+            background-image: url('/production-deploy/assets/avatars/ken/ken_neutral_default.png');
+            background-color: #E0E8FF; /* Light blue fallback */
+        }
+        .main-content-area, .ui-overlays { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .ui-overlays { z-index: 10; pointer-events: none; }
+        .ui-overlays > * { pointer-events: auto; }
+        .phase { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out; pointer-events: none; }
+        .phase.active { opacity: 1; visibility: visible; pointer-events: auto; }
+        .ios-panel { background: var(--glass-bg); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-radius: 22px; border: var(--glass-border); box-shadow: var(--shadow); color: var(--text-primary); position: absolute; transition: all 0.3s ease; }
+        .content-note { font-weight: 500; font-size: 19px; max-width: 400px; padding: 22px 28px; }
+        .position-question-deck { top: 18%; right: 20px; }
+        .position-lower-deck { top: 45%; left: 50%; transform: translateX(-50%); width: 50%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; background: transparent; box-shadow: none; backdrop-filter: none; border: none; align-items: center; }
+        .phase[data-question-side="left"] .position-lower-deck { left: 20px; transform: translateX(0); align-items: flex-start; }
+        .phase[data-question-side="right"] .position-lower-deck { right: 20px; left: auto; transform: translateX(0); align-items: flex-end; }
+        .position-centered-moment { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .choice-note { cursor: pointer; transition: all 0.2s ease; padding: 18px 22px; }
+        .choice-note:hover { transform: scale(1.03); box-shadow: 0 12px 40px rgba(0,0,0,0.2); }
+        .choice-note.selected { border: 2px solid var(--accent-blue); background: rgba(0, 122, 255, 0.1); }
+        .inspector-panel { width: 360px; height: 380px; display: none; flex-direction: column; resize: both; overflow: hidden; z-index: 400; }
+        .inspector-panel.visible { display: flex; }
+        .inspector-header { padding: 10px 10px 10px 20px; cursor: grab; background: rgba(0,0,0,0.05); border-bottom: 1px solid rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .inspector-header .pill-label { font-size: 13px; font-weight: 600; }
+        .inspector-close-btn { width: 28px; height: 28px; border: none; background: rgba(0,0,0,0.1); border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
+        .inspector-close-btn:hover { background: rgba(0,0,0,0.2); }
+        .inspector-content { padding: 15px; flex-grow: 1; overflow-y: auto; }
+        .inspector-content pre { white-space: pre-wrap; word-wrap: break-word; font-size: 12px; }
+        #state-inspector { top: 20px; left: 20px; } #content-inspector { bottom: 20px; left: 20px; } #code-inspector { top: 20px; right: 20px; }
+        
+        /* Bottom right control stack - exact specification */
+        .bottom-right-control-stack { 
+            position: fixed; 
+            z-index: 500; 
+            bottom: 20px; 
+            right: 20px; 
+            display: flex; 
+            align-items: flex-end; 
+            gap: 12px; 
+            pointer-events: auto; 
+        }
+        .control-btn { 
+            width: var(--icon-size); 
+            height: var(--icon-size); 
+            border-radius: 50%; 
+            border: none; 
+            background: var(--glass-bg); 
+            backdrop-filter: var(--glass-blur); 
+            box-shadow: var(--shadow); 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.2s ease-in-out; 
+            color: #333; 
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .control-btn:hover { background: rgba(255,255,255,0.9); transform: scale(1.05); }
+        .control-btn.active { background: var(--accent-blue); color: white; }
+        .control-btn svg { width: 55%; height: 55%; stroke-width: 1.5; pointer-events: none; }
+        
+        /* Liquid glass play/pause button */
+        .control-btn.liquid-glass {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .control-btn.liquid-glass:hover {
+            background: rgba(255, 255, 255, 1.0);
+            transform: scale(1.08);
+        }
+        /* Fan controls hidden by default; visible when menu is open */
+        .bottom-right-control-stack .ctl { display: none; }
+        body.menu-open .bottom-right-control-stack .ctl { display: flex; }
+        
+        /* Volume group with vertical slider */
+        .volume-group { 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        .vertical-slider { 
+            writing-mode: vertical-lr; 
+            direction: rtl; 
+            -webkit-appearance: none; 
+            appearance: none; 
+            width: 6px; 
+            height: 80px; 
+            background: var(--glass-bg); 
+            border-radius: 3px; 
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        .vertical-slider.hidden { opacity: 0; pointer-events: none; }
+        .vertical-slider.visible { opacity: 1; pointer-events: auto; }
+        
+        .master-flyout-container { position: relative; }
+        .master-flyout-menu { position: absolute; bottom: calc(100% + 10px); right: 0; width: 300px; padding: 15px; display: flex; flex-direction: column; gap: 15px; opacity: 0; pointer-events: none; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+        .master-flyout-container.active .master-flyout-menu { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .flyout-section { display: flex; flex-direction: column; gap: 8px; }
+        .flyout-section-label { font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.5); padding-left: 5px; }
+        .flyout-btn-group { display: flex; justify-content: space-around; background: rgba(0,0,0,0.05); border-radius: 12px; padding: 5px; }
+        .flyout-btn { flex-grow: 1; text-align: center; border: none; background: transparent; font-size: 15px; padding: 8px; border-radius: 9px; cursor: pointer; transition: background-color 0.2s; }
+        .flyout-btn.active { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        /* Read-along disabled for now (phoneme seam only) */
+        #read-along-player { display: none !important; }
+        
+        /* Hide overlapping content areas */
+        #lesson-content-overlay { display: none !important; }
+        #lesson-content { display: none !important; }
+        .phase { display: none !important; }
+        
+        /* Simple slide nav (fallback 5 slides) */
+        /* Variant compact bar (top pills) */
+        #variant-compact { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 2500; display:flex; align-items:center; gap:8px; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 18px; padding: 6px 8px; box-shadow: 0 8px 18px rgba(0,0,0,0.16); }
+        #variant-compact .pill { font-size: 12px; padding: 6px 10px; border-radius: 999px; background: rgba(0,0,0,0.06); }
+        /* Bottom-left slide dots */
+        #slide-dots { position: fixed; left: 24px; bottom: 24px; z-index: 1700; display:flex; gap:10px; align-items:center; }
+        #slide-dots .sd-dot { width: 30px; height: 30px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:#333; cursor:pointer; box-shadow: 0 8px 18px rgba(0,0,0,0.16); border:1px solid rgba(0,0,0,0.06); }
+        #slide-dots .sd-dot.active { background:#007AFF; color:#fff; }
+        /* Disabled: legacy vertical phase tracker */
+        .progress-bar-container { display: none !important; }
+        
+        /* Loading indicator */
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 122, 255, 0.2);
+            border-top-color: #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 5000;
+            display: none;
+        }
+        
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        /* Speaking indicator */
+        .avatar-background.speaking {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { filter: brightness(1.0); }
+            50% { filter: brightness(1.1); }
+        }
+        .progress-bar { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            position: relative; 
+            gap: 25px;
+        }
+        .progress-line { 
+            position: absolute; 
+            width: 2px; 
+            background-color: rgba(0,0,0,0.1); 
+            height: 100%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: -1; 
+        }
+        .progress-line-fill { 
+            position: absolute; 
+            width: 2px; 
+            background-color: var(--accent-blue); 
+            height: 0%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            z-index: -1; 
+            transition: height 0.4s ease-in-out; 
+        }
+        .progress-label-group { 
+            display: flex; 
+            align-items: center; 
+            cursor: pointer; 
+            width: 120px; /* Give it some width for the label */
+        }
+        .progress-step {
+            flex-shrink: 0; /* Prevent step from shrinking */
+        }
+        .progress-label { 
+            font-size: 12px; 
+            color: #888; 
+            margin-left: 15px; 
+            font-weight: 500; 
+            transition: color 0.3s; 
+        }
+        .progress-label-group.completed .progress-label { color: var(--text-primary); }
+        .progress-label-group.active .progress-label { color: var(--accent-blue); font-weight: 600; }
+        .progress-step { width: 12px; height: 12px; border-radius: 50%; background-color: rgba(255,255,255,0.4); transition: all 0.4s ease-in-out; }
+        .progress-step.active, .progress-step.completed { background-color: #fff; }
+        .progress-step.active { transform: scale(1.3); }
+                                                                              
+        /* Right-side icon rail anchored above the + menu icon */
+        .right-icon-rail { 
+            position: fixed; 
+            right: 20px; 
+            bottom: calc(20px + var(--icon-size) + 12px); 
+            z-index: 2000; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            pointer-events: none; 
+            visibility: hidden; 
+            opacity: 0; 
+            transition: all 0.25s ease; 
+        }
+        body.menu-open .right-icon-rail { pointer-events: auto; visibility: visible; opacity: 1; }
+        /* Ensure bottom-right ctl buttons actually reveal when menu-open */
+        body.menu-open .bottom-right-control-stack .ctl { display: flex !important; }
+        .right-icon-rail.collapsed { 
+            visibility: hidden; 
+            opacity: 0; 
+        }
+        .rail-btn { 
+            width: var(--icon-size); 
+            height: var(--icon-size); 
+            border-radius: 50%; 
+            border: none; 
+            background: var(--glass-bg); 
+            backdrop-filter: var(--glass-blur); 
+            -webkit-backdrop-filter: var(--glass-blur); 
+            box-shadow: var(--shadow); 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.2s ease-in-out; 
+            color: #333; 
+            font-size: 16px;
+            font-weight: 600;
+            pointer-events: auto;
+        }
+        .rail-btn:hover { 
+            background: rgba(255,255,255,0.9); 
+            transform: translateX(-2px); 
+        }
+        .rail-btn.active { 
+            background: var(--accent-blue); 
+            color: white; 
+        }
+        
+        /* Cardlets mode: tiny slide cards arranged away from the face-safe zone */
+        #slide-cardlets { position: fixed; inset: 0; pointer-events: none; z-index: 2400; display: none; }
+        body.cardlets #slide-cardlets { display: block; }
+        .cardlet { pointer-events: auto; background: rgba(255,255,255,0.9); border: var(--glass-border); box-shadow: 0 8px 22px rgba(0,0,0,0.14); border-radius: 12px; padding: 8px 10px; color:#111; font-size: 14px; }
+        .cardlet .hdr { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
+        /* Positions: keep out of center 30–55% h and 30–70% w */
+        #cl-phase { position: absolute; top: 8vh; left: 4vw; max-width: 20vw; }
+        #cl-variant { position: absolute; top: 8vh; right: 4vw; max-width: 24vw; display:flex; gap:6px; flex-wrap:wrap; }
+        #cl-quote { position: absolute; bottom: 24vh; left: 50%; transform: translateX(-50%); max-width: 38vw; text-align:center; font-size: 15px; padding: 8px 12px; }
+        #cl-nav { position: absolute; bottom: 8vh; left: 4vw; display:flex; gap:8px; }
+        .chip { background: rgba(0,0,0,0.06); border-radius: 999px; padding: 4px 8px; font-size: 12px; }
+
+        /* Compact mode to reveal more background */
+        body.compact .bottom-right-control-stack .control-btn { width: 36px; height: 36px; font-size: 16px; }
+        body.compact .rail-btn { width: 36px; height: 36px; }
+        body.compact .right-icon-rail { gap: 8px; }
+        body.compact #variant-compact { padding: 4px 6px; gap: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.14); }
+        body.compact #variant-compact .pill { font-size: 11px; padding: 4px 8px; }
+        body.compact #slide-dots { left: 16px; bottom: 16px; gap: 8px; }
+        body.compact #slide-dots .sd-dot { width: 24px; height: 24px; font-size: 11px; box-shadow: 0 6px 14px rgba(0,0,0,0.14); }
+        body.compact .overlay-card { width: min(320px, 70vw); max-height: 56vh; border-radius: 20px; }
+        body.compact .overlay-content { padding: 20px; }
+        body.compact .ios-panel { border-radius: 16px; }
+
+        /* Safe zone debug overlay (30%–70% width, 30%–55% height) */
+        #safe-zone-visual {
+            position: fixed;
+            left: 30vw;
+            top: 30vh;
+            width: 40vw; /* 70 - 30 */
+            height: 25vh; /* 55 - 30 */
+            border: 2px dashed rgba(0, 122, 255, 0.85);
+            border-radius: 12px;
+            box-shadow: 0 0 0 200vmax rgba(0,0,0,0.12);
+            background: rgba(0, 122, 255, 0.06);
+            z-index: 3500;
+            pointer-events: none;
+            display: none;
+        }
+        #safe-zone-visual::after {
+            content: 'FACE SAFE ZONE';
+            position: absolute;
+            top: -22px;
+            left: 0;
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(0,0,0,0.6);
+            background: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 6px;
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+
+        /* Dynamic content display for rail buttons */
+        .rail-btn[data-type="age"] { font-size: 14px; }
+        .rail-btn[data-type="language"] { font-size: 11px; }
+        .rail-btn[data-type="tone"] { font-size: 16px; font-weight: bold; }
+        .rail-btn[data-type="calendar"] { font-size: 12px; line-height: 1; }
+        
+        /* Floating glass popup unattached to edges */
+        .unified-popup-overlay { position: fixed; inset: 0; background: transparent; z-index: 3000; display: none; }
+        .unified-popup-overlay.visible { display: block; }
+        .overlay-card {
+            position: absolute; right: 90px; top: 58%; transform: translateY(-50%);
+            width: min(360px, 30vw); max-height: 64vh; overflow: hidden;
+            background: rgba(255,255,255,0.86);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+            border-radius: 24px; border: var(--glass-border);
+            box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+        }
+        .overlay-content { padding: 28px; display: flex; flex-direction: column; }
+        .overlay-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        .overlay-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+        .overlay-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .overlay-close:hover {
+            background: rgba(0, 0, 0, 0.2);
+            transform: scale(1.1);
+        }
+        .overlay-body {
+            flex-grow: 1;
+            color: #333;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Panels / Modals */
+        .modal-overlay { position: fixed; inset: 0; background: transparent; display: none; z-index: 1500; }
+        .modal-overlay.visible { display: flex; }
+        .modal-card { width: min(360px, 92vw); max-height: 78vh; overflow: auto; border-radius: 16px; border: var(--glass-border); background: var(--glass-bg); box-shadow: var(--shadow); padding: 16px; position: fixed; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .modal-title { font-weight: 700; font-size: 18px; }
+        .modal-close { border: none; background: rgba(0,0,0,0.08); border-radius: 10px; padding: 6px 10px; cursor: pointer; }
+        .search-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); font-size: 16px; }
+        .result-item { padding: 10px 12px; border-radius: 12px; cursor: pointer; transition: background 0.15s; }
+        .result-item:hover { background: rgba(255,255,255,0.8); }
+        .pill { display: inline-block; background: rgba(0,0,0,0.06); padding: 6px 10px; border-radius: 999px; font-size: 12px; margin-right: 6px; }
+        .row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .row .pill { margin-bottom: 8px; }
+    </style>
+    <style>
+        /* Manifest mode additions */
+        body.manifest-mode .progress-bar-container,
+        body.manifest-mode #start-overlay,
+        body.manifest-mode #read-along-player,
+        body.manifest-mode #lesson-content-overlay,
+        body.manifest-mode #persistent-question-container,
+        body.manifest-mode #welcome-phase,
+        body.manifest-mode #beginning-phase,
+        body.manifest-mode #middle-phase,
+        body.manifest-mode #end-phase,
+        body.manifest-mode #wisdom-phase,
+        body.manifest-mode #teaching-moment-phase,
+        body.manifest-mode #variant-badges,
+        body.manifest-mode #play-btn,
+        body.manifest-mode #volume-slider { display: none !important; }
+
+        /* Start overlay for manifest */
+        #start-overlay-manifest { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 4000; }
+        #start-overlay-manifest .card { display:flex; align-items:center; gap:14px; padding:18px 22px; border-radius:18px; background: rgba(255,255,255,0.9); box-shadow: 0 10px 40px rgba(0,0,0,0.25); transform: translateY(-12vh); }
+        #start-overlay-manifest .btn { font-weight:600; font-size:16px; padding:10px 16px; border-radius:12px; background:#007AFF; color:#fff; border:none; cursor:pointer; }
+
+        /* Captions */
+        #manifest-captions { position: fixed; left: 50%; transform: translateX(-50%); bottom: 21vh; max-width: 52%; text-align: center; line-height: 1.2; font-size: 16px; padding: 10px 12px; color: #222; background: rgba(255,255,255,0.9); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.16); z-index: 2200; display:none; }
+
+        /* QA lower deck chips (rendered by player) */
+        #qa-lower-deck { position: fixed; bottom: 10vh; left: 50%; transform: translateX(-50%); display:flex; gap:24px; z-index: 2300; }
+
+        /* Popup hosts */
+        #popup-host-right, #popup-host-left { position: fixed; top: 10vh; width: 300px; z-index: 2400; pointer-events:none; }
+        #popup-host-right { right: 90px; }
+        #popup-host-left { left: 90px; }
+
+        /* Five-dot progress */
+        #manifest-progress { position: fixed; top: 16px; left: 20px; z-index: 2500; display:flex; align-items:center; gap:12px; opacity:0.95; }
+        #manifest-progress .dot { width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,0.7); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
+        #manifest-progress .dot.active { background:#fff; transform: scale(1.2); }
+
+        /* Compact variant viewer */
+        /* remove legacy variant compact style duplicate */
+
+        /* Volume rail bottom-right */
+        #volume-rail { position: fixed; left: 20px; bottom: 20px; z-index: 3200; display:flex; flex-direction: row; align-items: center; gap:10px; background: rgba(255,255,255,0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); padding: 10px; border-radius: 28px; box-shadow: 0 8px 30px rgba(0,0,0,0.18); }
+        #volume-rail input[type="range"] { appearance: slider-horizontal; -webkit-appearance: none; width: 160px; height: 6px; }
+        #mute-toggle { border:none; background:transparent; cursor:pointer; font-size:18px; }
+        #play-pause-btn { position: fixed; right: 20px; bottom: 20px; z-index: 3201; width: var(--icon-size); height: var(--icon-size); border-radius: 50%; border: none; background: rgba(255,255,255,0.9); box-shadow: 0 8px 24px rgba(0,0,0,0.2); cursor:pointer; display:none; align-items:center; justify-content:center; }
+
+        /* Breathing overlay */
+        #breathing-overlay { position: fixed; inset: 0; display:none; align-items:center; justify-content:center; z-index: 2000; pointer-events:none; }
+    </style>
+</head>
+<body>
+    <div class="immersive-container">
+        <div id="safe-zone-visual" aria-hidden="true"></div>
+        <!-- Slide Cardlets (compact, off-center content) -->
+        <div id="slide-cardlets">
+            <div id="cl-phase" class="cardlet"><div class="hdr" id="cl-phase-h">Welcome</div><div id="cl-phase-sub"></div></div>
+            <div id="cl-variant" class="cardlet" style="display:flex;align-items:center;gap:6px;">
+                <span class="chip" id="cl-avatar">kelly</span>
+                <span class="chip" id="cl-tone">neutral</span>
+                <span class="chip" id="cl-lang">en</span>
+                <span class="chip" id="cl-age">25</span>
+            </div>
+            <div id="cl-quote" class="cardlet"><span id="cl-quote-text">""</span></div>
+            <div id="cl-nav" class="cardlet">
+                <button class="pill" id="cl-prev">Prev</button>
+                <button class="pill" id="cl-next">Next</button>
+            </div>
+        </div>
+        <div id="start-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 2500; pointer-events: auto;">
+            <div class="ios-panel" style="padding:22px 26px; border-radius:20px; display:flex; flex-direction:column; gap:10px; align-items:center; pointer-events: auto;">
+                <button id="start-lesson-btn" onclick="window.__mlStart?.()" style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif; font-size: 22px; font-weight: 600; padding: 14px 28px; border-radius: 14px; border: none; background: #007AFF; color: #fff; cursor: pointer; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); transition: transform 0.2s;">Start Lesson</button>
+            </div>
+        </div>
+        <div id="avatar-background" class="avatar-background ken"></div>
+        <div class="loading-spinner" id="loading-spinner"></div>
+        <div class="main-content-area">
+            <!-- Persistent Question Area -->
+            <div id="persistent-question-container" class="ios-panel content-note position-question-deck" style="visibility: hidden;"></div>
+
+            <div class="phase" id="welcome-phase">
+                <div class="ios-panel content-note position-right-shoulder" id="welcome-content">
+                    <div id="lesson-title" style="font-weight:700; font-size:22px; margin-bottom:8px;">Lesson</div>
+                    <div id="lesson-preview" style="opacity:0.85;"></div>
+                </div>
+            </div>
+            
+            <div class="phase" id="beginning-phase" data-question-side="center">
+                <div class="ios-panel position-lower-deck">
+                    <div style="font-weight:600; margin-bottom:6px;" class="question-text" id="beginning-question"></div>
+                    <div class="choice-note choice-a" id="beginning-choice-a"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                    <div class="choice-note choice-b" id="beginning-choice-b"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                </div>
+            </div>
+            <div class="phase" id="middle-phase" data-question-side="center">
+                <div class="ios-panel position-lower-deck">
+                    <div style="font-weight:600; margin-bottom:6px;" class="question-text" id="middle-question"></div>
+                    <div class="choice-note choice-a" id="middle-choice-a"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                    <div class="choice-note choice-b" id="middle-choice-b"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                </div>
+            </div>
+            <div class="phase" id="end-phase" data-question-side="center">
+                <div class="ios-panel position-lower-deck">
+                    <div style="font-weight:600; margin-bottom:6px;" class="question-text" id="end-question"></div>
+                    <div class="choice-note choice-a" id="end-choice-a"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                    <div class="choice-note choice-b" id="end-choice-b"><div class="choice-text"></div><div class="teaching-moment" style="display:none; margin-top:6px; opacity:0.9;"></div></div>
+                </div>
+            </div>
+
+            <div class="phase" id="wisdom-phase" data-question-side="right">
+                <div class="ios-panel content-note position-right-shoulder" id="wisdom-content">
+                    <div id="daily-fortune"></div>
+                </div>
+            </div>
+            <div class="phase" id="teaching-moment-phase"><div class="ios-panel content-note position-centered-moment" id="teaching-moment-content"></div></div>
+        </div>
+        <div class="ui-overlays">
+            <!-- Toast container -->
+            <div id="toast" class="ios-panel" style="position:fixed; left:50%; transform:translateX(-50%); bottom:30px; padding:10px 14px; display:none; z-index:1001; font-size:13px;"></div>
+            <div id="state-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Live State</span><button class="inspector-close-btn" data-inspector="state-inspector">&times;</button></div><div class="inspector-content"><pre id="state-inspector-content"></pre></div></div>
+            <div id="content-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Content Inspector</span><button class="inspector-close-btn" data-inspector="content-inspector">&times;</button></div><div class="inspector-content"><pre id="content-inspector-content"></pre></div></div>
+            <div id="code-inspector" class="ios-panel inspector-panel"><div class="inspector-header"><span class="pill-label">Lesson DNA</span><button class="inspector-close-btn" data-inspector="code-inspector">&times;</button></div><div class="inspector-content"><pre id="code-inspector-content"></pre></div></div>
+            <!-- Removed legacy vertical phase tracker -->
+            <div id="read-along-player" class="ios-panel"></div>
+            <!-- New unified bottom control stack - exact specification -->
+            <div class="bottom-right-control-stack">
+                <button id="menu-toggle" class="control-btn corner-position" title="Menu">+</button>
+                <button id="code-viewer" class="control-btn ctl" title="Code & Variants">{ }</button>
+                <button id="play-pause-master" class="control-btn liquid-glass ctl" title="Play/Pause">▶</button>  
+                <div class="volume-group ctl">
+                    <button id="volume-toggle" class="control-btn" title="Mute/Unmute">🔇</button>
+                    <input id="volume-slider" type="range" class="vertical-slider hidden" min="0" max="1" step="0.01" value="1">
+                </div>
+            </div>
+            <!-- Right-side vertical icon rail - exact specification -->
+            <div class="right-icon-rail" id="unified-rail">
+                <button id="age-control" class="rail-btn" data-type="age" data-current="40" title="Age: 40 years old">40</button>
+                <button id="language-control" class="rail-btn" data-type="language" data-current="EN-US" title="Language: English (US)">EN</button>
+                <button id="tone-control" class="rail-btn" data-type="tone" data-current="neutral" title="Tone: Neutral">N</button>
+                <button id="model-control" class="rail-btn" data-type="model" data-current="kelly" title="Avatar: Kelly">👩</button>
+                <button id="calendar-control" class="rail-btn" data-type="calendar" data-current="Aug 15" title="Calendar: August 15">15</button>
+                <button id="settings-control" class="rail-btn" data-type="settings" title="Settings">⚙️</button>
+                <button id="find-control" class="rail-btn" data-type="find" title="Find Lessons">🔍</button>
+            </div>
+            
+            <!-- Floating Overlay Popup System - unified for all controls -->
+            <div id="unified-popup-overlay" class="unified-popup-overlay">
+                <div class="overlay-card" id="overlay-card">
+                    <div class="overlay-content">
+                        <div class="overlay-header">
+                            <span id="overlay-title" class="overlay-title">Settings</span>
+                            <button id="overlay-close" class="overlay-close">×</button>
+                        </div>
+                        <div id="overlay-body" class="overlay-body">
+                            <!-- Dynamic content populated by JavaScript based on clicked control -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Manifest mode elements -->
+            <div id="start-overlay-manifest">
+                <div class="card"><div style="font-weight:600;color:#333;margin-right:12px;">Welcome</div><button class="btn" id="btn-start-lesson">Start lesson</button></div>
+            </div>
+            <div id="manifest-captions"></div>
+            <div id="popup-host-right"></div>
+            <div id="popup-host-left"></div>
+            <div id="manifest-progress" aria-label="Lesson progress" style="display:none;">
+                <div class="dot" data-i="0"></div>
+                <div class="dot" data-i="1"></div>
+                <div class="dot" data-i="2"></div>
+                <div class="dot" data-i="3"></div>
+                <div class="dot" data-i="4"></div>
+            </div>
+            <div id="variant-compact">
+                <span class="pill" id="vc-avatar">Avatar: kelly</span>
+                <span class="pill" id="vc-tone">Tone: neutral</span>
+                <span class="pill" id="vc-lang">Lang: en-us</span>
+                <span class="pill" id="vc-age">Age: 40</span>
+            </div>
+            <div id="slide-dots" aria-label="Slides">
+                <div class="sd-dot" data-i="0" title="Welcome">1</div>
+                <div class="sd-dot" data-i="1" title="Beginning">2</div>
+                <div class="sd-dot" data-i="2" title="Middle">3</div>
+                <div class="sd-dot" data-i="3" title="End">4</div>
+                <div class="sd-dot" data-i="4" title="Wisdom">5</div>
+            </div>
+            <div id="breathing-overlay"></div>
+            <div id="volume-rail" style="display:none;">
+                <button id="mute-toggle" title="Mute">🔇</button>
+                <input id="vol-ctl" type="range" min="0" max="1" step="0.01" value="1" />
+            </div>
+            <button id="play-pause-btn">▶️</button>
+        </div>
+    </div>
+
+    <!-- Live Modal -->
+    <div class="modal-overlay" id="live-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Live Class</div><button class="modal-close" data-close="live-modal">Close</button></div>
+            <div id="live-countdown" class="pill">Starting in: --:--</div>
+            <div style="margin-top:10px; opacity:0.85">At the top of the hour, the live class will automatically start.</div>
+            <div style="margin-top:14px;" class="row"><button class="pill" id="start-live-now">Start Now</button></div>
+        </div>
+    </div>
+
+    <!-- Find Modal -->
+    <div class="modal-overlay" id="find-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Find a Daily Lesson</div><button class="modal-close" data-close="find-modal">Close</button></div>
+            <input id="find-input" class="search-input" placeholder="Search 366 topics by title..."/>
+            <div id="find-results" style="margin-top:12px;"></div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Settings</div><button class="modal-close" data-close="settings-modal">Close</button></div>
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:260px;">
+                    <div class="pill" style="margin-bottom:8px;">Account</div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <input id="login-username" class="search-input" placeholder="Username"/>
+                        <input id="login-password" class="search-input" placeholder="Password" type="password"/>
+                        <div class="row"><button class="pill" id="btn-login">Login</button><button class="pill" id="btn-register">Register</button><button class="pill" id="btn-logout">Logout</button></div>
+                        <div id="auth-status" style="font-size:13px; opacity:0.8;"></div>
+                    </div>
+                </div>
+                <div style="flex:1; min-width:260px;">
+                    <div class="pill" style="margin-bottom:8px;">Preferences</div>
+                    <div class="row">
+                        <span class="pill" data-avatar="kelly">Avatar: Kelly</span>
+                        <span class="pill" data-avatar="ken">Avatar: Ken</span>
+                        <span class="pill" data-tone="neutral">Tone: Neutral</span>
+                        <span class="pill" data-tone="fun">Tone: Fun</span>
+                        <span class="pill" data-tone="grandmother">Tone: Grandma</span>
+                        <span class="pill" id="toggle-live-avatar" title="Use real-time 3D avatar visemes">Live Avatar: Off</span>
+                        <span class="pill" id="toggle-enhanced-video" title="Use SadTalker video when available">Enhanced Video: On</span>
+                        <span class="pill" id="choose-phoneme-clip" title="Choose training clip for lip‑sync test">Phoneme Clip</span>
+                        <span class="pill" id="toggle-fullframe-visemes" title="Swap full 16:9 frames per viseme when available">Full-Frame Visemes: Off</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    <div class="modal-overlay" id="calendar-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Calendar</div><button class="modal-close" data-close="calendar-modal">Close</button></div>
+            <div class="row" style="margin-bottom:10px;">
+                <button class="pill" id="go-yesterday">Yesterday</button>
+                <button class="pill" id="go-today">Today</button>
+                <button class="pill" id="go-tomorrow">Tomorrow</button>
+            </div>
+            <div id="calendar-results"></div>
+        </div>
+    </div>
+
+    <!-- Language Modal -->
+    <div class="modal-overlay" id="language-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Language</div><button class="modal-close" data-close="language-modal">Close</button></div>
+            <div class="row" id="language-options">
+                <span class="pill" data-language="english" title="English is available for all demo lessons">English</span>
+                <span class="pill" data-language="spanish" title="Spanish available where PhaseDNA is authored">Spanish</span>
+                <span class="pill" data-language="french" title="French available where PhaseDNA is authored">French</span>
+            </div>
+            <div style="opacity:0.75; font-size:13px; margin-top:8px;">Languages available depend on the selected lesson DNA.</div>
+        </div>
+    </div>
+
+    <!-- Phoneme Clip Modal -->
+    <div class="modal-overlay" id="phoneme-clip-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Select Training Clip</div><button class="modal-close" data-close="phoneme-clip-modal">Close</button></div>
+            <div id="phoneme-clip-list" class="row" style="margin-top:6px;"></div>
+            <div style="opacity:0.7; font-size:12px; margin-top:10px;">Add more clips by placing <code>name.json</code> and audio under <code>/phoneme_data/</code> and updating <code>clips.json</code>.</div>
+        </div>
+    </div>
+
+    <!-- Tone Modal -->
+    <div class="modal-overlay" id="tone-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Tone</div><button class="modal-close" data-close="tone-modal">Close</button></div>
+            <div class="row" id="tone-options">
+                <span class="pill" data-tone="grandmother">Grandmother</span>
+                <span class="pill" data-tone="fun">Fun</span>
+                <span class="pill" data-tone="neutral">Neutral</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avatar Modal -->
+    <div class="modal-overlay" id="avatar-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Avatar</div><button class="modal-close" data-close="avatar-modal">Close</button></div>
+            <div class="row" id="avatar-options">
+                <span class="pill" data-avatar="kelly">Kelly</span>
+                <span class="pill" data-avatar="ken">Ken</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Age Modal -->
+    <div class="modal-overlay" id="age-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Age</div><button class="modal-close" data-close="age-modal">Close</button></div>
+            <div class="row" id="age-options">
+                <span class="pill" data-age="age_2">2</span>
+                <span class="pill" data-age="age_5">5</span>
+                <span class="pill" data-age="age_8">8</span>
+                <span class="pill" data-age="age_12">12</span>
+                <span class="pill" data-age="age_16">16</span>
+                <span class="pill" data-age="age_25">25</span>
+                <span class="pill" data-age="age_40">40</span>
+                <span class="pill" data-age="age_60">60</span>
+                <span class="pill" data-age="age_80">80</span>
+                <span class="pill" data-age="age_102">102</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Speed Modal -->
+    <div class="modal-overlay" id="speed-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Playback Speed</div><button class="modal-close" data-close="speed-modal">Close</button></div>
+            <div class="row" id="speed-options">
+                <span class="pill" data-speed="0.8">0.8x</span>
+                <span class="pill" data-speed="1.0">1.0x</span>
+                <span class="pill" data-speed="1.25">1.25x</span>
+                <span class="pill" data-speed="1.5">1.5x</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls Modal (quick nav) -->
+    <div class="modal-overlay" id="controls-modal">
+        <div class="modal-card">
+            <div class="modal-header"><div class="modal-title">Controls</div><button class="modal-close" data-close="controls-modal">Close</button></div>
+            <div class="row"><button class="pill" id="prev-btn">Prev</button><button class="pill" id="next-btn">Next</button><button class="pill" id="restart-btn">Restart</button><button class="pill" id="run-evals">Run Evals</button></div>
+        </div>
+    </div>
+
+    <!-- Hidden audio element for TTS playback -->
+    <audio id="tts-audio" preload="auto" style="display:none;"></audio>
+    <!-- Core systems: use existing architecture -->
+    <!-- three.js removed for now to avoid 404/MIME issues; re-add when 3D avatar is active -->
+    <script>
+      // Safe stub to silence optional ElevenLabs loader when not in use
+      window.ElevenLabsIntegration = window.ElevenLabsIntegration || {};
+      // Helper: fetch live API lesson and normalize to PhaseDNA v1 for the player
+      window.__mlFetchApiLessonPhases = async function(day, variant){
+        try {
+          const params = new URLSearchParams({
+            age: variant?.age || 'age_25',
+            tone: variant?.tone || 'neutral',
+            language: variant?.language || 'english',
+            avatar: variant?.avatar || 'kelly'
+          });
+          const url = `/api/lessons/${encodeURIComponent(day)}?${params.toString()}`;
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const j = await res.json();
+          // Convert API phases -> PhaseDNA v1
+          const toChoice = (text, id) => ({ id, text: String(text||'') });
+          const toPhase = (p, id) => ({
+            id,
+            narration: { voiceOver: (p?.content?.voice_over || p?.content || '') + '' },
+            question: p?.question_text ? {
+              text: String(p.question_text||''),
+              choices: [
+                toChoice(p?.choices?.option_a?.text, 'a'),
+                toChoice(p?.choices?.option_b?.text, 'b')
+              ].filter(c=>c.text && c.text.length),
+              correct: 'a',
+              teachingMoments: {
+                a: String(p?.choices?.option_a?.teaching_moment?.voice_over_script || ''),
+                b: String(p?.choices?.option_b?.teaching_moment?.voice_over_script || '')
+              }
+            } : undefined,
+            screen: id==='wisdom' ? { steps:[{ show:[{ type:'fortune', text: String(p?.content?.daily_fortune||'') }]}] } : undefined,
+            timing: { min_seconds: 8, max_seconds: 60 }
+          });
+          const find = (type) => (j?.phases||[]).find(p=>p?.type===type) || null;
+          const phases = [];
+          const w = find('welcome'); if (w) phases.push(toPhase(w,'welcome'));
+          const b = find('beginning'); if (b) phases.push(toPhase(b,'beginning'));
+          const m = find('middle'); if (m) phases.push(toPhase(m,'middle'));
+          const e = find('end'); if (e) phases.push(toPhase(e,'end'));
+          const z = find('wisdom'); if (z) phases.push(toPhase(z,'wisdom'));
+          return { metadata:{ version:'phase_v1', day: j.day||day, title: j.title||'' }, phases };
+        } catch(e) {
+          console.warn('Live API fetch failed', e);
+          return null;
+        }
+      };
+      // Toast + highlight helpers
+      window.__ml_toast = window.__ml_toast || function(msg, timeoutMs){ try { const t=document.getElementById('toast'); if(!t) return; t.textContent=String(msg||''); t.style.display='block'; clearTimeout(window.__ml_toast_timer); window.__ml_toast_timer=setTimeout(()=>{ t.style.display='none'; }, Math.max(1500, timeoutMs||2500)); } catch(e){} };
+      window.__mlHighlightChange = window.__mlHighlightChange || function(){ try { const el=document.getElementById('lesson-text'); if(!el) return; el.classList.remove('variant-highlight'); void el.offsetWidth; el.classList.add('variant-highlight'); setTimeout(()=>el.classList.remove('variant-highlight'), 1200); } catch(e){} };
+    </script>
+    <style>
+      /* brief highlight for updated text */
+      .variant-highlight { animation: vhlt 1.2s ease; }
+      @keyframes vhlt { 0%{ background:rgba(255,243,200,0.85);} 100%{ background: transparent; } }
+    </style>
+    <script src="/homegrown-tts-system.js?v=20250815a"></script>
+    <script src="/dna-file-loader.js?v=20250811a"></script>
+    <script src="/complete-curriculum.js?v=20250811a"></script>
+    <script src="/corrected-variant-generator-v2.js?v=20250811a"></script>
+    <script src="/complete-lesson-player.js?v=20250811a" onload="window._mlEnsureDragShim && window._mlEnsureDragShim()"></script>
+    <!-- Unified Player Controls - Surgical Implementation -->
+    <script src="/unified-player-controls.js?v=20250815a"></script>
+    <script src="/models/ken-kelly-tts.js"></script>
+    <script src="/complete-elevenlabs-integration.js"></script>
+    <script src="/dynamic-tts-system.js"></script>
+    <script src="/student-ready-audio-system.js"></script>
+    <script src="/lesson-integration-fix.js"></script>
+    <script src="/activate-dynamic-tts.js"></script>
+    <script src="/local-tts-integration.js"></script>
+    <script>
+      // Safe zone visualizer: toggle with ?safe=1 or press "s" while holding Shift
+      (function(){
+        try{
+          const qp = new URLSearchParams(location.search);
+          const el = document.getElementById('safe-zone-visual');
+          const show = qp.get('safe') === '1';
+          if (el && show) el.style.display = 'block';
+          document.addEventListener('keydown', (e)=>{
+            if (e.key.toLowerCase()==='s' && e.shiftKey) {
+              if (!el) return;
+              const vis = getComputedStyle(el).display !== 'none';
+              el.style.display = vis ? 'none' : 'block';
+            }
+          });
+          // Recompute on resize to stick to viewport percentages
+          window.addEventListener('resize', ()=>{
+            // styles use vw/vh so they auto-adjust; no-op here
+          });
+        }catch{}
+      })();
+    </script>
+      // Initialize homegrown TTS early so controls can use it
+      (function(){
+        try {
+          if (window.HomegrownTTSSystem && !window.tts) {
+            window.tts = new window.HomegrownTTSSystem();
+          }
+        } catch(e) { console.warn('TTS init failed', e); }
+      })();
+    </script>
+    <script>
+      // Prefer browser speech on preview unless ?tts=1 is provided
+      (function(){
+        try{
+          const qp = new URLSearchParams(location.search);
+          const forceTTS = qp.get('tts') === '1';
+          const forceSpeech = qp.get('speech') === '1';
+          const isPreview = /\.pages\.dev$/.test(location.hostname);
+          window.__forceSpeech = !forceTTS && (forceSpeech || isPreview);
+          // Compact mode toggle (?compact=1)
+          if (qp.get('compact') === '1') { try { document.body.classList.add('compact'); } catch{} }
+          // Cardlets layout toggle (?cardlets=1)
+          if (qp.get('cardlets') === '1') { try { document.body.classList.add('cardlets'); } catch{} }
+        }catch{}
+      })();
+    </script>
+    <script>
+      // Shared AudioBus to unify volume/mute across all audio sources
+      (function(){
+        try {
+          if (!window.AudioBus) {
+            const listeners = new Set();
+            const state = { volume: 1.0, muted: false };
+            window.AudioBus = {
+              subscribe(fn){ try { listeners.add(fn); fn({ ...state }); } catch{} return ()=>listeners.delete(fn); },
+              setVolume(v){ state.volume = Math.max(0, Math.min(1, Number(v||0))); listeners.forEach(fn=>{ try { fn({ ...state }); } catch{} }); },
+              mute(flag){ state.muted = !!flag; listeners.forEach(fn=>{ try { fn({ ...state }); } catch{} }); },
+              getState(){ return { ...state }; }
+            };
+          }
+          // Register #tts-audio and forward to players
+          const hook = ()=>{
+            try {
+              const audio = document.getElementById('tts-audio');
+              if (!audio) return;
+              window.AudioBus.subscribe(({volume, muted})=>{
+                try { audio.volume = muted ? 0 : volume; } catch{}
+                try { if (window.ManifestPlayer && window.ManifestPlayer._audio?.setVolume) window.ManifestPlayer._audio.setVolume(muted?0:volume); } catch{}
+                try { if (window.lessonPlayer && window.lessonPlayer.setVolume) window.lessonPlayer.setVolume(muted?0:volume); } catch{}
+              });
+            } catch{}
+          };
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
+        } catch(e){ console.warn('AudioBus init failed', e); }
+      })();
+    </script>
+    <!-- Rail Web Component -->
+    <script>
+      (function(){
+        class MlRail extends HTMLElement{
+          constructor(){ super(); this._s = this.attachShadow({mode:'open'}); }
+          connectedCallback(){
+            const root = document.createElement('div');
+            root.style.cssText = 'display:flex; flex-direction:column; gap:12px;';
+            const makeBtn = (id, label) => { const b=document.createElement('button'); b.id=id; b.textContent=label; b.title=label; b.setAttribute('data-modal-anchor','1'); b.style.cssText='width:44px;height:44px;border-radius:14px;border:none;background:rgba(255,255,255,0.8);box-shadow:0 10px 40px rgba(0,0,0,0.2);cursor:pointer'; return b; };
+            const map = [
+              ['icon-live','🟢','live-modal'], ['icon-find','🔎','find-modal'], ['icon-settings','⚙️','settings-modal'], ['icon-calendar','📅','calendar-modal'],
+              ['icon-model','🧑‍🏫','avatar-modal'], ['icon-tone','🎚️','tone-modal'], ['icon-language','🌍','language-modal'], ['icon-age','🎯','age-modal'], ['icon-speed','⏩','speed-modal'], ['icon-controls','🎛️','controls-modal']
+            ];
+            map.forEach(([id,emoji,modal])=>{ const btn=makeBtn(id,emoji); btn.dataset.modal=modal; root.appendChild(btn); });
+            this._s.appendChild(root);
+            this._s.addEventListener('click',(e)=>{
+              const btn = e.target.closest('button'); if (!btn) return;
+              const m = btn.dataset.modal; if (!m) return;
+              let r=null; try { r=btn.getBoundingClientRect(); } catch {}
+              try { this.dispatchEvent(new CustomEvent('ml:open', { detail:{ modal:m, rect:{ x:r?.x, y:r?.y, width:r?.width, height:r?.height } }, bubbles:true, composed:true })); } catch {}
+              if (window.__mlOpen) window.__mlOpen(m, r);
+            });
+          }
+        }
+        customElements.define('ml-rail', MlRail);
+      })();
+    </script>
+    <!-- Diagnostics overlay (enable with ?debug=1) -->
+    <div id="ui-diagnostics" style="position:fixed; top:12px; left:12px; z-index:3000; background:rgba(0,0,0,0.6); color:#fff; padding:8px 10px; border-radius:8px; font:12px/1.3 -apple-system, BlinkMacSystemFont; display:none; max-width:40vw; pointer-events:none;"></div>
+    <script>
+      // Safety guard: ensure draggable method exists even if an older cached bundle calls it
+      (function(){
+        try {
+          if (window.UniversalLessonPlayer && !window.UniversalLessonPlayer.prototype._makeInspectorsDraggable) {
+            window.UniversalLessonPlayer.prototype._makeInspectorsDraggable = function(){};
+          }
+        } catch(e) { /* no-op */ }
+      })();
+    </script>
+    <script>
+      // Cardlets data wiring: mirror current phase/variant/quote into tiny off-center cards
+      (function(){
+        function apply(){
+          try{
+            const v = (window.lessonPlayer?.currentVariant) || { avatar:'kelly', tone:'neutral', language:'english', age:'age_25' };
+            const set = (id, val)=>{ const el=document.getElementById(id); if(el) el.textContent = String(val||''); };
+            set('cl-avatar', v.avatar||'kelly');
+            set('cl-tone', v.tone||'neutral');
+            set('cl-lang', (v.language||'english').slice(0,2));
+            set('cl-age', String(v.age||'age_25').replace('age_',''));
+            // Pull a short sentence for the quote card
+            let txt='';
+            try{
+              const i = window.unifiedControls?.currentSlideIndex || 0;
+              if (i===0) txt = document.getElementById('lesson-preview')?.textContent||'';
+              else if (i===4) txt = document.getElementById('daily-fortune')?.textContent||'';
+              else txt = (document.querySelector('#beginning-question, #middle-question, #end-question')?.textContent)||'';
+            }catch{}
+            set('cl-quote-text', txt || '');
+          }catch{}
+        }
+        document.getElementById('cl-prev')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); try{ window.lessonPlayer?.previousPhase?.(); }catch{} });
+        document.getElementById('cl-next')?.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); try{ window.lessonPlayer?.nextPhase?.(); }catch{} });
+        window.addEventListener('ml:lesson_loaded', apply);
+        setInterval(apply, 800);
+      })();
+    </script>
+
+    <!-- Required containers for the universal player (kept minimal within existing layout) -->
+    <div id="avatar-container" style="position:absolute; inset:0; background-size:cover; background-position:center; z-index:1; display:block;">
+        <video id="avatar-video" playsinline webkit-playsinline preload="metadata" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition: opacity 200ms ease; display:none;"></video>
+        <canvas id="avatar-mouth" width="1280" height="720" style="position:absolute; left:50%; bottom:14%; transform: translateX(-50%); width:34%; height:auto; opacity:0.7; transition: opacity 120ms ease; pointer-events:none;"></canvas>
+    </div>
+    <div id="lesson-content-overlay" style="position:absolute; inset:0; display:none; z-index:12;">
+        <div id="lesson-content" class="ios-panel content-note position-centered-moment" style="display:none;">
+            <div class="current-phase-label" style="font-weight:700; margin-bottom:6px;"></div>
+            <div id="lesson-text">lipsum lorum glossa morum — elara niven torum. lipsum lorum glossa morum — elara niven torum. lipsum lorum glossa morum — elara niven torum.</div>
+            <div class="phase-content question-content hidden" style="margin-top:10px;">
+                <div class="question-label" style="font-weight:600; margin-bottom:6px;"></div>
+                <div class="choices-container" style="display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+            <div class="choice-feedback hidden"></div>
+        </div>
+    </div>
+    <div id="variant-badges" class="ios-panel" style="position:absolute; top:12px; right:90px; padding:8px 10px; display:block; z-index:15; font-size:12px;"></div>
+    <div id="calendar-overlay" style="position:absolute; top:10%; right:90px; width:340px; max-height:70vh; overflow:auto; display:none; z-index:15;" class="ios-panel">
+        <div id="calendar-grid" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; padding:10px;"></div>
+    </div>
+    <div id="tone-overlay" class="ios-panel" style="position:absolute; top:20%; right:90px; padding:10px; display:none; z-index:15;">
+        <select id="tone-select"><option value="grandmother">Grandmother</option><option value="fun">Fun</option><option value="neutral" selected>Neutral</option></select>
+    </div>
+    <div id="avatar-overlay" class="ios-panel" style="position:absolute; top:28%; right:90px; padding:10px; display:none; z-index:15;">
+        <select id="avatar-select"><option value="kelly" selected>Kelly</option><option value="ken">Ken</option></select>
+    </div>
+    <div id="language-overlay" class="ios-panel" style="position:absolute; top:36%; right:90px; padding:10px; display:none; z-index:15;">
+        <select id="language-select"><option value="english" selected>English</option><option value="spanish">Spanish</option><option value="french">French</option></select>
+    </div>
+    <div id="age-overlay" class="ios-panel" style="position:absolute; top:44%; right:90px; padding:10px; display:none; z-index:15;">
+        <select id="age-select">
+            <option value="age_2">2</option><option value="age_5">5</option><option value="age_8">8</option><option value="age_12">12</option><option value="age_16">16</option>
+            <option value="age_25" selected>25</option><option value="age_40">40</option><option value="age_60">60</option><option value="age_80">80</option><option value="age_102">102</option>
+        </select>
+    </div>
+    <!-- Legacy bottom-left controls removed -->
+
+    <!-- Data source mapping: DNA by day (Sun, Moon, Ocean) and Puppies compatibility -->
+    <script>
+    (function(){
+      const qp_manifest_flag = new URLSearchParams(location.search);
+      const isManifest = qp_manifest_flag.get('player') === 'manifest';
+      if (!isManifest) return;
+      try { document.body.classList.add('manifest-mode'); } catch{}
+    })();
+    window.getDNALessonData = async function(day) {
+        try {
+            const lang = (window.lessonPlayer?.currentVariant?.language || 'english');
+            const langCode = lang === 'spanish' ? 'es' : (lang === 'french' ? 'fr' : 'en');
+            // Day mappings based on January curriculum
+            if (day === 1) { // Sun
+                // PhaseDNA v1 preferred by language
+                let res = await fetch(`/data/the-sun.${langCode}.phased.json`); if (res.ok) return await res.json();
+                if (langCode !== 'en') { res = await fetch('/data/the-sun.en.phased.json'); if (res.ok) return await res.json(); }
+                // Legacy
+                res = await fetch('/data/sun_normalized.json'); if (res.ok) return await res.json();
+                res = await fetch('/dna-templates/the-sun.json'); if (res.ok) return await res.json();
+            }
+            if (day === 10) { // Moon
+                let res = await fetch(`/data/the-moon.${langCode}.phased.json`); if (res.ok) return await res.json();
+                if (langCode !== 'en') { res = await fetch('/data/the-moon.en.phased.json'); if (res.ok) return await res.json(); }
+                res = await fetch('/data/moon_normalized.json'); if (res.ok) return await res.json();
+                res = await fetch('/data/the-moon.json'); if (res.ok) return await res.json();
+            }
+            if (day === 24) { // Oceans
+                let res = await fetch(`/data/earths-magnificent-oceans.${langCode}.phased.json`); if (res.ok) return await res.json();
+                if (langCode !== 'en') { res = await fetch('/data/earths-magnificent-oceans.en.phased.json'); if (res.ok) return await res.json(); }
+                res = await fetch('/data/ocean_normalized.json'); if (res.ok) return await res.json();
+            }
+            // Puppies special-case using phases JSON -> simple DNA
+            const qp = new URLSearchParams(location.search);
+            if (qp.get('topic') === 'puppies') {
+                let res = await fetch(`/data/puppies.${langCode}.phased.json`);
+                if (res.ok) return await res.json();
+                if (langCode !== 'en') { res = await fetch('/data/puppies.en.phased.json'); if (res.ok) return await res.json(); }
+                res = await fetch('/data/puppies_normalized.json');
+                if (res.ok) return await res.json();
+                res = await fetch('/lessons/puppies-lesson-final.json');
+                if (res.ok) {
+                    const j = await res.json();
+                    const q1 = j.phases.find(p=>p.type==='beginning');
+                    const q2 = j.phases.find(p=>p.type==='middle')||q1; const q3 = j.phases.find(p=>p.type==='end')||q1;
+                    return {
+                        lesson_metadata: { lesson_id: 'puppies', day: 0, universal_concept: j.title, learning_essence: j.objective || '' },
+                        age_expressions: { '25': { concept_name: { neutral: { display_text: j.title, voice_over_script: j.title } } } },
+                        core_lesson_structure: {
+                            question_1: { concept_focus: 'Care', ages: { '25': { question: { neutral: { display_text: q1?.question_text || '' } }, option_a: { display_text: q1?.choices?.option_a?.text || '' }, option_b: { display_text: q1?.choices?.option_b?.text || '' }, teaching_moments: { option_a_response: q1?.choices?.option_a?.teaching_moment?.neutral?.young_adult || '', option_b_response: q1?.choices?.option_b?.teaching_moment?.neutral?.young_adult || '' } } } },
+                            question_2: { concept_focus: 'Training', ages: { '25': { question: { neutral: { display_text: q2?.question_text || '' } }, option_a: { display_text: q2?.choices?.option_a?.text || '' }, option_b: { display_text: q2?.choices?.option_b?.text || '' }, teaching_moments: { option_a_response: q2?.choices?.option_a?.teaching_moment?.neutral?.young_adult || '', option_b_response: q2?.choices?.option_b?.teaching_moment?.neutral?.young_adult || '' } } } },
+                            question_3: { concept_focus: 'Bond', ages: { '25': { question: { neutral: { display_text: q3?.question_text || '' } }, option_a: { display_text: q3?.choices?.option_a?.text || '' }, option_b: { display_text: q3?.choices?.option_b?.text || '' }, teaching_moments: { option_a_response: q3?.choices?.option_a?.teaching_moment?.neutral?.young_adult || '', option_b_response: q3?.choices?.option_b?.teaching_moment?.neutral?.young_adult || '' } } } }
+                        },
+                        wisdom_phase_content: { fortune: { neutral: { display_text: 'Puppies learn with love and patience.', voice_over_script: 'Puppies learn with love and patience.' } } }
+                    };
+                }
+            }
+            return null;
+        } catch(e) { console.warn('getDNALessonData failed', e); return null; }
+    };
+
+    // Mock Talking-Head API for demo (?mockTalkingHead=1)
+    (function(){
+      try {
+        const qp = new URLSearchParams(location.search);
+        if (qp.get('mockTalkingHead') !== '1') return;
+        const jobs = new Map();
+        const demoVideo = 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+        const origFetch = window.fetch.bind(window);
+        window.fetch = async function(input, init){
+          try {
+            const url = (typeof input === 'string') ? input : (input?.url || '');
+            if (url.endsWith('/api/talking-head/upload') && (!init || (init.method||'GET').toUpperCase()==='POST')) {
+              return new Response(JSON.stringify({ audioUrl: 'https://example.com/tmp/audio/demo.mp3' }), { status:200, headers:{'Content-Type':'application/json'} });
+            }
+            if (url.endsWith('/api/talking-head/jobs') && (!init || (init.method||'GET').toUpperCase()==='POST')) {
+              const id = 'job_' + Math.random().toString(36).slice(2);
+              jobs.set(id, { status:'queued', t: Date.now() });
+              return new Response(JSON.stringify({ id }), { status:200, headers:{'Content-Type':'application/json'} });
+            }
+            const m = url.match(/\/api\/talking-head\/jobs\/([^/?#]+)/);
+            if (m) {
+              const id = m[1];
+              const j = jobs.get(id) || { status:'queued', t: Date.now() };
+              const dt = Date.now() - j.t;
+              let status = 'queued';
+              if (dt > 10000) status = 'succeeded';
+              else if (dt > 3000) status = 'running';
+              jobs.set(id, { ...j, status });
+              const body = (status==='succeeded') ? { status, videoUrl: demoVideo } : { status };
+              return new Response(JSON.stringify(body), { status:200, headers:{'Content-Type':'application/json'} });
+            }
+          } catch {}
+          return origFetch(input, init);
+        };
+        console.log('🧪 Mock Talking-Head API enabled');
+      } catch(e){ console.warn('mockTalkingHead setup failed', e); }
+    })();
+
+    // Initialize players (manifest-mode or legacy)
+    window.addEventListener('DOMContentLoaded', async () => {
+        const qp_main = new URLSearchParams(location.search);
+        const isManifest = qp_main.get('player') === 'manifest';
+        if (isManifest) {
+            // Legacy rail removed
+            // Manifest UI visible
+            const overlay = document.getElementById('start-overlay-manifest'); if (overlay) overlay.style.display = 'flex';
+            const captions = document.getElementById('manifest-captions'); if (captions) captions.style.display = 'block';
+            const progress = document.getElementById('manifest-progress'); if (progress) progress.style.display = 'flex';
+            const volRail = document.getElementById('volume-rail'); if (volRail) volRail.style.display = 'none';
+            // Hide variant compact pills for minimal clean player
+            try { document.getElementById('variant-compact').style.display = 'none'; } catch{}
+            try { document.getElementById('unified-rail').style.visibility='visible'; document.getElementById('unified-rail').style.opacity='1'; } catch{}
+            try { document.getElementById('play-pause-btn').style.display = 'flex'; } catch{}
+
+            // Load manifest based on date/tone/avatar
+            const dateKey = qp_main.get('date') || '2025-11-22';
+            
+            // Avatar background per query
+            const avatarParam = (qp_main.get('avatar')||'kelly').toLowerCase();
+            const bg = document.getElementById('avatar-background'); if (bg){ bg.classList.remove('kelly','ken'); bg.classList.add(avatarParam==='ken'?'ken':'kelly'); }
+            try { document.getElementById('avatar-container').style.display = 'block'; } catch{}
+            
+            // Update topic display based on date
+            const topicMap = {
+                '2025-02-28': 'Feb 28 • Sun',
+                '2025-08-14': 'Aug 14 • Box Breathing', 
+                '2025-11-22': 'Nov 22 • Cryptography'
+            };
+            const tone = (qp_main.get('tone')||'neutral').toLowerCase();
+            const age = qp_main.get('age') || '40-60';
+            const avatar = avatarParam==='ken'?'ken':'kelly';
+            
+            // No topic pill in unified mode
+            
+            // Update avatar and tone display (manifest-only)
+            if (isManifest){
+                const avatarEl = document.getElementById('vc-avatar');
+                const toneEl = document.getElementById('vc-tone');
+                if (avatarEl) avatarEl.textContent = `Avatar: ${avatar}`;
+                if (toneEl) toneEl.textContent = `Tone: ${tone}`;
+            }
+            // Our generator currently authored neutral tone; fall back to neutral if needed
+            const tonePath = tone === 'neutral' ? 'neutral' : 'neutral';
+            const manifestUrl = `/production-deploy/examples/${dateKey}/en/${age}/${tonePath}/${avatar}/manifest.json`;
+
+            const player = window.ManifestPlayer;
+            // Mount UI targets
+            player.mountCaptions && player.mountCaptions(document.getElementById('manifest-captions'));
+            player.mountPopupHosts && player.mountPopupHosts(document.getElementById('popup-host-right'), document.getElementById('popup-host-left'));
+            player.mountBreathingOverlay && player.mountBreathingOverlay(document.getElementById('breathing-overlay'));
+            try {
+                const res = await fetch(manifestUrl); const manifest = await res.json();
+                await player.prepare(manifest);
+            } catch(e) { console.warn('Manifest load failed', e); }
+
+            // Start overlay wiring
+            const hideOverlay = ()=>{ try { document.getElementById('start-overlay-manifest').style.display='none'; } catch {} };
+            document.getElementById('btn-start-lesson')?.addEventListener('click', ()=>{ try { player.play(); hideOverlay(); } catch{} });
+            player.on && player.on('slide_started', hideOverlay);
+
+            // Progress dots
+            function updateDots(i){ try { document.querySelectorAll('#manifest-progress .dot').forEach(d=>d.classList.remove('active')); const el=document.querySelector(`#manifest-progress .dot[data-i="${i}"]`); if (el) el.classList.add('active'); } catch{} }
+            player.on && player.on('slide_started', (ev)=>{ updateDots(ev?.slide_index ?? 0); });
+            updateDots(0);
+
+            // Volume + play/pause
+            document.getElementById('vol-ctl')?.addEventListener('input', (e)=>{ try { const v=parseFloat(e.target.value||'1'); player._audio?.setVolume?.(v); } catch{} });
+            let muted=false; document.getElementById('mute-toggle')?.addEventListener('click', ()=>{ try { muted=!muted; player._audio?.setVolume?.(muted?0:Number(document.getElementById('vol-ctl')?.value||1)); document.getElementById('mute-toggle').textContent = muted?'🔈':'🔇'; } catch{} });
+            const ppBtn = document.getElementById('play-pause-btn');
+            ppBtn?.addEventListener('click', ()=>{ try { if (player._isPlaying) { player.pause(); } else { player.play(); } } catch{} });
+            player.on && player.on('play', ()=>{ try { ppBtn.textContent='⏸️'; } catch{} });
+            player.on && player.on('pause', ()=>{ try { ppBtn.textContent='▶️'; } catch{} });
+            player.on && player.on('stop', ()=>{ try { ppBtn.textContent='▶️'; } catch{} });
+
+            // Compact variant viewer (swap avatar only)
+            function refreshVariantUI(){ try { if (isManifest){ document.getElementById('vc-avatar').textContent = `Avatar: ${player?.currentVariant?.avatar_id||avatar}`; document.getElementById('vc-tone').textContent = `Tone: ${player?.currentVariant?.tone||tone}`; } } catch{} }
+            refreshVariantUI();
+            // No swap button in unified mode
+
+            // Auto-advance on slide completion (safety net; player also handles)
+            player.on && player.on('slide_completed', (ev)=>{ try { const i=ev?.slide_index ?? 0; if (i<4) player.seekToSlide(i+1); } catch{} });
+
+            // Topic pill (popup is rendered by player via popup hosts). Ensure visible label in compact viewer area
+            // No duplicate topic pills
+
+            return; // end manifest branch
+        }
+
+        // Legacy universal player branch
+        window.lessonPlayer = new UniversalLessonPlayer();
+        // Relay lessonPlayer phase change events to unified controls for player-first text
+        try {
+            if (typeof window.lessonPlayer.on === 'function') {
+                window.lessonPlayer.on('phase_changed', (ev)=>{
+                    try { window.unifiedControls.currentSlideIndex = ev?.slide_index ?? window.unifiedControls.currentSlideIndex; window.unifiedControls.generateAndPlayNarrationForCurrentSlide(); } catch{}
+                });
+            }
+        } catch{}
+        // Populate start overlay with day + title and reveal rail after start
+        window.addEventListener('ml:lesson_loaded', async ()=>{
+            try {
+                const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay;
+                const meta = window.COMPLETE_CURRICULUM?.[day];
+                const titleEl = document.getElementById('start-lesson-title');
+                const subEl = document.getElementById('start-lesson-sub');
+                if (titleEl && meta?.title) titleEl.textContent = meta.title;
+                if (subEl) subEl.textContent = `Day ${day}`;
+                // Prefetch API DNA for faster start/refresh when a new day is chosen
+                const variant = window.lessonPlayer?.currentVariant || window.__variantPrefs;
+                try { const phaseDNA = await window.__mlFetchApiLessonPhases(day, variant); if (phaseDNA) window.lessonPlayer.currentDNA = phaseDNA; } catch{}
+            } catch {}
+        });
+        const startOverlay = document.getElementById('start-overlay');
+        document.getElementById('start-lesson-btn')?.addEventListener('click', async ()=>{
+            // Fetch live API lesson for current day/variant, normalize to PhaseDNA, then start
+            try {
+                const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1;
+                const variant = (window.lessonPlayer?.currentVariant) || { age:'age_25', tone:'neutral', language:'english', avatar:'kelly' };
+                const phaseDNA = await window.__mlFetchApiLessonPhases(day, variant);
+                if (phaseDNA) { window.lessonPlayer.currentDNA = phaseDNA; }
+            } catch(e) { console.warn('API preload failed', e); }
+            window.lessonPlayer?.startUniversalLesson();
+            if (startOverlay) startOverlay.style.display = 'none';
+        });
+
+        // ElevenLabs key is auto-provisioned by integration if missing
+
+        // Unified rail event delegation
+        const rail = document.getElementById('right-icon-rail');
+        if (rail) {
+            rail.addEventListener('click', (e)=>{
+                const btn = e.target.closest('.rail-btn');
+                if (!btn) return;
+                const modalId = btn.getAttribute('data-modal');
+                if (modalId) openModal(modalId);
+            });
+            rail.addEventListener('dblclick', (e)=>{
+                const btn = e.target.closest('#icon-live');
+                if (btn) window.lessonPlayer?.togglePlayback();
+            });
+        }
+
+        // Toast helper
+        window.__ml_toast = function(msg, timeoutMs){ try { const t=document.getElementById('toast'); if(!t) return; t.textContent=String(msg||''); t.style.display='block'; clearTimeout(window.__ml_toast_timer); window.__ml_toast_timer=setTimeout(()=>{ t.style.display='none'; }, Math.max(1500, timeoutMs||2500)); } catch(e){} };
+
+        // Diagnostics
+        const qp = new URLSearchParams(location.search);
+        const dbg = qp.get('debug') === '1';
+        const dbgDiv = document.getElementById('ui-diagnostics');
+        function dbgLog(obj){ if (!dbg || !dbgDiv) return; dbgDiv.style.display='block'; dbgDiv.textContent = `[${new Date().toLocaleTimeString()}]\n` + JSON.stringify(obj, null, 2); }
+
+        // Overlay Manager with one‑modal policy and focus trap
+        let __activeModal = null; let __lastFocus = null;
+        function trapFocus(e){
+            if (!__activeModal || e.key !== 'Tab') return;
+            const focusables = __activeModal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (!focusables.length) return;
+            const first = focusables[0]; const last = focusables[focusables.length-1];
+            if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+            else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        }
+        const modalIconMap = {
+            'live-modal': 'icon-live',
+            'find-modal': 'icon-find',
+            'settings-modal': 'icon-settings',
+            'calendar-modal': 'icon-calendar',
+            'language-modal': 'icon-language',
+            'speed-modal': 'icon-speed',
+            'controls-modal': 'icon-controls'
+        };
+        function setActiveIconForModal(id){
+            document.querySelectorAll('.right-icon-rail .rail-btn').forEach(b=>b.classList.remove('active'));
+            const iconId = modalIconMap[id];
+            if (iconId) document.getElementById(iconId)?.classList.add('active');
+        }
+        function openModal(id, anchorRect){
+            document.querySelectorAll('.modal-overlay.visible').forEach(el=>el.classList.remove('visible'));
+            const el = document.getElementById(id); if (!el) return;
+            __activeModal = el; __lastFocus = document.activeElement;
+            el.classList.add('visible'); el.setAttribute('aria-modal','true'); el.setAttribute('role','dialog');
+            // Anchor next to rail icon if rect provided
+            try {
+                const card = el.querySelector('.modal-card');
+                if (card && anchorRect) {
+                    card.style.top = `${Math.max(12, anchorRect.y - 10)}px`;
+                    card.style.right = `76px`;
+                    card.style.left = 'auto';
+                }
+            } catch {}
+            const focusTarget = el.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            setTimeout(()=> focusTarget?.focus(), 0);
+            document.addEventListener('keydown', trapFocus);
+            setActiveIconForModal(id);
+            try { document.body.style.overflow='hidden'; } catch(e){}
+        }
+        // global open helper for static onclicks (flush queued open requests)
+        window.__mlOpen = openModal;
+        try {
+            if (Array.isArray(window.__mlOpenQueue)) {
+                const q = window.__mlOpenQueue.slice();
+                window.__mlOpenQueue.length = 0;
+                q.forEach(id=> openModal(id));
+            }
+        } catch {}
+        function clearActiveIcons(){ document.querySelectorAll('.right-icon-rail .rail-btn').forEach(b=>b.classList.remove('active')); }
+        function closeById(id){ const el = document.getElementById(id); if(!el) return; el.classList.remove('visible'); if (__activeModal===el){ document.removeEventListener('keydown', trapFocus); __activeModal=null; __lastFocus?.focus?.(); } clearActiveIcons(); try { document.body.style.overflow='auto'; } catch(e){} }
+        function closeAllModals(){ document.querySelectorAll('.modal-overlay.visible').forEach(el=>el.classList.remove('visible')); document.removeEventListener('keydown', trapFocus); __activeModal=null; clearActiveIcons(); try { document.body.style.overflow='auto'; } catch(e){} }
+        document.querySelectorAll('.modal-overlay').forEach(el=> el.addEventListener('click', (e)=>{ if (e.target===el) closeAllModals(); }));
+        document.addEventListener('keydown', (e)=>{ if (e.key==='Escape') closeAllModals(); });
+        // Shadow DOM safety net: global click catcher for any element with data-modal in composed path
+        document.addEventListener('click', (e)=>{
+            try {
+                const path = e.composedPath && e.composedPath();
+                if (!Array.isArray(path)) return;
+                const hostBtn = path.find(n => n && n.dataset && n.dataset.modal);
+                if (hostBtn && typeof hostBtn.dataset.modal === 'string') {
+                    const rect = hostBtn.getBoundingClientRect?.();
+                    dbgLog({event:'click', targetModal: hostBtn.dataset.modal, rect});
+                    openModal(hostBtn.dataset.modal, rect);
+                }
+            } catch {}
+        }, true);
+        // already wired above
+
+        // Live countdown modal
+        document.getElementById('icon-live')?.addEventListener('click', () => openModal('live-modal'));
+        function updateCountdown(){
+            const now = new Date();
+            const nextHour = new Date(now);
+            nextHour.setMinutes(0,0,0);
+            if (now.getMinutes() !== 0 || now.getSeconds() !== 0) nextHour.setHours(nextHour.getHours()+1);
+            const diff = Math.max(0, nextHour - now);
+            const m = String(Math.floor(diff/60000)).padStart(2,'0');
+            const s = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
+            const el = document.getElementById('live-countdown'); if (el) el.textContent = `Starting in: ${m}:${s}`;
+        }
+        setInterval(updateCountdown, 1000); updateCountdown();
+        document.getElementById('start-live-now')?.addEventListener('click', ()=>{ closeById('live-modal'); window.lessonPlayer?.startUniversalLesson(); });
+
+        // Master menu toggle
+        document.getElementById('master-trigger')?.addEventListener('click', () => {
+            document.querySelector('.master-flyout-container')?.classList.toggle('active');
+        });
+
+        // Controls modal actions
+        document.getElementById('prev-btn')?.addEventListener('click', ()=> window.lessonPlayer?.previousPhase());
+        document.getElementById('next-btn')?.addEventListener('click', ()=> window.lessonPlayer?.nextPhase());
+        document.getElementById('restart-btn')?.addEventListener('click', ()=> window.lessonPlayer?.restartLesson());
+        document.getElementById('run-evals')?.addEventListener('click', async ()=>{
+            // Modal summary container
+            const modal = document.getElementById('controls-modal');
+            const summaryDiv = document.createElement('div');
+            summaryDiv.style.marginTop = '12px';
+            summaryDiv.style.fontSize = '13px';
+            summaryDiv.textContent = 'Running evals…';
+            modal?.querySelector('.modal-card')?.appendChild(summaryDiv);
+
+            const plans = [
+                {day:1, topic:'Sun'},
+                {day:10, topic:'Moon'},
+                {day:24, topic:'Oceans'},
+                {day:0, topic:'Puppies', qp:'puppies'}
+            ];
+            const langs = ['english','spanish','french'];
+            const tones = ['neutral','fun','grandmother'];
+            const ages = ['age_8','age_16','age_25'];
+            const rows = [];
+            for (const p of plans){
+                for (const lang of langs){
+                    for (const tone of tones){
+                        for (const age of ages){
+                            try{
+                                window.lessonPlayer.currentVariant.language = lang;
+                                window.lessonPlayer.currentVariant.tone = tone;
+                                window.lessonPlayer.currentVariant.age = age;
+                                if (p.qp) { const url = new URL(window.location.href); url.searchParams.set('topic', p.qp); history.replaceState({}, '', url); }
+                                await window.lessonPlayer.loadLessonByDay(p.day || window.lessonPlayer.currentDay);
+                                const report = window.lessonPlayer.evaluateCurrentDNA();
+                                const warn = (report.warnings||[]).length;
+                                const abOk = !!report.phases?.beginning?.hasA && !!report.phases?.beginning?.hasB
+                                           && !!report.phases?.middle?.hasA && !!report.phases?.middle?.hasB
+                                           && !!report.phases?.end?.hasA && !!report.phases?.end?.hasB;
+                                rows.push({topic:p.topic, lang, tone, age, warnings: warn, ab: abOk});
+                            }catch(e){ rows.push({topic:p.topic, lang, tone, age, error: true}); }
+                        }
+                    }
+                }
+            }
+            const passed = rows.filter(r=>!r.error && r.warnings===0 && r.ab).length;
+            const total = rows.length;
+            summaryDiv.textContent = `Eval complete: ${passed}/${total} variant checks passed (A/B present and 0 warnings).`;
+            // Download JSON button
+            const dl = document.createElement('button');
+            dl.className = 'pill';
+            dl.textContent = 'Download Eval JSON';
+            dl.onclick = ()=>{
+                const blob = new Blob([JSON.stringify(rows, null, 2)], {type:'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'eval_results.json'; a.click();
+                setTimeout(()=>URL.revokeObjectURL(url), 2000);
+            };
+            summaryDiv.appendChild(document.createElement('br'));
+            summaryDiv.appendChild(dl);
+        });
+
+        // Calendar quick buttons
+        document.getElementById('go-yesterday')?.addEventListener('click', ()=>{
+            const day = (window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1) - 1;
+            if (day>=1) window.lessonPlayer?.loadLessonByDay(day);
+        });
+        // Calendar hover: show lesson title previews when possible
+        window.addEventListener('ml:lesson_loaded', ()=>{
+            try {
+                const grid = document.getElementById('calendar-grid'); if (!grid) return;
+                const buttons = grid.querySelectorAll('.calendar-day');
+                buttons.forEach(btn=>{
+                    const dayNum = Number(btn.textContent);
+                    const monthName = document.getElementById('current-month')?.textContent || 'January';
+                    // Best-effort: map month+day -> dayOfYear using player helper if available
+                    let monthIndex = ['January','February','March','April','May','June','July','August','September','October','November','December'].indexOf(monthName) + 1;
+                    if (monthIndex < 1) monthIndex = new Date().getMonth()+1;
+                    const d = window.lessonPlayer?.getDayOfYear?.(monthIndex, dayNum);
+                    const meta = window.COMPLETE_CURRICULUM?.[d];
+                    if (meta?.title) btn.title = meta.title;
+                });
+            } catch {}
+        });
+
+        // Variant modals wiring
+        document.querySelectorAll('#avatar-options [data-avatar]')?.forEach(el=>el.addEventListener('click', async (e)=>{
+            const v = e.currentTarget.getAttribute('data-avatar');
+            if (v) {
+                window.lessonPlayer?.onAvatarChange(v);
+                closeById('avatar-modal');
+                try {
+                    const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1;
+                    const variant = window.lessonPlayer?.currentVariant || window.__variantPrefs || { age:'age_25', tone:'neutral', language:'english', avatar:v };
+                    variant.avatar = v;
+                    window.__saveVariantPrefs(variant);
+                    const phaseDNA = await window.__mlFetchApiLessonPhases(day, variant);
+                    if (phaseDNA) { window.lessonPlayer.currentDNA = phaseDNA; window.lessonPlayer.startUniversalLesson(); window.__ml_toast?.(`Avatar: ${variant.avatar}`); window.__mlHighlightChange?.(); }
+                } catch {}
+            }
+        }));
+        document.querySelectorAll('#tone-options [data-tone]')?.forEach(el=>el.addEventListener('click', async (e)=>{
+            const v = e.currentTarget.getAttribute('data-tone');
+            if (v) {
+                window.lessonPlayer?.onToneChange(v);
+                closeById('tone-modal');
+                try {
+                    const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1;
+                    const variant = window.lessonPlayer?.currentVariant || window.__variantPrefs || { age:'age_25', tone:v, language:'english', avatar:'kelly' };
+                    variant.tone = v;
+                    window.__saveVariantPrefs(variant);
+                    const phaseDNA = await window.__mlFetchApiLessonPhases(day, variant);
+                    if (phaseDNA) { window.lessonPlayer.currentDNA = phaseDNA; window.lessonPlayer.startUniversalLesson(); window.__ml_toast?.(`Tone: ${variant.tone}`); window.__mlHighlightChange?.(); }
+                } catch {}
+            }
+        }));
+        document.querySelectorAll('#age-options [data-age]')?.forEach(el=>el.addEventListener('click', async (e)=>{
+            const v = e.currentTarget.getAttribute('data-age');
+            if (v) {
+                window.lessonPlayer?.onAgeChange(v);
+                closeById('age-modal');
+                try {
+                    const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1;
+                    const variant = window.lessonPlayer?.currentVariant || window.__variantPrefs || { age:v, tone:'neutral', language:'english', avatar:'kelly' };
+                    variant.age = v;
+                    window.__saveVariantPrefs(variant);
+                    const phaseDNA = await window.__mlFetchApiLessonPhases(day, variant);
+                    if (phaseDNA) { window.lessonPlayer.currentDNA = phaseDNA; window.lessonPlayer.startUniversalLesson(); window.__ml_toast?.(`Age: ${String(variant.age||'').replace('age_','')}`); window.__mlHighlightChange?.(); }
+                } catch {}
+            }
+        }));
+        document.querySelectorAll('#language-options [data-language]')?.forEach(el=>el.addEventListener('click', async (e)=>{
+            const v = e.currentTarget.getAttribute('data-language');
+            if (v) {
+                window.lessonPlayer?.onLanguageChange(v);
+                closeById('language-modal');
+                try {
+                    const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1;
+                    const variant = window.lessonPlayer?.currentVariant || window.__variantPrefs || { age:'age_25', tone:'neutral', language:v, avatar:'kelly' };
+                    variant.language = v;
+                    window.__saveVariantPrefs(variant);
+                    const phaseDNA = await window.__mlFetchApiLessonPhases(day, variant);
+                    if (phaseDNA) { window.lessonPlayer.currentDNA = phaseDNA; window.lessonPlayer.startUniversalLesson(); window.__ml_toast?.(`Lang: ${variant.language}`); window.__mlHighlightChange?.(); }
+                } catch {}
+            }
+        }));
+        // Speed modal wiring
+        document.querySelectorAll('#speed-options .pill')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = parseFloat(e.currentTarget.getAttribute('data-speed')||'1'); window.lessonPlayer?.setSpeed(v);
+        }));
+
+        // Settings: Enhanced Video toggle
+        try {
+            const enhToggle = document.getElementById('toggle-enhanced-video');
+            const refreshEnhLabel = ()=>{ try { if (enhToggle && window.lessonPlayer) enhToggle.textContent = `Enhanced Video: ${window.lessonPlayer.talkingHeadEnabled ? 'On' : 'Off'}`; } catch {} };
+            enhToggle?.addEventListener('click', ()=>{ try { const cur = !!window.lessonPlayer?.talkingHeadEnabled; window.lessonPlayer?.setTalkingHeadEnabled(!cur); refreshEnhLabel(); } catch {} });
+            setInterval(refreshEnhLabel, 1000);
+        } catch {}
+
+        // Settings: Live Avatar toggle
+        try {
+            const liveToggle = document.getElementById('toggle-live-avatar');
+            const refreshLiveLabel = ()=>{ try { if (liveToggle && window.lessonPlayer) liveToggle.textContent = `Live Avatar: ${window.lessonPlayer.liveAvatarEnabled ? 'On' : 'Off'}`; } catch {} };
+            liveToggle?.addEventListener('click', ()=>{ try { const cur = !!window.lessonPlayer?.liveAvatarEnabled; window.lessonPlayer?.setLiveAvatarEnabled(!cur); refreshLiveLabel(); } catch {} });
+            // If ?useHeygen=1 is present, auto-enable live rig so the phoneme test is visible
+            try { const qp = new URLSearchParams(location.search); if (qp.get('useHeygen')==='1') { window.lessonPlayer?.setLiveAvatarEnabled?.(true); refreshLiveLabel(); } } catch{}
+            setInterval(refreshLiveLabel, 1000);
+        } catch {}
+
+        // Settings: Full-frame visemes toggle
+        try {
+            const ffToggle = document.getElementById('toggle-fullframe-visemes');
+            const refreshFF = ()=>{ try { if (ffToggle && window.lessonPlayer) ffToggle.textContent = `Full-Frame Visemes: ${window.lessonPlayer.fullFrameVisemesEnabled ? 'On' : 'Off'}`; } catch {} };
+            ffToggle?.addEventListener('click', ()=>{ try { const cur = !!window.lessonPlayer?.fullFrameVisemesEnabled; window.lessonPlayer?.setFullFrameVisemesEnabled(!cur); refreshFF(); } catch {} });
+            setInterval(refreshFF, 1000);
+            // Auto-enable via URL ?fullframe=1
+            try { const qp = new URLSearchParams(location.search); if (qp.get('fullframe')==='1') { window.lessonPlayer?.setFullFrameVisemesEnabled?.(true); refreshFF(); } } catch{}
+        } catch {}
+
+        // Phoneme clip selector (opens modal and lists clips from /phoneme_data/clips.json)
+        try {
+            const btn = document.getElementById('choose-phoneme-clip');
+            btn?.addEventListener('click', ()=> openModal('phoneme-clip-modal'));
+            async function refreshClips(){
+                const host = document.getElementById('phoneme-clip-list'); if (!host) return;
+                let clips = { 
+                    "kelly2_first60": { label: 'Kelly • first 60s', audioUrl: '/phoneme_data/audio/kelly2_first60.wav' },
+                    "ken2_first60": { label: 'Ken • first 60s', audioUrl: '/phoneme_data/audio/ken2_first60.wav' }
+                };
+                try { const r = await fetch('/phoneme_data/clips.json', { cache:'no-cache' }); if (r.ok) clips = await r.json(); } catch{}
+                const cur = (localStorage.getItem('phoneme_test_clip')||'').toLowerCase();
+                host.innerHTML = Object.entries(clips).map(([id,info])=>`<button class="pill" data-clip="${id}" title="${info.audioUrl||''}" style="${id===cur?'background:#007AFF;color:#fff;':''}">${info.label||id}</button>`).join('');
+                host.querySelectorAll('button[data-clip]')?.forEach(el=> el.addEventListener('click', async (e)=>{
+                    const id = e.currentTarget.getAttribute('data-clip');
+                    try { localStorage.setItem('phoneme_test_clip', id); window.__phonemeTestClip = id; } catch{}
+                    try { await window.unifiedControls?.tryPhonemeTest?.(); } catch{}
+                    closeById('phoneme-clip-modal');
+                    window.__ml_toast?.(`Phoneme clip set: ${id}`);
+                }));
+            }
+            setTimeout(refreshClips, 250);
+        } catch{}
+
+        // Language availability: disable unsupported options per current lesson DNA
+        function refreshLanguageAvailability(){
+            try {
+                const langPills = document.querySelectorAll('#language-options .pill');
+                const day = window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay;
+                const available = new Set(['english']);
+                // Detect availability from current DNA filenames heuristic
+                const currentDNA = window.lessonPlayer?.currentDNA;
+                if (currentDNA?.metadata?.version === 'phase_v1') {
+                    // Assume current language is available; also infer likely siblings for demo lessons
+                    available.add(window.lessonPlayer?.currentVariant?.language || 'english');
+                    // If lessonId matches our authored demos, all three are supported
+                    const lid = currentDNA?.metadata?.lessonId || '';
+                    if (['the-sun','the-moon','earths-magnificent-oceans','puppies'].includes(lid)) {
+                        available.add('spanish'); available.add('french');
+                    }
+                }
+                langPills.forEach(p=>{
+                    const lang = p.getAttribute('data-language');
+                    const supported = available.has(lang);
+                    p.style.opacity = supported ? '1' : '0.45';
+                    p.style.pointerEvents = supported ? 'auto' : 'none';
+                    if (!supported) p.title = 'Not available for this lesson yet';
+                });
+            } catch {}
+        }
+        window.addEventListener('ml:lesson_loaded', refreshLanguageAvailability);
+        setTimeout(refreshLanguageAvailability, 1000);
+
+        // Variant badges updater
+        function updateBadges(){
+            const el = document.getElementById('variant-badges');
+            if (!el || !window.lessonPlayer) return;
+            const v = window.lessonPlayer.currentVariant;
+            el.innerHTML = `<span class="pill">Avatar: ${v.avatar}</span> <span class="pill">Tone: ${v.tone}</span> <span class="pill">Lang: ${v.language}</span> <span class="pill">Age: ${v.age}</span>`;
+        }
+        setInterval(updateBadges, 1000); updateBadges();
+        document.getElementById('go-today')?.addEventListener('click', ()=>{
+            const day = window.lessonPlayer?.currentDay || 1; window.lessonPlayer?.loadLessonByDay(day);
+        });
+        document.getElementById('go-tomorrow')?.addEventListener('click', ()=>{
+            const day = (window.lessonPlayer?.selectedDay || window.lessonPlayer?.currentDay || 1) + 1;
+            if (day<=366) window.lessonPlayer?.loadLessonByDay(day);
+        });
+
+        // Inspector toggles
+        const toggleInspector = id => document.getElementById(id)?.classList.toggle('visible');
+        document.getElementById('inspector-state-toggle')?.addEventListener('click', () => toggleInspector('state-inspector'));
+        document.getElementById('inspector-content-toggle')?.addEventListener('click', () => toggleInspector('content-inspector'));
+        document.getElementById('inspector-code-toggle')?.addEventListener('click', () => toggleInspector('code-inspector'));
+        document.querySelectorAll('.inspector-close-btn').forEach(btn => btn.addEventListener('click', (e)=>{
+            const id = e.currentTarget.dataset.inspector; closeById(id);
+        }));
+
+        // Modal close buttons
+        document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', (e)=>{
+            const id = e.currentTarget.dataset.close; closeById(id);
+        }));
+
+        // Find modal: search curriculum titles
+        const findInput = document.getElementById('find-input');
+        const findResults = document.getElementById('find-results');
+        async function ensureIndex(){
+            if (window.__ml_index) return window.__ml_index;
+            const months = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+            const topics = [];
+            await Promise.all(months.map(async m=>{ try{ const r=await fetch(`/data/${m}_curriculum.json`); if(r.ok){ const j=await r.json(); j.days?.forEach(d=>topics.push({m: j.month||m, day:d.day, title:d.title})); } }catch{} }));
+            window.__ml_index = topics; return topics;
+        }
+        findInput?.addEventListener('input', async (e)=>{
+            const q = e.currentTarget.value.trim().toLowerCase();
+            const idx = await ensureIndex();
+            const matches = q ? idx.filter(t=>t.title.toLowerCase().includes(q)).slice(0,20) : [];
+            if (!findResults) return;
+            findResults.innerHTML = matches.map(m=>`<div class="result-item" data-day="${m.day}">${m.title}<div style="font-size:12px;opacity:0.7;">${m.m} ${m.day}</div></div>`).join('');
+            findResults.querySelectorAll('.result-item').forEach(el=> el.addEventListener('click',()=>{
+                const day = Number(el.getAttribute('data-day')); closeById('find-modal'); window.lessonPlayer?.loadLessonByDay(day);
+            }));
+        });
+    });
+    </script>
+</body>
+</html>

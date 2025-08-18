@@ -1,18 +1,7 @@
 name = "ilearnhow"
 compatibility_date = "2024-08-01"
 compatibility_flags = ["nodejs_compat"]
-
-[site]
-bucket = "./production-deploy"
-entry-point = "workers-site"
-
-[build]
-command = "echo 'No build required - static files only'"
-publish = "production-deploy"
+pages_build_output_dir = "."
 
 [env.production]
-name = "ilearnhow.com"
-route = "ilearnhow.com/*"
-
-[env.production.site]
-bucket = "./production-deploy"
+name = "ilearnhow"

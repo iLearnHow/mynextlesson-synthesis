@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "created": "2025-08-16",
+  "status": "foundation_ready",
+  "models": {
+    "ken": {
+      "training_data": {
+        "files": 25,
+        "total_minutes": 30,
+        "format": "wav",
+        "sample_rate": 22050
+      },
+      "model_type": "xtts_v2",
+      "status": "needs_training"
+    },
+    "kelly": {
+      "training_data": {
+        "files": 24,
+        "total_minutes": 30,
+        "format": "wav",
+        "sample_rate": 22050
+      },
+      "model_type": "xtts_v2",
+      "status": "needs_training"
+    }
+  },
+  "pre_recorded_samples": {
+    "ken": {
+      "available": [
+        "welcome",
+        "questions",
+        "feedback"
+      ],
+      "path": "/production-deploy/examples/*/en/*/fun/ken/"
+    },
+    "kelly": {
+      "available": [
+        "welcome",
+        "questions",
+        "feedback"
+      ],
+      "path": "/production-deploy/examples/*/en/*/fun/kelly/"
+    }
+  }
+}

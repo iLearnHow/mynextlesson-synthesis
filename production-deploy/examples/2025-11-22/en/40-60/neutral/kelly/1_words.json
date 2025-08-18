@@ -1,0 +1,179 @@
+{
+  "words": [
+    {
+      "w": "Two",
+      "start_ms": 0,
+      "end_ms": 334
+    },
+    {
+      "w": "keys.",
+      "start_ms": 334,
+      "end_ms": 786
+    },
+    {
+      "w": "One",
+      "start_ms": 786,
+      "end_ms": 1120
+    },
+    {
+      "w": "is",
+      "start_ms": 1120,
+      "end_ms": 1336
+    },
+    {
+      "w": "public,",
+      "start_ms": 1336,
+      "end_ms": 2025
+    },
+    {
+      "w": "one",
+      "start_ms": 2025,
+      "end_ms": 2359
+    },
+    {
+      "w": "is",
+      "start_ms": 2359,
+      "end_ms": 2575
+    },
+    {
+      "w": "private.",
+      "start_ms": 2575,
+      "end_ms": 3382
+    },
+    {
+      "w": "Public",
+      "start_ms": 3382,
+      "end_ms": 4071
+    },
+    {
+      "w": "locks;",
+      "start_ms": 4071,
+      "end_ms": 4641
+    },
+    {
+      "w": "private",
+      "start_ms": 4641,
+      "end_ms": 5448
+    },
+    {
+      "w": "unlocks.",
+      "start_ms": 5448,
+      "end_ms": 6255
+    },
+    {
+      "w": "Share",
+      "start_ms": 6720,
+      "end_ms": 7172
+    },
+    {
+      "w": "your",
+      "start_ms": 7172,
+      "end_ms": 7530
+    },
+    {
+      "w": "public",
+      "start_ms": 7530,
+      "end_ms": 8077
+    },
+    {
+      "w": "key",
+      "start_ms": 8077,
+      "end_ms": 8340
+    },
+    {
+      "w": "freely.",
+      "start_ms": 8340,
+      "end_ms": 8887
+    },
+    {
+      "w": "Guard",
+      "start_ms": 8887,
+      "end_ms": 9339
+    },
+    {
+      "w": "your",
+      "start_ms": 9339,
+      "end_ms": 9697
+    },
+    {
+      "w": "private",
+      "start_ms": 9697,
+      "end_ms": 10339
+    },
+    {
+      "w": "key",
+      "start_ms": 10339,
+      "end_ms": 10602
+    },
+    {
+      "w": "like",
+      "start_ms": 10602,
+      "end_ms": 10960
+    },
+    {
+      "w": "your",
+      "start_ms": 10960,
+      "end_ms": 11318
+    },
+    {
+      "w": "passport",
+      "start_ms": 11318,
+      "end_ms": 12054
+    },
+    {
+      "w": "and",
+      "start_ms": 12054,
+      "end_ms": 12317
+    },
+    {
+      "w": "face",
+      "start_ms": 12317,
+      "end_ms": 12675
+    },
+    {
+      "w": "combined.",
+      "start_ms": 12675,
+      "end_ms": 13411
+    },
+    {
+      "w": "Together,",
+      "start_ms": 13940,
+      "end_ms": 14816
+    },
+    {
+      "w": "they",
+      "start_ms": 14816,
+      "end_ms": 15244
+    },
+    {
+      "w": "enable",
+      "start_ms": 15244,
+      "end_ms": 15896
+    },
+    {
+      "w": "encrypted",
+      "start_ms": 15896,
+      "end_ms": 16884
+    },
+    {
+      "w": "messages",
+      "start_ms": 16884,
+      "end_ms": 17760
+    },
+    {
+      "w": "and",
+      "start_ms": 17760,
+      "end_ms": 18076
+    },
+    {
+      "w": "verifiable",
+      "start_ms": 18076,
+      "end_ms": 19176
+    },
+    {
+      "w": "signatures.",
+      "start_ms": 19176,
+      "end_ms": 20276
+    }
+  ]
+}

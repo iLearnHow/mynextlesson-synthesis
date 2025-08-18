@@ -1,0 +1,7 @@
+tunnel: ilearnhow-tts
+credentials-file: /Users/nicolette/.cloudflared/a733d5d4-c154-4a96-b631-6575e13447a8.json
+protocol: http2
+ingress:
+  - hostname: api.ilearnhow.com
+    service: http://localhost:5002
+  - service: http_status:404
