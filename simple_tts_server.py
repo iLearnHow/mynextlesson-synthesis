@@ -116,14 +116,13 @@ def tts():
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
+# Import numpy and io at module level
+import numpy as np
+import io
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5002))
     print(f"Starting simple Ken & Kelly TTS server on port {port}")
     print("This is a temporary server while we fix the main TTS system")
-    
-    # Import numpy here to avoid startup delays
-    global np, io
-    import numpy as np
-    import io
     
     app.run(host="0.0.0.0", port=port, debug=False)
