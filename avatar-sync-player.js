@@ -60,10 +60,8 @@ class AvatarSyncPlayer {
             return window.unifiedTTS.baseUrl;
         }
         
-        // Prefer Railway in production, localhost in dev
-        return isProduction 
-            ? 'https://tts-server-production-61b7.up.railway.app'
-            : 'http://localhost:5002';
+        // Always prefer Railway server (our new production TTS)
+        return 'https://tts-server-production-61b7.up.railway.app';
     }
     
     async getTTSWithPhonemes(text, speaker) {
@@ -71,11 +69,25 @@ class AvatarSyncPlayer {
         const candidates = [];
         const unique = new Set();
         const push = (u)=>{ if (u && !unique.has(u)) { unique.add(u); candidates.push(u); } };
-        push(this.ttsUrl);
-        push(window.unifiedTTS?.baseUrl);
+        
+        // Priority 1: Query param override
+        const qp = new URLSearchParams(window.location.search);
+        const ttsOverride = qp.get('tts');
+        if (ttsOverride) push(ttsOverride);
+        
+        // Priority 2: Production Railway server (our new TTS)
         push('https://tts-server-production-61b7.up.railway.app');
-        push('https://tts.ilearnhow.com');
-        push('http://localhost:5002');
+        
+        // Priority 3: Current TTS URL
+        push(this.ttsUrl);
+        
+        // Priority 4: Unified TTS base
+        push(window.unifiedTTS?.baseUrl);
+        
+        // Priority 5: Fallback to localhost for development
+        if (window.location.hostname === 'localhost') {
+            push('http://localhost:5002');
+        }
         
         let lastError = null;
         for (const base of candidates) {
@@ -90,7 +102,8 @@ class AvatarSyncPlayer {
                     })
                 });
                 if (!response.ok) {
-                    lastError = new Error(`TTS request failed: ${response.status}`);
+                    lastError = new Error(`TTS request failed: ${response.status} from ${base}`);
+                    console.warn(`⚠️ TTS endpoint ${base} failed: ${response.status}`);
                     continue;
                 }
                 const data = await response.json();
@@ -104,6 +117,9 @@ class AvatarSyncPlayer {
                 const audioBlob = new Blob([audioArray], { type: mimeType });
                 // Remember working endpoint
                 this.ttsUrl = base;
+                console.log(`✅ TTS working from: ${base}`);
+                console.log(`📊 Got ${(data.phonemes || []).length} phonemes, duration: ${data.duration || 0}s`);
+                
                 return {
                     audio: audioBlob,
                     phonemes: data.phonemes || [],
