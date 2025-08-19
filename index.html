@@ -808,6 +808,17 @@
         document.querySelectorAll('#avatar-options [data-avatar]')?.forEach(el=>el.addEventListener('click', (e)=>{
             const v = e.currentTarget.getAttribute('data-avatar'); if (v) { window.lessonPlayer?.onAvatarChange(v); closeById('avatar-modal'); }
         }));
+        
+        // Also wire up flyout menu avatar buttons
+        document.querySelectorAll('#avatar-controls [data-avatar]')?.forEach(el=>el.addEventListener('click', (e)=>{
+            const v = e.currentTarget.getAttribute('data-avatar'); 
+            if (v && window.lessonPlayer) { 
+                window.lessonPlayer.onAvatarChange(v); 
+                // Update visual state of buttons
+                document.querySelectorAll('#avatar-controls .flyout-btn').forEach(btn => btn.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+            }
+        }));
         document.querySelectorAll('#tone-options [data-tone]')?.forEach(el=>el.addEventListener('click', (e)=>{
             const v = e.currentTarget.getAttribute('data-tone'); if (v) { window.lessonPlayer?.onToneChange(v); closeById('tone-modal'); }
         }));
