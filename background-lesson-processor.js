@@ -36,6 +36,10 @@ class BackgroundLessonProcessor {
             saveEvery: 10 // Save progress every 10 lessons
         };
         
+        // Age and tone configurations (10 ages × 3 tones = 30 variants per lesson)
+        this.ages = ['age_2', 'age_5', 'age_8', 'age_12', 'age_16', 'age_25', 'age_40', 'age_60', 'age_80', 'age_102'];
+        this.tones = ['grandmother', 'fun', 'neutral'];
+        
         // Initialize variant generator
         this.variantGenerator = null;
         this.completeLessonGenerator = null;
@@ -173,21 +177,16 @@ class BackgroundLessonProcessor {
             variants: {}
         };
         
-        // Generate variants for each age group and tone combination
-        const ageGroups = ['early_childhood', 'youth', 'young_adult'];
-        const tones = ['grandmother', 'fun', 'neutral'];
-        
-        for (const age of ageGroups) {
+        // Generate variants for all 10 ages × 3 tones = 30 variants
+        for (const age of this.ages) {
             script.variants[age] = {};
             
-            for (const tone of tones) {
+            for (const tone of this.tones) {
                 try {
                     console.log(`  → Generating ${age}/${tone} variant...`);
                     
-                    const variantKey = `${age}_${tone}`;
                     const preferences = {
-                        age: age === 'early_childhood' ? 'age_5' : 
-                             age === 'youth' ? 'age_10' : 'age_25',
+                        age: age,
                         tone: tone,
                         language: 'english',
                         avatar: tone === 'fun' ? 'ken' : 'kelly'
@@ -208,7 +207,7 @@ class BackgroundLessonProcessor {
                     };
                     
                     // Add a small delay to avoid rate limiting
-                    await this.delay(500);
+                    await this.delay(200); // Reduced delay since we have more variants
                     
                 } catch (error) {
                     console.error(`  ❌ Failed to generate ${age}/${tone}:`, error.message);
@@ -227,25 +226,80 @@ class BackgroundLessonProcessor {
      * Generate introduction based on lesson data
      */
     generateIntroduction(lesson, age, tone) {
+        const ageGroup = this.getAgeGroup(age);
         const introTemplates = {
+            toddler: {
+                grandmother: `Hello my sweet little one! Grandma Kelly has something very special to show you about ${lesson.title}. Come here, let's explore together!`,
+                fun: `Hi hi hi! It's Ken! We're going to play and learn about ${lesson.title}! So much fun! Let's go!`,
+                neutral: `Hello! Today we learn about ${lesson.title}. Let's start.`
+            },
             early_childhood: {
-                grandmother: `Hello my dear little one! Today, Grandma Kelly wants to share something wonderful with you about ${lesson.title}. Come sit with me and let's explore together!`,
+                grandmother: `Hello my dear! Today, Grandma Kelly wants to share something wonderful with you about ${lesson.title}. Come sit with me and let's explore together!`,
                 fun: `Hey there, super learner! Ken here, and I've got the most AMAZING adventure for you today! We're going to discover all about ${lesson.title}! Are you ready? Let's GO!`,
                 neutral: `Hello! Welcome to today's lesson. We're going to learn about ${lesson.title}. Let's begin our learning journey together.`
             },
-            youth: {
+            school_age: {
                 grandmother: `Hello my wonderful student! Grandma Kelly is here to guide you through an exciting lesson about ${lesson.title}. I know you're going to love what we discover today!`,
                 fun: `What's up, awesome learner! Ken here with an EPIC lesson about ${lesson.title}! This is going to blow your mind - let's dive in!`,
-                neutral: `Welcome to today's lesson. We'll be exploring ${lesson.title}. This topic will help you understand ${lesson.learning_objective}.`
+                neutral: `Welcome to today's lesson. We'll be exploring ${lesson.title}. This topic will help you understand important concepts.`
+            },
+            preteen: {
+                grandmother: `Hello dear! I'm Kelly, and I'm excited to explore ${lesson.title} with you today. I think you'll find this really interesting!`,
+                fun: `Yo! Ken here with something super cool - we're diving into ${lesson.title}! This is going to be awesome, trust me!`,
+                neutral: `Welcome. Today we're examining ${lesson.title}. This lesson will help expand your understanding.`
+            },
+            teen: {
+                grandmother: `Hello! I'm Kelly, and today we're going to explore ${lesson.title} together. I think you'll find some really valuable insights here.`,
+                fun: `Hey! Ken here, and we've got an incredible topic today - ${lesson.title}! This is the kind of stuff that really matters. Let's get into it!`,
+                neutral: `Welcome to today's lesson on ${lesson.title}. We'll be developing critical understanding of this topic.`
             },
             young_adult: {
-                grandmother: `Welcome, dear learner. I'm Kelly, and I'm delighted to share my knowledge about ${lesson.title} with you today. Let's explore this fascinating topic together.`,
+                grandmother: `Welcome! I'm Kelly, and I'm delighted to share my knowledge about ${lesson.title} with you today. Let's explore this fascinating topic together.`,
                 fun: `Hey there, knowledge seeker! Ken here, ready to take you on an incredible journey through ${lesson.title}! Trust me, this is going to be fascinating!`,
-                neutral: `Welcome. Today's lesson focuses on ${lesson.title}. Our objective is to ${lesson.learning_objective}. Let's begin.`
+                neutral: `Welcome. Today's lesson focuses on ${lesson.title}. Our objective is to develop deep understanding. Let's begin.`
+            },
+            adult: {
+                grandmother: `Welcome! I'm Kelly, and today we'll be exploring ${lesson.title}. I've found this topic particularly meaningful in my own life.`,
+                fun: `Hey! Ken here with ${lesson.title}. This is one of those topics that can really make a difference in how we see things. Let's explore!`,
+                neutral: `Welcome to our lesson on ${lesson.title}. We'll examine key concepts and their practical applications.`
+            },
+            mature_adult: {
+                grandmother: `Welcome, friend. I'm Kelly, and I'm honored to share insights about ${lesson.title} with you today. Let's discover together.`,
+                fun: `Hello! Ken here, excited to dive into ${lesson.title} with you. Life experience makes this topic even more meaningful!`,
+                neutral: `Welcome. Today we explore ${lesson.title}, examining its deeper implications and connections.`
+            },
+            elder: {
+                grandmother: `Welcome, dear friend. I'm Kelly, and it's my pleasure to explore ${lesson.title} with you. Our years of experience bring special perspective to this.`,
+                fun: `Hello my friend! Ken here, and we're looking at ${lesson.title} today. Isn't it wonderful how learning never stops?`,
+                neutral: `Welcome. We'll be reflecting on ${lesson.title} today, considering its significance and wisdom.`
+            },
+            centenarian: {
+                grandmother: `Welcome, cherished friend. I'm Kelly, and together we'll contemplate ${lesson.title}. What a joy to share in lifelong learning!`,
+                fun: `Hello, wonderful soul! Ken here, and we're exploring ${lesson.title}. A century of wisdom makes every lesson special!`,
+                neutral: `Welcome. Today's contemplation focuses on ${lesson.title}. Let us explore its timeless truths.`
             }
         };
         
-        return introTemplates[age]?.[tone] || `Welcome to today's lesson on ${lesson.title}.`;
+        return introTemplates[ageGroup]?.[tone] || `Welcome to today's lesson on ${lesson.title}.`;
+    }
+    
+    /**
+     * Get age group from age identifier
+     */
+    getAgeGroup(age) {
+        const ageMapping = {
+            'age_2': 'toddler',
+            'age_5': 'early_childhood',
+            'age_8': 'school_age',
+            'age_12': 'preteen',
+            'age_16': 'teen',
+            'age_25': 'young_adult',
+            'age_40': 'adult',
+            'age_60': 'mature_adult',
+            'age_80': 'elder',
+            'age_102': 'centenarian'
+        };
+        return ageMapping[age] || 'young_adult';
     }
     
     /**
@@ -279,17 +333,45 @@ class BackgroundLessonProcessor {
      * Generate activities for the lesson
      */
     generateActivities(lesson, age, tone) {
+        const ageGroup = this.getAgeGroup(age);
         const activityTypes = {
+            toddler: ['sensory play', 'simple songs', 'movement', 'touch and feel'],
             early_childhood: ['drawing', 'singing', 'movement', 'storytelling'],
-            youth: ['experiment', 'game', 'creative project', 'discussion'],
-            young_adult: ['analysis', 'debate', 'research', 'application']
+            school_age: ['experiment', 'game', 'creative project', 'hands-on activity'],
+            preteen: ['project', 'discussion', 'creative challenge', 'exploration'],
+            teen: ['debate', 'analysis', 'creative expression', 'peer discussion'],
+            young_adult: ['analysis', 'debate', 'research', 'application'],
+            adult: ['case study', 'practical application', 'discussion', 'reflection'],
+            mature_adult: ['synthesis', 'mentoring activity', 'wisdom sharing', 'application'],
+            elder: ['reflection', 'wisdom sharing', 'gentle activity', 'contemplation'],
+            centenarian: ['contemplation', 'sharing wisdom', 'gentle reflection', 'legacy building']
         };
         
+        const activities = activityTypes[ageGroup] || activityTypes.young_adult;
         return {
-            type: activityTypes[age][Math.floor(Math.random() * activityTypes[age].length)],
+            type: activities[Math.floor(Math.random() * activities.length)],
             description: `An engaging activity to reinforce ${lesson.title}`,
-            duration: age === 'early_childhood' ? '5 minutes' : age === 'youth' ? '10 minutes' : '15 minutes'
+            duration: this.getActivityDuration(age)
         };
+    }
+    
+    /**
+     * Get activity duration based on age
+     */
+    getActivityDuration(age) {
+        const durations = {
+            'age_2': '3 minutes',
+            'age_5': '5 minutes',
+            'age_8': '8 minutes',
+            'age_12': '10 minutes',
+            'age_16': '12 minutes',
+            'age_25': '15 minutes',
+            'age_40': '20 minutes',
+            'age_60': '20 minutes',
+            'age_80': '15 minutes',
+            'age_102': '10 minutes'
+        };
+        return durations[age] || '15 minutes';
     }
     
     /**
@@ -320,10 +402,35 @@ class BackgroundLessonProcessor {
      * Get avatar mood configuration
      */
     getAvatarMood(age, tone) {
+        const ageGroup = this.getAgeGroup(age);
         return {
             avatar: tone === 'fun' ? 'ken' : 'kelly',
-            expression: `${age}_${tone}`,
-            animation: tone === 'fun' ? 'energetic' : tone === 'grandmother' ? 'gentle' : 'professional'
+            expression: `${ageGroup}_${tone}`,
+            animation: tone === 'fun' ? 'energetic' : tone === 'grandmother' ? 'gentle' : 'professional',
+            voiceModulation: this.getVoiceModulation(age, tone)
+        };
+    }
+    
+    /**
+     * Get voice modulation settings
+     */
+    getVoiceModulation(age, tone) {
+        const ageNum = parseInt(age.split('_')[1]);
+        
+        // Adjust speaking rate based on age
+        let rate = 1.0;
+        if (ageNum <= 5) rate = 0.85; // Slower for toddlers
+        else if (ageNum <= 12) rate = 0.95; // Slightly slower for children
+        else if (ageNum >= 80) rate = 0.9; // Slightly slower for elders
+        
+        // Adjust based on tone
+        if (tone === 'fun') rate *= 1.1; // Slightly faster for fun tone
+        if (tone === 'grandmother') rate *= 0.95; // Slightly slower for grandmother tone
+        
+        return {
+            rate,
+            pitch: tone === 'fun' ? 1.1 : 1.0,
+            warmth: tone === 'grandmother' ? 'high' : tone === 'fun' ? 'medium' : 'neutral'
         };
     }
     
@@ -332,11 +439,18 @@ class BackgroundLessonProcessor {
      */
     calculateDuration(age) {
         const durations = {
-            early_childhood: 10,
-            youth: 15,
-            young_adult: 20
+            'age_2': 5,
+            'age_5': 8,
+            'age_8': 12,
+            'age_12': 15,
+            'age_16': 18,
+            'age_25': 20,
+            'age_40': 22,
+            'age_60': 20,
+            'age_80': 18,
+            'age_102': 15
         };
-        return durations[age] || 15;
+        return durations[age] || 20;
     }
     
     /**
@@ -395,7 +509,12 @@ class BackgroundLessonProcessor {
         }
         
         console.log(`📍 Starting from lesson ${startIndex + 1} of ${allLessons.length}`);
-        console.log(`⏰ Estimated time: ${Math.ceil((allLessons.length - startIndex) * (this.config.delayBetweenLessons + 5000) / 60000)} minutes\n`);
+        // With 30 variants per lesson and delays, estimate ~20-30 seconds per lesson
+        const estimatedSecondsPerLesson = 25;
+        const totalSeconds = (allLessons.length - startIndex) * estimatedSecondsPerLesson;
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        console.log(`⏰ Estimated time: ${hours}h ${minutes}m (30 variants per lesson)\n`);
         
         // Process each lesson
         for (let i = startIndex; i < allLessons.length; i++) {

@@ -60,10 +60,13 @@ This background agent processes all 366 lessons from the iLearnHow curriculum on
 
 ### Generated Content
 For each lesson, the processor generates:
-- 9 variants (3 age groups × 3 tones)
+- **30 variants per lesson** (10 ages × 3 tones)
+- Ages: 2, 5, 8, 12, 16, 25, 40, 60, 80, 102 years old
+- Tones: grandmother, fun, neutral
 - Introduction, questions, activities, and conclusion for each variant
-- Voiceover scripts and avatar mood configurations
-- Estimated duration for each age group
+- Voiceover scripts with age-appropriate modulation
+- Avatar mood configurations (Kelly for grandmother/neutral, Ken for fun)
+- Estimated duration customized for each age group
 
 ## 📊 Output Format
 
@@ -76,13 +79,20 @@ Each generated lesson is saved as a JSON file in the `generated-lessons/` direct
   "title": "The Sun - Our Magnificent Life-Giving Star",
   "learningObjective": "...",
   "variants": {
-    "early_childhood": {
+    "age_2": {
       "grandmother": { ... },
       "fun": { ... },
       "neutral": { ... }
     },
-    "youth": { ... },
-    "young_adult": { ... }
+    "age_5": { ... },
+    "age_8": { ... },
+    "age_12": { ... },
+    "age_16": { ... },
+    "age_25": { ... },
+    "age_40": { ... },
+    "age_60": { ... },
+    "age_80": { ... },
+    "age_102": { ... }
   }
 }
 ```
@@ -105,9 +115,10 @@ Press `Ctrl+C` - progress will be saved automatically
 
 ## ⏱️ Time Estimates
 
-- Average processing time per lesson: ~5-7 seconds
-- Total time for 366 lessons: ~30-45 minutes
+- Average processing time per lesson: ~20-30 seconds (30 variants per lesson)
+- Total time for 366 lessons: ~2.5-3 hours
 - The monitor will show real-time ETR (Estimated Time Remaining)
+- Processing includes 10,980 total variants (366 lessons × 30 variants)
 
 ## 🔍 Troubleshooting
 
@@ -153,11 +164,34 @@ Press `Ctrl+C` - progress will be saved automatically
    cat lesson-processing-errors.log
    ```
 
+## 📊 Age Groups and Variants
+
+The processor generates content for 10 distinct age groups:
+
+| Age ID | Age Group | Description |
+|--------|-----------|-------------|
+| age_2 | Toddler | Simple, sensory-focused content |
+| age_5 | Early Childhood | Playful, story-based learning |
+| age_8 | School Age | Hands-on activities and exploration |
+| age_12 | Preteen | Identity-forming, challenging content |
+| age_16 | Teen | Abstract thinking, peer-oriented |
+| age_25 | Young Adult | Practical application focused |
+| age_40 | Adult | Leadership and community oriented |
+| age_60 | Mature Adult | Wisdom consolidation |
+| age_80 | Elder | Philosophical integration |
+| age_102 | Centenarian | Transcendent perspective |
+
+Each age group gets 3 tone variants:
+- **Grandmother** (Kelly): Warm, nurturing, patient
+- **Fun** (Ken): Energetic, enthusiastic, playful
+- **Neutral** (Kelly): Clear, educational, professional
+
 ## 💡 Notes
 
 - The processor integrates with your existing variant generator
 - Each lesson is processed with full error handling and retry logic
 - Progress is persistent - you can stop and resume at any time
 - Generated files use a consistent naming convention for easy organization
+- Total output: 10,980 unique lesson variants across all ages and tones
 
 Happy processing! 🎉
