@@ -67,6 +67,9 @@
         .avatar-background { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; transition: background-image 0.5s ease-in-out; background-color: #e0e0e0; }
         .avatar-background.kelly { background-image: url('/production-deploy/assets/avatars/kelly/optimized/base-states/kelly_neutral_default.png'); }
         .avatar-background.ken { background-image: url('/production-deploy/assets/avatars/ken/ken_neutral_default.png'); }
+        /* Support for legacy class names */
+        .avatar-container.kelly-active { background-image: url('/production-deploy/assets/avatars/kelly/optimized/base-states/kelly_neutral_default.png'); }
+        .avatar-container.ken-active { background-image: url('/production-deploy/assets/avatars/ken/ken_neutral_default.png'); }
         .main-content-area, .ui-overlays { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .ui-overlays { z-index: 10; pointer-events: none; }
         .ui-overlays > * { pointer-events: auto; }
@@ -482,7 +485,7 @@
     </script>
 
     <!-- Required containers for the universal player (kept minimal within existing layout) -->
-    <div id="avatar-container" style="position:absolute; inset:0; background-size:cover; background-position:center; z-index:1; display:none;"></div>
+    <div id="avatar-container" class="avatar-background kelly" style="position:absolute; inset:0; background-size:cover; background-position:center; z-index:1;"></div>
     <div id="lesson-content-overlay" style="position:absolute; inset:0; display:none; z-index:12;">
         <div id="lesson-content" class="ios-panel content-note position-centered-moment" style="display:none;">
             <div class="current-phase-label" style="font-weight:700; margin-bottom:6px;"></div>
