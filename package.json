@@ -10,7 +10,13 @@
     "pregen:goldens": "node scripts/generate-phased-from-normalized.js --input data/sun_normalized.json --outbase data/the-sun --lang en --clone-es-fr && node scripts/generate-phased-from-normalized.js --input data/moon_normalized.json --outbase data/the-moon --lang en --clone-es-fr && node scripts/generate-phased-from-normalized.js --input data/ocean_normalized.json --outbase data/earths-magnificent-oceans --lang en --clone-es-fr",
     "pregen:tts-jobs": "node scripts/extract-tts-jobs.js --slugs the-sun,the-moon,earths-magnificent-oceans,puppies --langs en,es,fr --in data --out data/tts_jobs",
     "pregen:all": "npm run pregen:goldens && npm run pregen:tts-jobs",
-    "tasks:generate": "node scripts/generate-lesson-todo.js"
+    "tasks:generate": "node scripts/generate-lesson-todo.js",
+    "agent:start": "node lesson-agent-monitor.js start",
+    "agent:status": "node lesson-agent-monitor.js status",
+    "agent:watch": "node lesson-agent-monitor.js watch",
+    "agent:stop": "node lesson-agent-monitor.js stop",
+    "agent:test": "node test-background-agent.js",
+    "agent:cleanup": "node lesson-agent-monitor.js cleanup"
   },
   "keywords": [
     "education",
