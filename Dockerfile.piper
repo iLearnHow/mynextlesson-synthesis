@@ -1,0 +1,46 @@
+# Lightweight Piper TTS for Railway
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    libgomp1 \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install Piper
+RUN wget https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz \
+    && tar -xzf piper_linux_x86_64.tar.gz \
+    && mv piper /usr/local/bin/ \
+    && chmod +x /usr/local/bin/piper \
+    && rm piper_linux_x86_64.tar.gz
+
+# Download voice models
+RUN mkdir -p /app/models \
+    && cd /app/models \
+    && wget https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx \
+    && wget https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx.json \
+    && wget https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ryan/medium/en_US-ryan-medium.onnx \
+    && wget https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/ryan/medium/en_US-ryan-medium.onnx.json
+
+# Set Piper model path
+ENV PIPER_VOICE_DIR=/app/models
+
+# Install Python dependencies
+COPY requirements-piper.txt .
+RUN pip install --no-cache-dir -r requirements-piper.txt
+
+# Copy server
+COPY railway-piper-server.py .
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PORT=5002
+
+# Expose port
+EXPOSE 5002
+
+# Run server
+CMD ["python", "railway-piper-server.py"]
