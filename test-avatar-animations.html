@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar Animation Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .avatar-test-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .avatar-test-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .avatar-display {
+            width: 100%;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: background-image 0.5s ease-in-out;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .success {
+            color: green;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .status {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        
+        h2 {
+            margin-top: 0;
+            color: #555;
+        }
+        
+        .path-info {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Avatar Animation Test</h1>
+        
+        <div class="avatar-test-grid">
+            <!-- Kelly Test -->
+            <div class="avatar-test-box">
+                <h2>Kelly Avatar</h2>
+                <div id="kelly-avatar" class="avatar-display"></div>
+                <div class="controls">
+                    <button class="btn" onclick="testKellyAnimation('neutral_default')">Test Neutral</button>
+                    <button class="btn" onclick="testKellyAnimation('teaching_explaining')">Test Teaching</button>
+                    <button class="btn" onclick="testKellyAnimation('question_curious')">Test Curious</button>
+                    <button class="btn" onclick="testKellyAnimation('happy_celebrating')">Test Happy</button>
+                    <button class="btn" onclick="testKellyAnimation('concerned_thinking')">Test Concerned</button>
+                </div>
+                <div id="kelly-status" class="status"></div>
+                <div id="kelly-path" class="path-info"></div>
+            </div>
+            
+            <!-- Ken Test -->
+            <div class="avatar-test-box">
+                <h2>Ken Avatar</h2>
+                <div id="ken-avatar" class="avatar-display"></div>
+                <div class="controls">
+                    <button class="btn" onclick="testKenAnimation('neutral_default')">Test Neutral</button>
+                    <button class="btn" onclick="testKenAnimation('teaching_explaining')">Test Teaching</button>
+                    <button class="btn" onclick="testKenAnimation('question_curious')">Test Curious</button>
+                    <button class="btn" onclick="testKenAnimation('happy_celebrating')">Test Happy</button>
+                    <button class="btn" onclick="testKenAnimation('concerned_thinking')">Test Concerned</button>
+                </div>
+                <div id="ken-status" class="status"></div>
+                <div id="ken-path" class="path-info"></div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px; background: white; padding: 20px; border-radius: 12px;">
+            <h2>Image Path Testing</h2>
+            <button class="btn" onclick="testAllPaths()">Test All Image Paths</button>
+            <div id="path-results" class="status" style="margin-top: 15px; max-height: 400px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Log helper
+        function log(avatar, message, isError = false) {
+            const statusEl = document.getElementById(`${avatar}-status`);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = isError ? 'error' : '';
+            statusEl.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            statusEl.scrollTop = statusEl.scrollHeight;
+        }
+
+        // Test Kelly animations
+        function testKellyAnimation(expression) {
+            const avatar = 'kelly';
+            const avatarEl = document.getElementById('kelly-avatar');
+            const pathEl = document.getElementById('kelly-path');
+            
+            log('kelly', `Testing expression: ${expression}`);
+            
+            // Determine image path based on expression
+            let imagePath;
+            switch (expression) {
+                case 'teaching_explaining':
+                case 'question_curious':
+                    imagePath = `/production-deploy/assets/avatars/${avatar}/lesson-sequence/${avatar}_${expression}.png`;
+                    break;
+                case 'concerned_thinking':
+                case 'happy_celebrating':
+                    imagePath = `/production-deploy/assets/avatars/${avatar}/emotional-expressions/${avatar}_${expression}.png`;
+                    break;
+                default:
+                    // Try different paths for default
+                    imagePath = `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+            }
+            
+            pathEl.textContent = `Path: ${imagePath}`;
+            
+            // Test if image loads
+            const img = new Image();
+            img.onload = function() {
+                log('kelly', `✅ Image loaded successfully: ${expression}`);
+                avatarEl.style.backgroundImage = `url('${imagePath}')`;
+            };
+            img.onerror = function() {
+                log('kelly', `❌ Failed to load image: ${imagePath}`, true);
+                // Try alternative paths
+                tryAlternativePaths('kelly', expression, avatarEl);
+            };
+            img.src = imagePath;
+        }
+
+        // Test Ken animations
+        function testKenAnimation(expression) {
+            const avatar = 'ken';
+            const avatarEl = document.getElementById('ken-avatar');
+            const pathEl = document.getElementById('ken-path');
+            
+            log('ken', `Testing expression: ${expression}`);
+            
+            // Determine image path based on expression
+            let imagePath;
+            switch (expression) {
+                case 'teaching_explaining':
+                case 'question_curious':
+                    imagePath = `/production-deploy/assets/avatars/${avatar}/lesson-sequence/${avatar}_${expression}.png`;
+                    break;
+                case 'concerned_thinking':
+                case 'happy_celebrating':
+                    imagePath = `/production-deploy/assets/avatars/${avatar}/emotional-expressions/${avatar}_${expression}.png`;
+                    break;
+                default:
+                    imagePath = `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+            }
+            
+            pathEl.textContent = `Path: ${imagePath}`;
+            
+            // Test if image loads
+            const img = new Image();
+            img.onload = function() {
+                log('ken', `✅ Image loaded successfully: ${expression}`);
+                avatarEl.style.backgroundImage = `url('${imagePath}')`;
+            };
+            img.onerror = function() {
+                log('ken', `❌ Failed to load image: ${imagePath}`, true);
+                // Try alternative paths
+                tryAlternativePaths('ken', expression, avatarEl);
+            };
+            img.src = imagePath;
+        }
+
+        // Try alternative paths
+        function tryAlternativePaths(avatar, expression, avatarEl) {
+            const alternativePaths = [
+                `/production-deploy/assets/avatars/${avatar}/optimized/base-states/${avatar}_${expression}.png`,
+                `/production-deploy/assets/avatars/${avatar}/optimized/emotional-expressions/${avatar}_${expression}.png`,
+                `/production-deploy/assets/avatars/${avatar}/optimized/lesson-sequence/${avatar}_${expression}.png`,
+                `/production-deploy/assets/avatars/${avatar}/2d/${avatar}_${expression}.png`,
+                `/assets/avatars/${avatar}/${avatar}_${expression}.png`,
+                `/${avatar}_${expression}.png`
+            ];
+            
+            log(avatar, `Trying alternative paths...`);
+            
+            alternativePaths.forEach(path => {
+                const img = new Image();
+                img.onload = function() {
+                    log(avatar, `✅ Alternative path worked: ${path}`);
+                    avatarEl.style.backgroundImage = `url('${path}')`;
+                };
+                img.src = path;
+            });
+        }
+
+        // Test all paths
+        async function testAllPaths() {
+            const resultsEl = document.getElementById('path-results');
+            resultsEl.innerHTML = '<div>Testing all avatar paths...</div>';
+            
+            const avatars = ['kelly', 'ken'];
+            const expressions = ['neutral_default', 'teaching_explaining', 'question_curious', 'happy_celebrating', 'concerned_thinking'];
+            const pathTemplates = [
+                '/production-deploy/assets/avatars/{avatar}/{avatar}_{expression}.png',
+                '/production-deploy/assets/avatars/{avatar}/lesson-sequence/{avatar}_{expression}.png',
+                '/production-deploy/assets/avatars/{avatar}/emotional-expressions/{avatar}_{expression}.png',
+                '/production-deploy/assets/avatars/{avatar}/optimized/base-states/{avatar}_{expression}.png',
+                '/production-deploy/assets/avatars/{avatar}/optimized/lesson-sequence/{avatar}_{expression}.png',
+                '/production-deploy/assets/avatars/{avatar}/optimized/emotional-expressions/{avatar}_{expression}.png',
+                '/production-deploy/assets/avatars/{avatar}/2d/{avatar}_{expression}.png'
+            ];
+            
+            for (const avatar of avatars) {
+                resultsEl.innerHTML += `<div style="margin-top: 15px;"><strong>${avatar.toUpperCase()}:</strong></div>`;
+                
+                for (const expression of expressions) {
+                    for (const template of pathTemplates) {
+                        const path = template
+                            .replace(/{avatar}/g, avatar)
+                            .replace(/{expression}/g, expression);
+                        
+                        await testImagePath(path, resultsEl);
+                    }
+                }
+            }
+        }
+
+        // Test individual image path
+        function testImagePath(path, resultsEl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = function() {
+                    resultsEl.innerHTML += `<div style="color: green;">✅ ${path}</div>`;
+                    resolve();
+                };
+                img.onerror = function() {
+                    resultsEl.innerHTML += `<div style="color: red;">❌ ${path}</div>`;
+                    resolve();
+                };
+                img.src = path;
+            });
+        }
+
+        // Initialize with default avatars
+        window.onload = function() {
+            testKellyAnimation('neutral_default');
+            testKenAnimation('neutral_default');
+        };
+    </script>
+</body>
+</html>

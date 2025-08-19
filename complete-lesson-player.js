@@ -1516,11 +1516,9 @@ class UniversalLessonPlayer {
      * Update avatar
      */
     updateAvatar(avatar, expression) {
+        // Update both avatar-container and avatar-background
         const avatarContainer = document.getElementById('avatar-container');
-        if (!avatarContainer) return;
-        
-        // Update avatar container class
-        avatarContainer.className = `avatar-container ${avatar}-active`;
+        const avatarBackground = document.getElementById('avatar-background');
         
         // Map expressions to correct image paths
         let imagePath;
@@ -1534,10 +1532,26 @@ class UniversalLessonPlayer {
                 imagePath = `/production-deploy/assets/avatars/${avatar}/emotional-expressions/${avatar}_${expression}.png`;
                 break;
             default:
-                imagePath = `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+                // Use the correct default path based on avatar
+                if (avatar === 'kelly') {
+                    imagePath = `/production-deploy/assets/avatars/kelly/optimized/base-states/kelly_neutral_default.png`;
+                } else {
+                    imagePath = `/production-deploy/assets/avatars/${avatar}/${avatar}_neutral_default.png`;
+                }
         }
         
-        avatarContainer.style.backgroundImage = `url('${imagePath}')`;
+        // Update avatar-container if it exists
+        if (avatarContainer) {
+            avatarContainer.className = `avatar-container ${avatar}-active`;
+            avatarContainer.style.backgroundImage = `url('${imagePath}')`;
+        }
+        
+        // Update avatar-background (main visible avatar in index.html)
+        if (avatarBackground) {
+            // Remove existing avatar classes and add the new one
+            avatarBackground.className = `avatar-background ${avatar}`;
+            avatarBackground.style.backgroundImage = `url('${imagePath}')`;
+        }
         
         console.log(`🎭 Avatar updated: ${avatar} with expression: ${expression} using path: ${imagePath}`);
     }
