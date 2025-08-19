@@ -195,15 +195,13 @@ class BackgroundLessonProcessor {
                     // Generate content using the variant generator
                     const content = await this.variantGenerator.generatePersonalizedContent(preferences);
                     
-                    // Structure the variant
+                    // Structure the variant - EXACTLY 3 questions, 2 options, 2 teaching moments, 1 wisdom
                     script.variants[age][tone] = {
                         introduction: content.introduction || this.generateIntroduction(lesson, age, tone),
-                        questions: this.generateQuestions(lesson, age, tone),
-                        activities: this.generateActivities(lesson, age, tone),
+                        questions: this.generateQuestions(lesson, age, tone), // EXACTLY 3 questions
+                        wisdom: this.generateWisdom(lesson, age, tone), // EXACTLY 1 wisdom
                         conclusion: content.conclusion || this.generateConclusion(lesson, age, tone),
-                        voiceoverScript: this.generateVoiceoverScript(lesson, age, tone),
-                        avatarMood: this.getAvatarMood(age, tone),
-                        estimatedDuration: this.calculateDuration(age)
+                        avatar: tone === 'fun' ? 'ken' : 'kelly'
                     };
                     
                     // Add a small delay to avoid rate limiting
@@ -303,76 +301,132 @@ class BackgroundLessonProcessor {
     }
     
     /**
-     * Generate questions for the lesson
+     * Generate EXACTLY 3 questions with EXACTLY 2 options and 2 teaching moments each
      */
     generateQuestions(lesson, age, tone) {
-        // This would be enhanced with actual question generation logic
+        const ageGroup = this.getAgeGroup(age);
+        
+        // Return EXACTLY 3 questions, each with EXACTLY 2 options and 2 teaching moments
         return [
             {
-                question: `What do you think is the most important thing about ${lesson.title}?`,
-                options: ['Option A', 'Option B', 'Option C'],
+                question: this.getQuestion1(lesson, age),
+                options: ['Option A', 'Option B'], // EXACTLY 2 options
                 correctAnswer: 0,
-                explanation: 'This helps us understand the core concept.'
+                teachingMoments: {
+                    option_a: `Correct! This shows understanding of ${lesson.title}.`,
+                    option_b: `Let's think about this differently. ${lesson.title} teaches us something else.`
+                }
             },
             {
-                question: `How does this relate to ${lesson.learning_objective}?`,
-                options: ['Option A', 'Option B'],
-                correctAnswer: 1,
-                explanation: 'This connects to our learning goal.'
+                question: this.getQuestion2(lesson, age),
+                options: ['Option A', 'Option B'], // EXACTLY 2 options
+                correctAnswer: 0,
+                teachingMoments: {
+                    option_a: `Excellent! You understand how this connects to our learning.`,
+                    option_b: `Good try! Let's explore how this really works.`
+                }
             },
             {
-                question: `What would you do with this knowledge?`,
-                options: ['Apply it', 'Share it', 'Both'],
-                correctAnswer: 2,
-                explanation: 'Knowledge is most powerful when used and shared.'
+                question: this.getQuestion3(lesson, age),
+                options: ['Option A', 'Option B'], // EXACTLY 2 options
+                correctAnswer: 0,
+                teachingMoments: {
+                    option_a: `That's right! You can apply this knowledge in many ways.`,
+                    option_b: `Think about it another way. This knowledge has practical uses.`
+                }
             }
         ];
     }
     
-    /**
-     * Generate activities for the lesson
-     */
-    generateActivities(lesson, age, tone) {
-        const ageGroup = this.getAgeGroup(age);
-        const activityTypes = {
-            toddler: ['sensory play', 'simple songs', 'movement', 'touch and feel'],
-            early_childhood: ['drawing', 'singing', 'movement', 'storytelling'],
-            school_age: ['experiment', 'game', 'creative project', 'hands-on activity'],
-            preteen: ['project', 'discussion', 'creative challenge', 'exploration'],
-            teen: ['debate', 'analysis', 'creative expression', 'peer discussion'],
-            young_adult: ['analysis', 'debate', 'research', 'application'],
-            adult: ['case study', 'practical application', 'discussion', 'reflection'],
-            mature_adult: ['synthesis', 'mentoring activity', 'wisdom sharing', 'application'],
-            elder: ['reflection', 'wisdom sharing', 'gentle activity', 'contemplation'],
-            centenarian: ['contemplation', 'sharing wisdom', 'gentle reflection', 'legacy building']
-        };
-        
-        const activities = activityTypes[ageGroup] || activityTypes.young_adult;
-        return {
-            type: activities[Math.floor(Math.random() * activities.length)],
-            description: `An engaging activity to reinforce ${lesson.title}`,
-            duration: this.getActivityDuration(age)
-        };
+    getQuestion1(lesson, age) {
+        const ageNum = parseInt(age.split('_')[1]);
+        if (ageNum <= 5) return `What is the ${lesson.title.split(' ')[0]}?`;
+        if (ageNum <= 12) return `What makes ${lesson.title} special?`;
+        if (ageNum <= 25) return `How does ${lesson.title} work?`;
+        return `What does ${lesson.title} teach us?`;
+    }
+    
+    getQuestion2(lesson, age) {
+        const ageNum = parseInt(age.split('_')[1]);
+        if (ageNum <= 5) return `When do we see this?`;
+        if (ageNum <= 12) return `Why is this important?`;
+        if (ageNum <= 25) return `How does this affect our world?`;
+        return `What broader connections do you see?`;
+    }
+    
+    getQuestion3(lesson, age) {
+        const ageNum = parseInt(age.split('_')[1]);
+        if (ageNum <= 5) return `What can we do with this?`;
+        if (ageNum <= 12) return `How can we learn more?`;
+        if (ageNum <= 25) return `How can we apply this knowledge?`;
+        return `What wisdom does this offer?`;
     }
     
     /**
-     * Get activity duration based on age
+     * Generate EXACTLY 1 wisdom/fortune
      */
-    getActivityDuration(age) {
-        const durations = {
-            'age_2': '3 minutes',
-            'age_5': '5 minutes',
-            'age_8': '8 minutes',
-            'age_12': '10 minutes',
-            'age_16': '12 minutes',
-            'age_25': '15 minutes',
-            'age_40': '20 minutes',
-            'age_60': '20 minutes',
-            'age_80': '15 minutes',
-            'age_102': '10 minutes'
+    generateWisdom(lesson, age, tone) {
+        const ageGroup = this.getAgeGroup(age);
+        const baseWisdom = `Learning about ${lesson.title} helps us understand our world better.`;
+        
+        // Age-appropriate wisdom
+        const wisdoms = {
+            toddler: {
+                grandmother: `Just like ${lesson.title}, you are special and loved!`,
+                fun: `You're amazing! Keep learning and growing!`,
+                neutral: `You learned something new today. Good job.`
+            },
+            early_childhood: {
+                grandmother: `Remember, dear one, ${lesson.title} shows us how wonderful learning can be!`,
+                fun: `You're a SUPER learner! Keep exploring and discovering!`,
+                neutral: `Understanding ${lesson.title} helps you grow smarter every day.`
+            },
+            school_age: {
+                grandmother: `${lesson.title} teaches us that curiosity leads to amazing discoveries!`,
+                fun: `Your brain is AWESOME! Use what you learned to do amazing things!`,
+                neutral: `Knowledge about ${lesson.title} gives you power to understand more.`
+            },
+            preteen: {
+                grandmother: `Through ${lesson.title}, we see how learning connects us all!`,
+                fun: `You've got the power! Use this knowledge to make a difference!`,
+                neutral: `Understanding ${lesson.title} prepares you for future challenges.`
+            },
+            teen: {
+                grandmother: `${lesson.title} reminds us that knowledge empowers positive change!`,
+                fun: `You're ready to change the world with what you know!`,
+                neutral: `This knowledge equips you to make informed decisions.`
+            },
+            young_adult: {
+                grandmother: `Let ${lesson.title} inspire you to use knowledge for the greater good!`,
+                fun: `Time to put this knowledge into ACTION! You've got this!`,
+                neutral: `Apply this understanding to create positive impact.`
+            },
+            adult: {
+                grandmother: `${lesson.title} shows how continuous learning enriches our lives!`,
+                fun: `Keep that learning fire burning! Knowledge is power!`,
+                neutral: `This understanding enhances your capacity for leadership.`
+            },
+            mature_adult: {
+                grandmother: `Your understanding of ${lesson.title} can guide and inspire others!`,
+                fun: `Share your wisdom! Your experience makes learning even richer!`,
+                neutral: `Your perspective adds depth to this knowledge.`
+            },
+            elder: {
+                grandmother: `${lesson.title} reminds us that wisdom grows with patient observation!`,
+                fun: `Your lifetime of learning is a gift to share!`,
+                neutral: `Your long view enriches understanding of this topic.`
+            },
+            centenarian: {
+                grandmother: `Dear friend, ${lesson.title} shows that wonder never ages!`,
+                fun: `A century of wisdom! You embody lifelong learning!`,
+                neutral: `Your perspective spans generations of understanding.`
+            }
         };
-        return durations[age] || '15 minutes';
+        
+        return wisdoms[ageGroup]?.[tone] || baseWisdom;
     }
+    
+
     
     /**
      * Generate conclusion
@@ -387,71 +441,7 @@ class BackgroundLessonProcessor {
         return conclusions[tone] || `Great work completing the lesson on ${lesson.title}.`;
     }
     
-    /**
-     * Generate voiceover script
-     */
-    generateVoiceoverScript(lesson, age, tone) {
-        return {
-            introduction: `[${tone === 'fun' ? 'ENERGETIC' : tone === 'grandmother' ? 'WARM' : 'CLEAR'}] Introduction to ${lesson.title}`,
-            mainContent: `[EDUCATIONAL] Core content about ${lesson.learning_objective}`,
-            conclusion: `[${tone === 'fun' ? 'CELEBRATORY' : 'ENCOURAGING'}] Wrap up and reinforcement`
-        };
-    }
-    
-    /**
-     * Get avatar mood configuration
-     */
-    getAvatarMood(age, tone) {
-        const ageGroup = this.getAgeGroup(age);
-        return {
-            avatar: tone === 'fun' ? 'ken' : 'kelly',
-            expression: `${ageGroup}_${tone}`,
-            animation: tone === 'fun' ? 'energetic' : tone === 'grandmother' ? 'gentle' : 'professional',
-            voiceModulation: this.getVoiceModulation(age, tone)
-        };
-    }
-    
-    /**
-     * Get voice modulation settings
-     */
-    getVoiceModulation(age, tone) {
-        const ageNum = parseInt(age.split('_')[1]);
-        
-        // Adjust speaking rate based on age
-        let rate = 1.0;
-        if (ageNum <= 5) rate = 0.85; // Slower for toddlers
-        else if (ageNum <= 12) rate = 0.95; // Slightly slower for children
-        else if (ageNum >= 80) rate = 0.9; // Slightly slower for elders
-        
-        // Adjust based on tone
-        if (tone === 'fun') rate *= 1.1; // Slightly faster for fun tone
-        if (tone === 'grandmother') rate *= 0.95; // Slightly slower for grandmother tone
-        
-        return {
-            rate,
-            pitch: tone === 'fun' ? 1.1 : 1.0,
-            warmth: tone === 'grandmother' ? 'high' : tone === 'fun' ? 'medium' : 'neutral'
-        };
-    }
-    
-    /**
-     * Calculate estimated duration
-     */
-    calculateDuration(age) {
-        const durations = {
-            'age_2': 5,
-            'age_5': 8,
-            'age_8': 12,
-            'age_12': 15,
-            'age_16': 18,
-            'age_25': 20,
-            'age_40': 22,
-            'age_60': 20,
-            'age_80': 18,
-            'age_102': 15
-        };
-        return durations[age] || 20;
-    }
+
     
     /**
      * Save generated script to file
