@@ -659,7 +659,7 @@ class UniversalLessonPlayer {
     }
 
     buildContentFromPhaseDNA(phaseDNA){
-        // Reduce 5 phases into current player’s content interface while we migrate UI fully
+        // Reduce 5 phases into current player's content interface while we migrate UI fully
         const getQ = (id) => {
             const p = phaseDNA.phases.find(x=>x.id===id);
             if (!p) return null;
@@ -752,8 +752,8 @@ class UniversalLessonPlayer {
             }
         }
 
-        // Update avatar for current phase
-        this.updateAvatarForPhase(phase);
+        // Update avatar for current phase (use mapped phase identifier)
+        this.updateAvatarForPhase(mappedPhase);
 
         // If PhaseDNA v1, run direct PhaseRunner and return. Do NOT invoke legacy renderer.
         if (this.currentDNA?.metadata?.version === 'phase_v1') {
