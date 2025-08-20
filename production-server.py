@@ -13,10 +13,12 @@ import os
 
 app = Flask(__name__)
 
-# Enable CORS for production
+# Enable CORS for production with Cloudflare Pages support
 CORS(app, origins=[
     "https://ilearnhow.com",
-    "https://*.ilearnhow.com", 
+    "https://*.ilearnhow.com",
+    "https://*.ilearnhow.pages.dev",  # Cloudflare Pages domains
+    "https://d965e938.ilearnhow.pages.dev",  # Your specific domain
     "http://localhost:*",
     "http://127.0.0.1:*"
 ])
@@ -25,6 +27,7 @@ print("🚀 iLearn How TTS Server Starting...")
 print("✅ This is the ONLY server we need")
 print("✅ Returns mock audio with phoneme timing")
 print("✅ Ken & Kelly voices only")
+print("✅ CORS enabled for Cloudflare Pages")
 
 @app.route('/health', methods=['GET'])
 def health():
@@ -33,7 +36,27 @@ def health():
         "status": "healthy",
         "server": "iLearnHow Production TTS",
         "version": "1.0.0",
-        "voices": ["ken", "kelly"]
+        "voices": ["ken", "kelly"],
+        "cors_enabled": True,
+        "cloudflare_pages_support": True
+    })
+
+@app.route('/debug/cors', methods=['GET'])
+def debug_cors():
+    """Debug endpoint to troubleshoot CORS issues"""
+    origin = request.headers.get('Origin', 'No Origin Header')
+    return jsonify({
+        "request_origin": origin,
+        "cors_enabled": True,
+        "cloudflare_pages_support": True,
+        "allowed_origins": [
+            "https://ilearnhow.com",
+            "https://*.ilearnhow.com", 
+            "https://*.ilearnhow.pages.dev",
+            "https://d965e938.ilearnhow.pages.dev"
+        ],
+        "is_cloudflare_pages": 'ilearnhow.pages.dev' in origin,
+        "message": "CORS debug endpoint working"
     })
 
 @app.route('/api/tts', methods=['POST'])
