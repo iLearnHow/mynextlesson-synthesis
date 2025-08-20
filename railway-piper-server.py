@@ -81,7 +81,22 @@ def health():
         "engine": "piper_tts",
         "message": "Piper TTS Server Running",
         "timestamp": int(time.time()),
-        "voices": list(VOICE_MODELS.keys())
+        "voices": list(VOICE_MODELS.keys()),
+        "cors_allowed_origins": get_allowed_origins(),
+        "cors_debug": "Cloudflare Pages domains explicitly allowed"
+    })
+
+@app.route('/debug/cors', methods=['GET'])
+def debug_cors():
+    origin = request.headers.get('Origin', 'No Origin Header')
+    return jsonify({
+        "request_origin": origin,
+        "allowed_origins": get_allowed_origins(),
+        "is_allowed": 'ilearnhow.pages.dev' in origin or origin in get_allowed_origins(),
+        "cors_headers": {
+            "Access-Control-Allow-Origin": request.headers.get('Access-Control-Allow-Origin', 'Not Set'),
+            "Access-Control-Allow-Methods": request.headers.get('Access-Control-Allow-Methods', 'Not Set')
+        }
     })
 
 @app.route('/api/tts', methods=['OPTIONS'])
