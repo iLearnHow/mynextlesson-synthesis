@@ -20,7 +20,7 @@ app = Flask(__name__)
 # Configurable CORS and limits
 ALLOWED_ORIGINS = os.environ.get(
     "ALLOWED_ORIGINS",
-    "https://ilearnhow.com,https://*.ilearnhow.com,http://localhost:3000,http://127.0.0.1:3000,http://localhost:8080,http://127.0.0.1:8080,http://localhost:5000,http://127.0.0.1:5000,file://"
+    "https://ilearnhow.com,https://*.ilearnhow.com,https://*.ilearnhow.pages.dev,http://localhost:3000,http://127.0.0.1:3000,http://localhost:8080,http://127.0.0.1:8080,http://localhost:5000,http://127.0.0.1:5000,file://"
 ).split(",")
 MAX_TTS_TEXT_CHARS = int(os.environ.get("MAX_TTS_TEXT_CHARS", "2000"))
 
@@ -41,8 +41,8 @@ CORS(
 def after_request(response):
     origin = request.headers.get('Origin')
     
-    # Allow all origins for local testing
-    if origin in ALLOWED_ORIGINS or origin in ['http://localhost:8080', 'http://127.0.0.1:8080', 'file://']:
+    # Allow all origins for local testing and Cloudflare Pages
+    if origin in ALLOWED_ORIGINS or origin in ['http://localhost:8080', 'http://127.0.0.1:8080', 'file://'] or 'ilearnhow.pages.dev' in origin:
         response.headers['Access-Control-Allow-Origin'] = origin or '*'
     else:
         # For production, only allow specific origins
