@@ -24,11 +24,22 @@ ALLOWED_ORIGINS = os.environ.get(
 ).split(",")
 MAX_TTS_TEXT_CHARS = int(os.environ.get("MAX_TTS_TEXT_CHARS", "2000"))
 
+# Force CORS to allow Cloudflare Pages domains
+def get_allowed_origins():
+    origins = [o.strip() for o in ALLOWED_ORIGINS if o.strip()]
+    # Explicitly add Cloudflare Pages domains
+    origins.extend([
+        "https://d965e938.ilearnhow.pages.dev",
+        "https://*.ilearnhow.pages.dev",
+        "https://ilearnhow.pages.dev"
+    ])
+    return origins
+
 # Allow CORS and ensure preflight responses include headers
 CORS(
     app,
     resources={r"/*": {
-        "origins": [o.strip() for o in ALLOWED_ORIGINS if o.strip()],
+        "origins": get_allowed_origins(),
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"],
         "max_age": 86400,
@@ -41,9 +52,11 @@ CORS(
 def after_request(response):
     origin = request.headers.get('Origin')
     
-    # Allow all origins for local testing and Cloudflare Pages
-    if origin in ALLOWED_ORIGINS or origin in ['http://localhost:8080', 'http://127.0.0.1:8080', 'file://'] or 'ilearnhow.pages.dev' in origin:
-        response.headers['Access-Control-Allow-Origin'] = origin or '*'
+    # Always allow Cloudflare Pages domains
+    if origin and ('ilearnhow.pages.dev' in origin or origin in get_allowed_origins()):
+        response.headers['Access-Control-Allow-Origin'] = origin
+    elif origin in ['http://localhost:8080', 'http://127.0.0.1:8080', 'file://']:
+        response.headers['Access-Control-Allow-Origin'] = origin
     else:
         # For production, only allow specific origins
         response.headers['Access-Control-Allow-Origin'] = 'https://ilearnhow.com'
