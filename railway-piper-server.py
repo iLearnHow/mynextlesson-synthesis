@@ -267,3 +267,4 @@ if __name__ == '__main__':
     print(f"✅ CORS enabled for ilearnhow.com")
     print("=" * 70)
     app.run(host='0.0.0.0', port=port, debug=False)
+# CORS fix for Cloudflare Pages
