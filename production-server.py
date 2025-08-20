@@ -18,7 +18,8 @@ CORS(app, origins=[
     "https://ilearnhow.com",
     "https://*.ilearnhow.com",
     "https://*.ilearnhow.pages.dev",  # Cloudflare Pages domains
-    "https://d965e938.ilearnhow.pages.dev",  # Your specific domain
+    "https://d965e938.ilearnhow.pages.dev",
+    "https://a03e3ecb.ilearnhow.pages.dev",  # Your specific domain
     "http://localhost:*",
     "http://127.0.0.1:*"
 ])
@@ -53,7 +54,8 @@ def debug_cors():
             "https://ilearnhow.com",
             "https://*.ilearnhow.com", 
             "https://*.ilearnhow.pages.dev",
-            "https://d965e938.ilearnhow.pages.dev"
+            "https://d965e938.ilearnhow.pages.dev",
+    "https://a03e3ecb.ilearnhow.pages.dev"
         ],
         "is_cloudflare_pages": 'ilearnhow.pages.dev' in origin,
         "message": "CORS debug endpoint working"
