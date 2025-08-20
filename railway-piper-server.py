@@ -17,13 +17,41 @@ import struct
 
 app = Flask(__name__)
 
-# Allow CORS from ilearnhow.com
-CORS(app, origins=[
-    "https://ilearnhow.com",
-    "https://*.ilearnhow.com",
-    "http://localhost:*",
-    "http://127.0.0.1:*"
-])
+# Configurable CORS and limits
+ALLOWED_ORIGINS = os.environ.get(
+    "ALLOWED_ORIGINS",
+    "https://ilearnhow.com,https://*.ilearnhow.com,http://localhost:3000,http://127.0.0.1:3000,http://localhost:8080,http://127.0.0.1:8080,http://localhost:5000,http://127.0.0.1:5000,file://"
+).split(",")
+MAX_TTS_TEXT_CHARS = int(os.environ.get("MAX_TTS_TEXT_CHARS", "2000"))
+
+# Allow CORS and ensure preflight responses include headers
+CORS(
+    app,
+    resources={r"/*": {
+        "origins": [o.strip() for o in ALLOWED_ORIGINS if o.strip()],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "max_age": 86400,
+        "supports_credentials": False
+    }}
+)
+
+# Manual CORS headers for additional compatibility
+@app.after_request
+def after_request(response):
+    origin = request.headers.get('Origin')
+    
+    # Allow all origins for local testing
+    if origin in ALLOWED_ORIGINS or origin in ['http://localhost:8080', 'http://127.0.0.1:8080', 'file://']:
+        response.headers['Access-Control-Allow-Origin'] = origin or '*'
+    else:
+        # For production, only allow specific origins
+        response.headers['Access-Control-Allow-Origin'] = 'https://ilearnhow.com'
+    
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    response.headers['Access-Control-Max-Age'] = '86400'
+    return response
 
 # Piper voices mapping
 VOICE_MODELS = {
@@ -34,22 +62,65 @@ VOICE_MODELS = {
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({
+        "server": "iLearnHow Production TTS",
         "status": "healthy",
+        "version": "1.0.0",
         "engine": "piper_tts",
         "message": "Piper TTS Server Running",
-        "timestamp": int(time.time())
+        "timestamp": int(time.time()),
+        "voices": list(VOICE_MODELS.keys())
     })
+
+@app.route('/api/tts', methods=['OPTIONS'])
+def tts_options():
+    # Flask-CORS will attach appropriate headers
+    return ("", 204)
+
 
 @app.route('/api/tts', methods=['POST'])
 def tts():
     try:
-        data = request.json
-        text = data.get('text', 'Hello, this is a test.')
-        speaker = data.get('speaker', 'kelly').lower()
-        include_phonemes = data.get('include_phonemes', True)
+        # Content-Type validation
+        content_type = request.headers.get('Content-Type', '')
+        if 'application/json' not in content_type:
+            return jsonify({
+                "error": "Unsupported Media Type: Content-Type must be application/json"
+            }), 415
+
+        # JSON body parsing
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return jsonify({"error": "Invalid JSON body"}), 400
+
+        # Required fields and constraints
+        text = data.get('text')
+        if not isinstance(text, str) or not text.strip():
+            return jsonify({
+                "error": "Field 'text' is required and must be a non-empty string"
+            }), 422
+        if len(text) > MAX_TTS_TEXT_CHARS:
+            return jsonify({
+                "error": f"Text exceeds maximum allowed length of {MAX_TTS_TEXT_CHARS} characters"
+            }), 413
+
+        speaker = str(data.get('speaker', 'kelly')).lower()
+        if speaker not in VOICE_MODELS:
+            return jsonify({
+                "error": "Unsupported speaker",
+                "allowed": list(VOICE_MODELS.keys())
+            }), 422
+
+        requested_format = str(data.get('format', 'wav')).lower()
+        if requested_format != 'wav':
+            return jsonify({
+                "error": "Unsupported format",
+                "allowed": ["wav"],
+            }), 415
+
+        include_phonemes = bool(data.get('include_phonemes', False))
         
         # Map speaker to Piper voice
-        voice_model = VOICE_MODELS.get(speaker, VOICE_MODELS['kelly'])
+        voice_model = VOICE_MODELS[speaker]
         
         print(f"🎤 Piper TTS: {speaker} ({voice_model}) - '{text[:50]}...'")
         
